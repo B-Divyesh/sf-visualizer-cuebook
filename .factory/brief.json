@@ -8,5 +8,5 @@
   "artifact_class": "pwa-offline",
   "monetization": "one-time",
   "constraints": "Audio stays on device; account for browser audio-clock drift; visual presets use original assets only; beat detection is advisory.",
-  "state": "BUILDING"
+  "state": "BUILT"
 }
