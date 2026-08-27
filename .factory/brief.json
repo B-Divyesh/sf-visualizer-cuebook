@@ -1,0 +1,12 @@
+{
+  "slug": "visualizer-cuebook",
+  "title": "Cuebook",
+  "territory": "games-creative",
+  "user": "Bedroom DJs, VJs, and educators who need to rehearse a music-reactive visual set with reliable cue points, not gamble on a live spectrum visualizer.",
+  "smallest_useful_product": "Offline web cuebook that imports user-owned audio, stores manual time/beat markers, previews a small set of deterministic visual scenes, and exports a cue JSON plus rehearsal video.",
+  "success_measure": "A creator can recreate five marked visual transitions within ±150 ms across two rehearsals of the same track.",
+  "artifact_class": "pwa-offline",
+  "monetization": "one-time",
+  "constraints": "Audio stays on device; account for browser audio-clock drift; visual presets use original assets only; beat detection is advisory.",
+  "state": "BUILDING"
+}
