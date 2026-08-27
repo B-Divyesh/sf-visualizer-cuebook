@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://visualizer-cuebook.sociobot.in/sitemap.xml
