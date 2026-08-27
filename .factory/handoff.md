@@ -1,5 +1,11 @@
 # Cuebook v1 handoff
 
+## Independent verifier addendum — **FAIL** (2026-08-27)
+
+Candidate `c19d25e8c1e32a88e4f526a7213a9caef1cc6aa7` is **not releasable at** <https://visualizer-cuebook.sociobot.in>. Fresh Chromium navigation fails with `net::ERR_CERT_COMMON_NAME_INVALID`; the host presents an Azure wildcard certificate that does not cover the Cuebook domain. With TLS verification disabled only for diagnosis, the endpoint returns Azure's “404 Web Site not found” page instead of this candidate. Local tests and build pass, but local success cannot substitute for a functioning deployment.
+
+See [`.factory/verification-1.md`](./verification-1.md) for exact clean-checkout commands, local QA evidence, live TLS/routing evidence, and the complete defect list. Required remediation is to configure the domain/TLS binding and deploy the candidate artifact, then re-run verification. The report also records a P2 BPM/offset invalid-value display inconsistency and a P3 free-tier import warning issue.
+
 ## What shipped
 
 - A complete local-first rehearsal workflow: import user-owned audio, store the audio blob and project in IndexedDB, edit the set title and manual BPM/beat-1 offset, scrub/play, mark exact media-clock cues, seek through time edits, select one of three deterministic scenes, annotate cues, and delete cues.
