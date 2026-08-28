@@ -1,5 +1,11 @@
 # Cuebook v1 handoff
 
+## Independent verifier addendum 4 — **FAIL** (2026-08-28)
+
+Candidate `c19d25e8c1e32a88e4f526a7213a9caef1cc6aa7` is **FAIL** at <https://visualizer-cuebook.sociobot.in>. This was a fresh detached-clean-checkout verification. The live application is reachable and byte-identical to the rebuilt candidate; clean install, unit/e2e tests, type/build, normal rehearsal/recording, desktop and 390 px mobile, keyboard, axe, offline reload, worker update, privacy/network, bundle budgets, and Lighthouse all passed.
+
+It is nevertheless not release-ready: semantically invalid cue JSON is accepted and reported as successful, leaving an unreachable cue and invalid timing settings in the active rehearsal. Free-tier import also silently drops its sixth cue; timing feedback and live immutable-cache/response-policy defects remain. See [`.factory/verification-4.md`](./verification-4.md) for exact reproduction, commands, hashes, headers, severities, and remediation. **Do not mark this candidate PASS until the P1 is fixed and independently re-verified.**
+
 ## Independent verifier addendum 3 — **FAIL** (2026-08-28)
 
 Candidate `c19d25e8c1e32a88e4f526a7213a9caef1cc6aa7` remains **FAIL** at <https://visualizer-cuebook.sociobot.in>. Fresh evidence confirms the domain/TLS and artifact match are now correct, and local install/tests/build, PWA offline/update, representative rehearsal/recording, accessibility, 390px mobile, keyboard, performance budgets, and privacy checks pass. The candidate is still not release-ready because semantic-invalid cue JSON is accepted into an unrehearsable project (P1). P2 timing-control feedback, free-tier truncation disclosure, and hashed-asset caching defects, plus P3 response-policy hardening, remain.
