@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Cue } from '../src/types';
-import { beatToTime, cueAt, formatTime, parseCueFile, timeToBeat } from '../src/utils';
+import { beatToTime, cueAt, formatTime, parseCueFile, timeToBeat, validateCueFileDuration } from '../src/utils';
 
 describe('timing utilities', () => {
   it('formats cue timestamps at millisecond precision', () => {
@@ -34,5 +34,23 @@ describe('cue import validation', () => {
     expect(file.cues[0].intensity).toBe(100);
     expect(file.cues[0].hue).toBe(-180);
     expect(() => parseCueFile({ format: 'other', cues: [] })).toThrow(/unsupported format/i);
+  });
+
+  it('rejects semantic-invalid timing before a cue sheet can replace a rehearsal', () => {
+    const broken = {
+      format: 'cuebook/v1', title: 'Broken', audio: { name: 'x.wav', duration: 3 }, exportedAt: '',
+      timing: { bpm: 'not-a-number', beatOffset: -5, clock: 'media-currentTime' },
+      cues: [{ id: 'bad', time: 99, beat: 1, scene: 'contour', intensity: 72, hue: 0, note: 'unreachable' }]
+    };
+    expect(() => parseCueFile(broken)).toThrow(/BPM must be a number from 20 to 300/i);
+  });
+
+  it('rejects cue times beyond the loaded track instead of creating unreachable cues', () => {
+    const file = parseCueFile({
+      format: 'cuebook/v1', title: 'Too long', audio: { name: 'x.wav', duration: 99 }, exportedAt: '',
+      timing: { bpm: 120, beatOffset: 0, clock: 'media-currentTime' },
+      cues: [{ id: 'bad', time: 99, beat: 1, scene: 'contour', intensity: 72, hue: 0, note: '' }]
+    });
+    expect(() => validateCueFileDuration(file, 3)).toThrow(/beyond this track/i);
   });
 });

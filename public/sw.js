@@ -1,4 +1,4 @@
-const VERSION = 'cuebook-v1.0.0';
+const VERSION = 'cuebook-v1.0.1';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 const CORE = ['/', '/offline.html', '/manifest.webmanifest', '/assets/cue-landscape.webp', '/icons/icon-192.png', '/icons/icon-512.png'];

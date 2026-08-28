@@ -3,7 +3,7 @@ import { BUY_URL, cachedUnlock, captureLicenseFromUrl, forgetLicense, storeLicen
 import { SceneRenderer } from './scenes';
 import { clearProject, loadProject, saveProject } from './storage';
 import type { Cue, CueFile, CueProject, SceneId } from './types';
-import { SCENE_NAMES, cueAt, formatTime, makeCue, parseCueFile, timeToBeat } from './utils';
+import { SCENE_NAMES, cueAt, formatTime, makeCue, parseCueFile, timeToBeat, validateCueFileDuration } from './utils';
 
 const FREE_CUE_LIMIT = 5;
 
@@ -113,6 +113,13 @@ const template = `
       <p class="legal-note">Checkout is hosted by Sociobot, with Dodo as merchant of record. Refunds are handled there. <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
     </form>
   </dialog>
+  <dialog id="import-limit-dialog" aria-labelledby="import-limit-title">
+    <div class="dialog-shell"><button class="dialog-close" id="cancel-limited-import" type="button" aria-label="Close limited import">×</button>
+      <p class="eyebrow">Free cue sheet limit</p><h2 id="import-limit-title">This sheet has more than five cues.</h2>
+      <p id="import-limit-copy">Cuebook Free can keep the first five cues. The source JSON stays unchanged, so you can cancel and export or unlock Plus before importing.</p>
+      <div class="dialog-actions"><button class="button secondary" id="cancel-limited-import-button" type="button">Cancel import</button><button class="button primary" id="confirm-limited-import" type="button">Import first five cues</button></div>
+    </div>
+  </dialog>
   <input id="cue-file-input" type="file" accept="application/json,.json" hidden />
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <footer><span>Cuebook runs locally.</span><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><span>Original visuals · AI-generated onboarding art</span></footer>
@@ -133,6 +140,7 @@ class CuebookApp {
   private chunks: Blob[] = [];
   private pendingSave?: number;
   private pendingCueFile?: CueFile;
+  private pendingLimitedCueFile?: CueFile;
 
   private audio = this.el<HTMLAudioElement>('audio');
   private canvas = this.el<HTMLCanvasElement>('visual-canvas');
@@ -210,6 +218,8 @@ class CuebookApp {
     this.el<HTMLButtonElement>('record').addEventListener('click', () => void this.toggleRecording());
     this.el<HTMLButtonElement>('support-button').addEventListener('click', () => this.el<HTMLDialogElement>('plus-dialog').showModal());
     this.el<HTMLButtonElement>('restore-license').addEventListener('click', () => void this.restoreLicense());
+    this.el<HTMLButtonElement>('confirm-limited-import').addEventListener('click', () => this.confirmLimitedImport());
+    ['cancel-limited-import', 'cancel-limited-import-button'].forEach((id) => this.el<HTMLButtonElement>(id).addEventListener('click', () => this.cancelLimitedImport()));
     this.cueList.addEventListener('click', (event) => this.onCueListClick(event));
     this.cueList.addEventListener('change', (event) => this.onCueListChange(event));
     window.addEventListener('online', () => this.updateNetworkStatus());
@@ -238,8 +248,13 @@ class CuebookApp {
       await saveProject(this.project);
       this.loadProjectIntoUi();
       if (this.pendingCueFile) {
-        this.applyCueFile(this.pendingCueFile);
+        const cueFile = this.pendingCueFile;
         this.pendingCueFile = undefined;
+        try {
+          this.beginCueImport(cueFile);
+        } catch (error) {
+          this.toast(error instanceof Error ? error.message : 'Cue JSON could not be imported.', 'error');
+        }
       }
       this.toast(replacing ? 'Audio replaced. Existing cues were kept.' : 'Track saved locally. Mark your first cue when ready.');
     } catch {
@@ -395,12 +410,20 @@ class CuebookApp {
 
   private updateTiming(): void {
     if (!this.project) return;
-    const bpm = Number(this.el<HTMLInputElement>('bpm').value);
-    const offset = Number(this.el<HTMLInputElement>('beat-offset').value);
-    this.project.bpm = Number.isFinite(bpm) ? Math.min(300, Math.max(20, bpm)) : 120;
-    this.project.beatOffset = Number.isFinite(offset) ? Math.max(0, offset) : 0;
+    const bpmInput = this.el<HTMLInputElement>('bpm');
+    const offsetInput = this.el<HTMLInputElement>('beat-offset');
+    const enteredBpm = Number(bpmInput.value);
+    const enteredOffset = Number(offsetInput.value);
+    const bpm = Number.isFinite(enteredBpm) ? Math.min(300, Math.max(20, enteredBpm)) : 120;
+    const offset = Number.isFinite(enteredOffset) ? Math.max(0, enteredOffset) : 0;
+    const wasAdjusted = bpm !== enteredBpm || offset !== enteredOffset;
+    this.project.bpm = bpm;
+    this.project.beatOffset = offset;
+    bpmInput.value = String(bpm);
+    offsetInput.value = String(offset);
     this.project.cues.forEach((cue) => cue.beat = timeToBeat(cue.time, this.project!.bpm, this.project!.beatOffset));
     this.renderCueList(); this.updateTimeUi(); this.queueSave();
+    if (wasAdjusted) this.toast('Timing adjusted: BPM is 20–300 and Beat 1 offset cannot be negative.', 'error');
   }
 
   private exportCues(): void {
@@ -427,22 +450,51 @@ class CuebookApp {
         this.el<HTMLInputElement>('audio-input').click();
         return;
       }
-      this.applyCueFile(parsed);
+      this.beginCueImport(parsed);
     } catch (error) {
       this.toast(error instanceof Error ? error.message : 'Cue JSON could not be read.', 'error');
     }
   }
 
-  private applyCueFile(file: CueFile): void {
+  private beginCueImport(file: CueFile): void {
     if (!this.project) return;
+    validateCueFileDuration(file, this.project.duration);
     if (!this.unlocked && file.cues.length > FREE_CUE_LIMIT) {
-      this.toast(`Imported the first ${FREE_CUE_LIMIT} cues. Plus unlocks the full sheet.`, 'error');
+      this.pendingLimitedCueFile = file;
+      this.el<HTMLElement>('import-limit-copy').textContent = `This sheet has ${file.cues.length} cues. Cuebook Free can keep the first ${FREE_CUE_LIMIT}. The source JSON stays unchanged, so you can cancel and export or unlock Plus before importing.`;
+      this.el<HTMLDialogElement>('import-limit-dialog').showModal();
+      return;
     }
+    this.applyCueFile(file);
+  }
+
+  private confirmLimitedImport(): void {
+    const file = this.pendingLimitedCueFile;
+    this.pendingLimitedCueFile = undefined;
+    this.el<HTMLDialogElement>('import-limit-dialog').close();
+    if (!file) return;
+    this.applyCueFile(file, true);
+  }
+
+  private cancelLimitedImport(): void {
+    this.pendingLimitedCueFile = undefined;
+    this.el<HTMLDialogElement>('import-limit-dialog').close();
+    this.toast('Cue import cancelled. Your current cue sheet was unchanged.');
+  }
+
+  private applyCueFile(file: CueFile, truncated = false): void {
+    if (!this.project) return;
+    validateCueFileDuration(file, this.project.duration);
     this.project.title = file.title || this.project.title;
     this.project.bpm = file.timing.bpm;
     this.project.beatOffset = file.timing.beatOffset;
-    this.project.cues = this.unlocked ? file.cues : file.cues.slice(0, FREE_CUE_LIMIT);
-    this.loadProjectIntoUi(); this.queueSave(); this.toast('Cue sheet imported. Check that the audio matches.');
+    this.project.cues = (this.unlocked ? file.cues : file.cues.slice(0, FREE_CUE_LIMIT)).map((cue) => ({
+      ...cue, beat: timeToBeat(cue.time, file.timing.bpm, file.timing.beatOffset)
+    }));
+    this.loadProjectIntoUi(); this.queueSave();
+    this.toast(truncated
+      ? `Imported the first ${FREE_CUE_LIMIT} of ${file.cues.length} cues. The source JSON is unchanged; unlock Plus for the full sheet.`
+      : 'Cue sheet imported. Check that the audio matches.');
   }
 
   private async newSet(): Promise<void> {
