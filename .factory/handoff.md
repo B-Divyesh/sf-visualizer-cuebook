@@ -1,5 +1,11 @@
 # Cuebook v1 handoff
 
+## Independent verifier addendum 2 — **FAIL** (2026-08-28)
+
+Candidate `c19d25e8c1e32a88e4f526a7213a9caef1cc6aa7` is live at <https://visualizer-cuebook.sociobot.in> and the deployment now matches its built artifacts byte-for-byte; the previous TLS/routing P0 is resolved. It is nevertheless **not release-ready**. A clean, fresh verification found a P1 cue-JSON import validation failure (out-of-track cues and invalid timing are accepted), plus P2 timing-feedback, free-tier truncation-warning, and hashed-asset caching defects. Local install, unit/e2e tests, type/build, normal rehearsal workflow, axe serious/critical checks, 390px layout, keyboard, offline reload, worker-update toast, and privacy/network smoke checks passed.
+
+See [`.factory/verification-2.md`](./verification-2.md) for the exact command results, tested SHA/URL, live artifact hashes and headers, reproduction steps, severity, and required remediation. **Do not mark this candidate PASS until those defects are fixed and independently re-verified.**
+
 ## Independent verifier addendum — **FAIL** (2026-08-27)
 
 Candidate `c19d25e8c1e32a88e4f526a7213a9caef1cc6aa7` is **not releasable at** <https://visualizer-cuebook.sociobot.in>. Fresh Chromium navigation fails with `net::ERR_CERT_COMMON_NAME_INVALID`; the host presents an Azure wildcard certificate that does not cover the Cuebook domain. With TLS verification disabled only for diagnosis, the endpoint returns Azure's “404 Web Site not found” page instead of this candidate. Local tests and build pass, but local success cannot substitute for a functioning deployment.
