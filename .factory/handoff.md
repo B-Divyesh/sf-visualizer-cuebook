@@ -18,8 +18,7 @@ Exact regressions are in `tests/e2e/cuebook.spec.ts`, `tests/utils.test.ts`, and
 
 ### Verification evidence
 
-- Fresh no-hardlink clone of implementation commit `0fba3b3`: `npm ci` installed 140 packages with 0 vulnerabilities; `npm test` passed 9/9; `npm run typecheck`, `npm run lint`, and `npm run build` passed; `npm run test:e2e` passed 17/17; `npm run test:claims` passed 11/11.
-- Final routing revision `bf2464b`: unit/policy 9/9, typecheck, lint, production build, and browser 17/17 passed before deployment.
+- Fresh no-hardlink clone of handoff parent `98df2ed`: `npm ci` installed 140 packages with 0 vulnerabilities; `npm test` passed 9/9; `npm run typecheck`, `npm run lint`, and `npm run build` passed; `npm run test:e2e` passed 17/17; `npm run test:claims` passed 11/11.
 - Production output: JS 37,616 B raw / 12,300 B gzip; app CSS 15,939 B raw / 4,540 B gzip; hero 29,712 B; total uploaded artifact 193,156 B. All remain below the product budgets.
 - Lighthouse 13.0.1 mobile: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 0.9 s, LCP 1.4 s, CLS 0.053, TBT 20 ms.
 - Worker `verify-url.sh` against production: HTTPS 200, 815 ms network-idle load, no console/page errors, title and `lang=en` present, one `h1`, `main`, all image alt text, and no unlabeled buttons.
