@@ -14,7 +14,9 @@ describe('static deployment policy', () => {
     expect(config.globalHeaders['X-Frame-Options']).toBe('DENY');
     expect(config.routes.find((route) => route.route === '/assets/*')?.headers?.['Cache-Control']).toBe('public, max-age=31536000, immutable');
     expect(config.routes.find((route) => route.route === '/manifest.webmanifest')?.headers?.['Content-Type']).toContain('application/manifest+json');
-    expect(config.routes.find((route) => route.route === '/demo*')?.rewrite).toBe('/index.html');
+    expect(config.routes.find((route) => route.route === '/demo')?.rewrite).toBe('/index.html');
+    expect(config.routes.find((route) => route.route === '/demo/')?.rewrite).toBe('/index.html');
+    expect(config.routes.some((route) => route.route === '/demo*')).toBe(false);
     expect((config as typeof config & { navigationFallback?: unknown }).navigationFallback).toBeUndefined();
     expect((config as typeof config & { mimeTypes: Record<string, string> }).mimeTypes['.webmanifest']).toBe('application/manifest+json');
   });

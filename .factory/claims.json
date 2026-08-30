@@ -1,79 +1,15 @@
 [
-  {
-    "id": "cue-workflow",
-    "claim": "Imports local audio, marks a cue, exports JSON, and restores the saved cue after reload.",
-    "where": "product, README",
-    "test": "npm run test:e2e -- --grep @claim:cue-workflow",
-    "sandbox": "fresh browser context with a generated WAV; assert cue creation, JSON download, reload, and no console errors"
-  },
-  {
-    "id": "offline-reload",
-    "claim": "A saved set works offline after the first visit.",
-    "where": "landing facts, README",
-    "test": "npm run test:e2e -- --grep @claim:offline-reload",
-    "sandbox": "dedicated browser.newContext; save generated WAV, wait for the service worker, set offline, reload, and assert the studio and offline state"
-  },
-  {
-    "id": "local-privacy",
-    "claim": "Audio stays in the browser and is not uploaded.",
-    "where": "landing facts, privacy, README",
-    "test": "npm run test:e2e -- --grep @claim:local-privacy",
-    "sandbox": "fresh demo context with all requests recorded; assert no network request leaves the product origin"
-  },
-  {
-    "id": "json-no-audio",
-    "claim": "Cue JSON exports do not include audio bytes.",
-    "where": "privacy, README",
-    "test": "npm run test:e2e -- --grep @claim:json-no-audio",
-    "sandbox": "sample demo; parse the downloaded JSON and assert it contains only audio name and duration metadata"
-  },
-  {
-    "id": "free-five",
-    "claim": "Cuebook Free keeps up to five cues and asks before shortening a larger import.",
-    "where": "landing facts, pricing dialog, terms, README",
-    "test": "npm run test:e2e -- --grep @claim:free-five",
-    "sandbox": "fresh browser with generated WAV and six-cue fixture; assert confirmation before mutation and retained limit notice"
-  },
-  {
-    "id": "plus-license",
-    "claim": "A valid returned Plus license unlocks the paid controls and is removed from the address bar.",
-    "where": "pricing dialog, README",
-    "test": "npm run test:e2e -- --grep @claim:plus-license",
-    "sandbox": "recorded successful Sociobot verification response; assert stored token, clean URL, and unlocked state"
-  },
-  {
-    "id": "three-scenes",
-    "claim": "Every user can select Contour, Orbit, and Shards scenes.",
-    "where": "product, terms, README",
-    "test": "npm run test:e2e -- --grep @claim:three-scenes",
-    "sandbox": "sample demo; select each named scene and assert its pressed state"
-  },
-  {
-    "id": "deterministic-scenes",
-    "claim": "A scene renders the same frame whenever the playhead returns to the same media time.",
-    "where": "product, README",
-    "test": "npm run test:e2e -- --grep @claim:deterministic-scenes",
-    "sandbox": "sample demo; hash canvas pixels at one timeline position, move away and return, then compare exact pixels"
-  },
-  {
-    "id": "pwa-install",
-    "claim": "Cuebook includes an installable standalone PWA shell.",
-    "where": "README",
-    "test": "npm run test:e2e -- --grep @claim:pwa-install",
-    "sandbox": "fresh browser; parse the manifest, assert standalone display and icons, then assert an activated service-worker controller"
-  },
-  {
-    "id": "plus-recording",
-    "claim": "Cuebook Plus imports more than five cues and downloads a WebM rehearsal in supported Chromium browsers.",
-    "where": "pricing dialog, README",
-    "test": "npm run test:e2e -- --grep @claim:plus-recording",
-    "sandbox": "sample demo with a cached valid fixture license; import six cues, then start and stop recording and assert a WebM download"
-  },
-  {
-    "id": "demo-sandbox",
-    "claim": "The one-click demo starts with five sample cues and does not change the user's saved set.",
-    "where": "landing, demo banner, README",
-    "test": "npm run test:e2e -- --grep @claim:demo-sandbox",
-    "sandbox": "save a real fixture, enter /demo/, modify and reload the in-memory sample, then return and assert the real fixture is unchanged"
-  }
+  {"id":"cue-workflow","claim":"Imports a local track, marks a cue, exports a cue file, and restores the saved cue after reload.","where":"product, README","test":"npm run test:e2e -- --grep @claim:cue-workflow","sandbox":"fresh browser context with generated WAV; assert cue creation, cue-file download, reload, and no console errors"},
+  {"id":"offline-reload","claim":"A saved set works offline after the first visit.","where":"landing facts, README","test":"npm run test:e2e -- --grep @claim:offline-reload","sandbox":"dedicated browser context; save generated WAV, wait for service worker, go offline, reload, and assert studio"},
+  {"id":"local-privacy","claim":"Tracks stay in the browser and are not uploaded.","where":"landing facts, privacy, README","test":"npm run test:e2e -- --grep @claim:local-privacy","sandbox":"fresh demo context records all requests during sample playback, editing, export, reset, and exit"},
+  {"id":"json-no-audio","claim":"Cue-file exports do not include audio bytes.","where":"privacy, README","test":"npm run test:e2e -- --grep @claim:json-no-audio","sandbox":"sample demo; parse downloaded JSON and assert audio metadata only"},
+  {"id":"free-five","claim":"Cuebook Free keeps up to five cues and asks before shortening a larger import.","where":"landing facts, pricing, terms, README","test":"npm run test:e2e -- --grep @claim:free-five","sandbox":"fresh browser with six-cue fixture; assert confirmation before mutation and retained limit notice"},
+  {"id":"plus-license","claim":"A valid returned Plus license unlocks paid controls and is removed from the address bar.","where":"pricing dialog","test":"npm run test:e2e -- --grep @claim:plus-license","sandbox":"recorded successful verification response; assert stored token, clean URL, and unlocked state"},
+  {"id":"three-scenes","claim":"Every user can select Contour, Orbit, and Shards scenes.","where":"product, terms, README","test":"npm run test:e2e -- --grep @claim:three-scenes","sandbox":"sample demo; select each named scene and assert pressed state"},
+  {"id":"deterministic-scenes","claim":"A scene renders the same frame whenever the playhead returns to the same track time.","where":"product, README","test":"npm run test:e2e -- --grep @claim:deterministic-scenes","sandbox":"sample demo; hash canvas pixels at one timeline position, move away and return"},
+  {"id":"pwa-install","claim":"Cuebook includes an installable standalone app shell.","where":"README","test":"npm run test:e2e -- --grep @claim:pwa-install","sandbox":"fresh browser; assert manifest, icons, and activated service worker"},
+  {"id":"demo-sandbox","claim":"The one-click demo starts with five audible sample cues and never changes real project or license storage.","where":"landing, demo banner, README","test":"npm run test:e2e -- --grep @claim:demo-sandbox","sandbox":"seed real IndexedDB and license keys; exercise demo edit, simulated restore, reset, reload, and exit; assert sentinels unchanged"},
+  {"id":"no-tracking-runtime","claim":"Cuebook has no analytics, trackers, third-party runtime scripts, or CDN font requests.","where":"privacy, README","test":"npm run test:e2e -- --grep @claim:no-tracking-runtime","sandbox":"record requests through home and demo flows and inspect built HTML/CSS/JS origins"},
+  {"id":"billing-contract","claim":"Cuebook Plus is US$12 one time, with no subscription; Sociobot hosts checkout and Dodo is merchant of record.","where":"pricing dialog, terms, README","test":"npm run test:e2e -- --grep @claim:billing-contract","sandbox":"recorded product billing fixture checks displayed contract and checkout URL without requesting the external host"},
+  {"id":"static-deployment","claim":"Cuebook builds as a static app with no required environment variable or backend.","where":"README","test":"npm run test:e2e -- --grep @claim:static-deployment","sandbox":"serve fresh dist build; run core demo and scan built files for required runtime environment placeholders"}
 ]

@@ -1,34 +1,21 @@
-# Cuebook copy audit
+# Copy audit — polish 1
 
-Audited 2026-08-30. Button labels and short status fragments are included where they convey an instruction. No sentence exceeds 22 words. No banned marketing word is present; “unlock” appears only for the literal paid-license state.
+All visitor-facing landing and README sentences were reviewed on 30 August 2026. No audited sentence exceeds 22 words or uses a banned marketing word.
 
-| Copy | Words | Result |
-| --- | ---: | --- |
-| Make every visual cue land on time. | 7 | Pass |
-| For DJs, VJs, and educators who need repeatable scene changes from their own audio. | 14 | Pass |
-| Try it with sample data. | 6 | Pass |
-| Choose your audio track. | 4 | Pass |
-| Import cue JSON. | 3 | Pass |
-| Audio stays in this browser. | 6 | Pass |
-| Saved sets work offline. | 4 | Pass |
-| Five cues are free. | 4 | Pass |
-| Five moments. One repeatable run. | 5 | Pass |
-| No cues yet. Play to a transition, choose a scene, then mark it. | 13 | Pass |
-| Beat numbers are a manual guide. | 6 | Pass |
-| Cuebook always saves the exact audio time. | 7 | Pass |
-| This sheet has more than five cues. | 7 | Pass |
-| Cuebook Free can keep the first five cues. | 8 | Pass |
-| The source JSON stays unchanged, so you can cancel and export or unlock Plus before importing. | 15 | Pass |
-| Cuebook Plus adds unlimited cues and downloadable rehearsal recordings. | 9 | Pass |
-| Core cue export, all scenes, and accessibility stay free. | 9 | Pass |
-| Audio was not included. | 5 | Pass |
+| Surface | Longest sentence | Words | Result |
+| --- | --- | ---: | --- |
+| Landing | “Opens a 12-second rehearsal with five editable cues.” | 8 | Pass |
+| README | “Cuebook helps DJs, VJs, and educators rehearse visual changes against their own audio.” | 13 | Pass |
+| Privacy | “Cuebook includes no behavioral analytics, advertising, tracking pixels, cloud audio processing, third-party runtime scripts, or CDN font requests.” | 15 | Pass |
+| Terms | “Cuebook Plus is a US$12 one-time license for more than five cues and rehearsal video recording.” | 16 | Pass |
 
 ## Terminology
 
-| Concept | Term used |
+| Concept | Required term |
 | --- | --- |
-| An audio-and-cues workspace | set |
-| A saved visual transition | cue |
-| The portable timing file | cue JSON |
-| The optional paid tier | Cuebook Plus |
-| The isolated sample workspace | demo |
+| One audio-and-cues workspace | set |
+| Imported media | track |
+| Portable timing file | cue file |
+| Scenes | Contour, Orbit, Shards |
+| Paid tier | Cuebook Plus, then Plus |
+| Isolated sample | demo |

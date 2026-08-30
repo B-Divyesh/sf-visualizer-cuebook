@@ -1,37 +1,42 @@
 # Cuebook
 
-Cuebook is a private, offline-first visual rehearsal desk for bedroom DJs, VJs, and educators. Import a track you own, place exact time/beat cues, attach deterministic visual scenes, and replay the same transitions from the browser’s audio clock.
+Cuebook helps DJs, VJs, and educators rehearse visual changes against their own audio.
 
-Live product: <https://visualizer-cuebook.sociobot.in>
+Try the isolated sample: <https://visualizer-cuebook.sociobot.in/demo/>.
 
-Try the isolated sample: <https://visualizer-cuebook.sociobot.in/demo/>. It opens with five realistic cues, never reads your saved set, and resets on reload.
+It opens a 12-second rhythm with five editable cues. Your saved set and license stay unchanged.
 
 ## What it does
 
-- Keeps one active audio track and cue sheet locally in IndexedDB.
-- Marks millisecond timestamps from the media clock and shows advisory beat positions from a manual BPM/offset.
-- Replays three original Canvas scenes—Contour field, Signal orbit, and Glass shards—deterministically from saved cue parameters.
-- Imports and exports portable `cuebook/v1` JSON without including audio.
-- Installs as a PWA and reopens the complete saved set offline.
-- Provides five free cues. The US$12 one-time Plus license adds unlimited cues and WebM rehearsal recording; checkout and verification use only the Sociobot billing API.
+- Keeps one track and its set in this browser.
+- Marks each cue at the current playback time.
+- Shows beat numbers from the BPM and offset you enter.
+- Replays Contour, Orbit, and Shards at the same track time.
+- Imports and exports a Cuebook cue file. Audio is not included.
+- Installs on your device and reopens a saved set offline.
+- Free includes five cues. Plus adds more than five cues and rehearsal recording.
 
-Audio is never uploaded. There are no analytics, trackers, third-party runtime scripts, or CDN font requests. See [privacy](./privacy/index.html) and [terms](./terms/index.html).
+Tracks are not uploaded. Cuebook has no analytics, trackers, third-party runtime scripts, or CDN font requests.
+
+Choose an audio file your browser can play. Record rehearsals in desktop Chrome or Firefox.
+
+See [privacy](./privacy/index.html) and [terms](./terms/index.html).
 
 ## Run locally
 
-Requirements: Node.js 20 or newer.
+Node.js 20 or newer is required.
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-Open the local URL Vite prints. MP3, WAV, M4A, OGG, and other formats supported by your browser can be used. Rehearsal recording works best in desktop Chromium because it requires `HTMLMediaElement.captureStream` and `MediaRecorder`.
+Open the local URL Vite prints.
 
 Keyboard controls outside form fields:
 
 - `Space`: play or pause
-- `M`: mark a cue at the current audio time
+- `M`: mark a cue at the current playback time
 - `←` / `→`: nudge the playhead by one second
 
 ## Test and build
@@ -45,18 +50,24 @@ npm run test:claims
 npm run build
 ```
 
-The Playwright suite pins version 1.58.2 and checks the demo, cue creation and persistence, JSON download, 390 px layout, accessibility, license returns, and offline reload. Claim checks are mapped in [`.factory/claims.json`](./.factory/claims.json). The production command is exactly `npm run build`; static output is written to `dist/`, with `dist/index.html` at its root.
+Browser tests use Playwright 1.58.2. They cover demo isolation, cues, downloads, mobile layout, accessibility, licenses, and offline reload.
 
-Preview that output with:
+Claim checks are mapped in [`.factory/claims.json`](./.factory/claims.json).
+
+`npm run build` writes static files to `dist/`, with `dist/index.html` at its root.
 
 ```bash
 npm run preview
 ```
 
-Deploy the contents of `dist/` to any static host that serves directory indexes. No backend or environment variable is required. The factory registers the billing product separately; the app intentionally contains no provider product ID or secret.
+No backend or environment variable is required.
 
 ## Project notes
 
-The researched scope is in [`.factory/brief.json`](./.factory/brief.json), the original visual system and generated-asset provenance are in [`.factory/design.md`](./.factory/design.md), and verification details are in [`.factory/handoff.md`](./.factory/handoff.md).
+The researched scope is in [`.factory/brief.json`](./.factory/brief.json).
+
+The visual system and generated-art provenance are in [`.factory/design.md`](./.factory/design.md).
+
+Verification details are in [`.factory/handoff.md`](./.factory/handoff.md).
 
 Licensed under the [MIT License](./LICENSE).

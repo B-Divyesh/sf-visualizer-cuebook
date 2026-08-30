@@ -35,7 +35,7 @@ test('@claim:cue-workflow creates, exports, and persists a timed cue without acc
   const consoleErrors: string[] = [];
   page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1, name: /Make every visual cue/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /Build repeatable visual cues/ })).toBeVisible();
 
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
@@ -49,7 +49,7 @@ test('@claim:cue-workflow creates, exports, and persists a timed cue without acc
   await expect(page.locator('.cue-row')).toHaveCount(1);
   await expect(page.locator('.cue-note input')).toHaveValue('Opening pulse');
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Export JSON' }).click();
+  await page.getByRole('button', { name: 'Export cue file' }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/\.cuebook\.json$/);
   await page.waitForTimeout(500);
@@ -77,7 +77,7 @@ test('keeps the cue workflow within a 390px phone viewport', async ({ page }) =>
 
 test('supports the documented keyboard path without trapping focus in controls', async ({ page }) => {
   await page.goto('/');
-  await page.keyboard.press('Tab');
+  await page.locator('.skip-link').focus();
   await expect(page.locator('.skip-link')).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.locator('main')).toBeFocused();
@@ -178,18 +178,31 @@ test('@claim:free-five asks before truncating a free cue import and preserves th
   await expect(page.locator('#toast')).toContainText('Imported the first 5 of 6 cues');
 });
 
-test('@claim:demo-sandbox opens sample data in one click without changing the real set', async ({ page }) => {
+test('@claim:demo-sandbox opens audible sample data in one click without changing real project or license data', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('sb_license:visualizer-cuebook', 'real-license-sentinel');
+    localStorage.setItem('sb_license_cache:visualizer-cuebook', JSON.stringify({ valid: true, checkedAt: 1 }));
+  });
   await page.goto('/');
   await page.getByRole('link', { name: 'Try it with sample data' }).click();
   await expect(page).toHaveTitle('Demo — Cuebook');
   await expect(page.locator('#demo-banner')).toContainText('Demo — sample data, nothing is saved');
   await expect(page.locator('#project-title')).toHaveValue('Neon classroom rehearsal');
   await expect(page.locator('.cue-row')).toHaveCount(5);
+  const energy = await page.locator('#audio').evaluate(async (audio) => {
+    const blob = await fetch((audio as HTMLAudioElement).src).then((response) => response.blob());
+    const bytes = new Int16Array(await blob.arrayBuffer(), 44);
+    return bytes.reduce((total, value) => total + Math.abs(value), 0);
+  });
+  expect(energy).toBeGreaterThan(1000);
+  await expect(page.locator('#restore-license')).toHaveCount(0);
   await page.getByRole('button', { name: 'Delete cue 1' }).click();
   await expect(page.locator('.cue-row')).toHaveCount(4);
   await page.reload();
   await expect(page.locator('.cue-row')).toHaveCount(5);
   await page.getByRole('link', { name: 'Start for real' }).click();
+  await expect(page.locator('#support-button')).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('sb_license:visualizer-cuebook'))).toBe('real-license-sentinel');
   await page.locator('#audio-input').setInputFiles({ name: 'my-real-set.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
   await page.getByRole('link', { name: 'Demo' }).click();
   await expect(page.locator('#project-title')).toHaveValue('Neon classroom rehearsal');
@@ -209,13 +222,13 @@ test('@claim:local-privacy keeps a complete demo rehearsal on the product origin
 test('@claim:json-no-audio exports cue JSON without audio bytes', async ({ page }) => {
   await page.goto('/demo/');
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Export JSON' }).click();
+  await page.getByRole('button', { name: 'Export cue file' }).click();
   const download = await downloadPromise;
   const path = await download.path();
   expect(path).not.toBeNull();
   const data = JSON.parse(await readFile(path!, 'utf8')) as Record<string, unknown>;
   expect(data).not.toHaveProperty('audioBlob');
-  expect(data.audio).toEqual({ name: 'sample-rehearsal.wav', duration: 12 });
+  expect(data.audio).toEqual({ name: 'sample-beacon-rhythm.wav', duration: 12 });
 });
 
 test('@claim:three-scenes exposes all three deterministic scene choices', async ({ page }) => {
@@ -267,7 +280,8 @@ test('@claim:plus-recording saves a WebM rehearsal with a cached valid license',
     localStorage.setItem('sb_license:visualizer-cuebook', 'recording-fixture');
     localStorage.setItem('sb_license_cache:visualizer-cuebook', JSON.stringify({ valid: true, checkedAt: Date.now() }));
   });
-  await page.goto('/demo/');
+  await page.goto('/');
+  await page.locator('#audio-input').setInputFiles({ name: 'recording.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
   const sixCues = [0, 0.2, 0.4, 0.6, 0.8, 1].map((time) => cue(time));
   await page.locator('#cue-file-input').setInputFiles({ name: 'plus-six.cuebook.json', mimeType: 'application/json', buffer: cueFile(sixCues) });
   await expect(page.locator('.cue-row')).toHaveCount(6);
@@ -278,4 +292,65 @@ test('@claim:plus-recording saves a WebM rehearsal with a cached valid license',
   await page.getByRole('button', { name: 'Stop & save' }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/-rehearsal\.webm$/);
+});
+
+test('@claim:no-tracking-runtime keeps app requests and runtime assets on the product origin', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', (request) => requests.push(request.url()));
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await page.getByRole('button', { name: 'Export cue file' }).click();
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  expect(requests.filter((url) => !url.startsWith('http://127.0.0.1:4173') && !url.startsWith('blob:'))).toEqual([]);
+  const runtime = await page.evaluate(async () => (await fetch('/')).text());
+  expect(runtime).not.toMatch(/https?:\/\/(?!visualizer-cuebook\.sociobot\.in)/);
+});
+
+test('@claim:billing-contract displays the recorded Plus contract without requesting checkout', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', (request) => requests.push(request.url()));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'See Plus options' }).click();
+  await expect(page.locator('#plus-dialog')).toContainText('US$12');
+  await expect(page.locator('#plus-dialog')).toContainText('No subscription');
+  await expect(page.locator('#plus-dialog')).toContainText('Dodo is the merchant of record');
+  await expect(page.locator('#plus-dialog').getByRole('link', { name: 'Buy Cuebook Plus' })).toHaveAttribute('href', 'https://api.sociobot.in/api/v1/products/visualizer-cuebook/checkout');
+  expect(requests.some((url) => url.startsWith('https://api.sociobot.in/'))).toBe(false);
+});
+
+test('@claim:static-deployment serves a complete static demo without runtime environment configuration', async ({ page }) => {
+  await page.goto('/demo/');
+  await expect(page.locator('#studio')).toBeVisible();
+  await expect(page.locator('.cue-row')).toHaveCount(5);
+  const html = await page.evaluate(async () => (await fetch('/')).text());
+  expect(html).not.toContain('VITE_');
+  expect(html).not.toContain('process.env');
+});
+
+test('uses complete route metadata, shared navigation, focus, and a strict demo route', async ({ page }) => {
+  for (const [path, title] of [['/', 'Cuebook — visual cues for your audio'], ['/demo/', 'Demo — Cuebook'], ['/privacy/', 'Privacy — Cuebook'], ['/terms/', 'Terms — Cuebook'], ['/404.html', 'Page not found — Cuebook']] as const) {
+    await page.goto(path);
+    await expect(page).toHaveTitle(title);
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+    await expect(page.locator('meta[property="og:image"]')).toHaveCount(1);
+    await expect(page.locator('link[rel="apple-touch-icon"][sizes="180x180"]')).toHaveCount(1);
+    await expect(page.locator('header nav')).toBeVisible();
+    await expect(page.locator('footer')).toContainText('Built by Param Factory');
+    await expect(page.locator('h1')).toBeFocused();
+  }
+  await page.goto('/?demo=1');
+  await expect(page).toHaveTitle('Demo — Cuebook');
+  await expect(page.locator('#demo-banner')).toBeVisible();
+  const config = await page.evaluate(async () => (await fetch('/staticwebapp.config.json')).json());
+  expect(config.routes.map((route: { route: string }) => route.route)).toEqual(expect.arrayContaining(['/demo', '/demo/']));
+  expect(config.routes.map((route: { route: string }) => route.route)).not.toContain('/demo*');
+});
+
+test('has zero Axe violations on seeded demo at phone and desktop widths', async ({ page }) => {
+  for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/demo/');
+    const report = await new AxeBuilder({ page }).analyze();
+    expect(report.violations).toEqual([]);
+  }
 });

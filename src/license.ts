@@ -6,7 +6,16 @@ export const BUY_URL = `https://api.sociobot.in/api/v1/products/${SLUG}/checkout
 
 type Verdict = { valid: boolean; checkedAt: number };
 
+// The demo is deliberately not a "real account" preview.  Keep this check in
+// this module (rather than trusting callers) so a future license control
+// cannot accidentally touch a visitor's production namespace from /demo.
+function isDemo(): boolean {
+  return typeof location !== 'undefined'
+    && (location.pathname.replace(/\/$/, '') === '/demo' || new URL(location.href).searchParams.get('demo') === '1');
+}
+
 export function captureLicenseFromUrl(): void {
+  if (isDemo()) return;
   const url = new URL(location.href);
   const license = url.searchParams.get('license');
   if (!license) return;
@@ -17,6 +26,7 @@ export function captureLicenseFromUrl(): void {
 }
 
 export function cachedUnlock(): boolean {
+  if (isDemo()) return false;
   const token = localStorage.getItem(TOKEN_KEY);
   if (!token) return false;
   try {
@@ -28,16 +38,19 @@ export function cachedUnlock(): boolean {
 }
 
 export function storeLicense(token: string): void {
+  if (isDemo()) return;
   localStorage.setItem(TOKEN_KEY, token.trim());
   localStorage.removeItem(CACHE_KEY);
 }
 
 export function forgetLicense(): void {
+  if (isDemo()) return;
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(CACHE_KEY);
 }
 
 export async function verifyLicense(force = false): Promise<boolean | undefined> {
+  if (isDemo()) return false;
   const token = localStorage.getItem(TOKEN_KEY);
   if (!token) return false;
   try {

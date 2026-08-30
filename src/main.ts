@@ -11,29 +11,47 @@ const DEMO_MODE = isDemoMode();
 const template = `
   <header class="topbar">
     <a class="brand" href="/" aria-label="Cuebook home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-title">Cuebook</span></a>
-    <nav class="top-nav" aria-label="Main navigation"><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a></nav>
+    <nav class="top-nav" aria-label="Main navigation"><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
     <div class="top-status"><span id="save-state">Saved locally</span><span class="status-dot" aria-hidden="true"></span></div>
-    <button class="ghost small" id="support-button" type="button">Cuebook Plus</button>
+    <button class="ghost small" id="support-button" type="button">See Plus options</button>
   </header>
   <div class="offline-banner" id="offline-banner" role="status" hidden><span aria-hidden="true">↯</span> Offline and ready. Your saved set is on this device.</div>
-  <div class="demo-banner" id="demo-banner" ${DEMO_MODE ? '' : 'hidden'}><strong>Demo — sample data, nothing is saved</strong><button id="reset-demo" type="button">Reset demo</button><a href="/">Start for real</a></div>
+  <section class="demo-banner" id="demo-banner" aria-label="Demo controls" ${DEMO_MODE ? '' : 'hidden'}><strong>Demo — sample data, nothing is saved</strong><button id="reset-demo" type="button">Reset demo</button><a href="/">Start for real</a></section>
   <main id="main" tabindex="-1">
     <section class="hero" id="empty-state">
       <div class="hero-copy" id="hero-copy">
         <p class="eyebrow">Private visual rehearsal</p>
-        <h1 class="hero-title" id="page-title">Make every visual cue land on time.</h1>
+        <h1 class="hero-title" id="page-title" tabindex="-1">Build repeatable visual cues for your audio.</h1>
         <p class="lede">For DJs, VJs, and educators who need repeatable scene changes from their own audio.</p>
         <div class="hero-actions">
           <a class="button primary" href="/demo/">Try it with sample data</a>
           <label class="button secondary file-label">Choose your audio track<input id="audio-input" type="file" accept="audio/*" /></label>
-          <button class="button secondary" id="import-cues-empty" type="button">Import cue JSON</button>
+          <button class="button secondary" id="import-cues-empty" type="button">Import a cue file</button>
         </div>
+        <p class="action-note">Opens a 12-second rehearsal with five editable cues. Your saved set stays unchanged.</p>
         <ul class="plain-facts"><li>Audio stays in this browser.</li><li>Saved sets work offline.</li><li>Five cues are free.</li></ul>
       </div>
       <figure class="hero-art">
         <img src="/assets/cue-landscape.webp" srcset="/assets/cue-landscape-720.webp 720w, /assets/cue-landscape.webp 1200w" sizes="(max-width: 620px) calc(100vw - 40px), (max-width: 900px) 80vw, 52vw" width="1200" height="800" fetchpriority="high" decoding="async" alt="Five lime cue beacons positioned across an abstract glass rehearsal timeline" />
-        <figcaption>Five moments. One repeatable run.</figcaption>
+        <figcaption>Five saved cues trigger repeatable scene changes.</figcaption>
       </figure>
+    </section>
+
+    <section class="landing-detail" aria-labelledby="preview-title">
+      <div class="section-intro"><p class="eyebrow">Preview</p><h2 id="preview-title">See the cue sheet before you import</h2><p>A track, a clear playhead, and the next scene stay together while you rehearse.</p></div>
+      <ol class="preview-cues"><li><span>00:00</span><strong>Contour</strong><small>Opening contour</small></li><li><span>00:04.800</span><strong>Shards</strong><small>Break into shards</small></li><li><span>00:09.600</span><strong>Contour</strong><small>Closing horizon</small></li></ol>
+    </section>
+    <section class="landing-detail how-it-works" aria-labelledby="how-title">
+      <div class="section-intro"><p class="eyebrow">How it works</p><h2 id="how-title">Rehearse a scene change in three steps</h2></div>
+      <ol><li><strong>Choose a track</strong><span>Keep it in this browser.</span></li><li><strong>Mark each change</strong><span>Pick a scene at the playhead.</span></li><li><strong>Play it again</strong><span>Check the same run before you perform.</span></li></ol>
+    </section>
+    <section class="landing-detail privacy-detail" aria-labelledby="privacy-title">
+      <div class="section-intro"><p class="eyebrow">Privacy and limits</p><h2 id="privacy-title">What Cuebook keeps on this device</h2></div>
+      <p>Your track and set stay in this browser. Cuebook does not stream, sync, or detect beats automatically. Export a cue file to keep a copy.</p><a href="/privacy/">Read the privacy details</a>
+    </section>
+    <section class="landing-detail pricing-detail" aria-labelledby="pricing-title">
+      <div class="section-intro"><p class="eyebrow">Pricing</p><h2 id="pricing-title">Cuebook Free and Cuebook Plus</h2></div>
+      <p>Free includes five cues, every scene, cue-file export, and accessibility features. Plus is a US$12 one-time license for more than five cues and rehearsal recording.</p><button class="button secondary" id="landing-plus" type="button">See Plus options</button>
     </section>
 
     <section class="studio" id="studio" hidden aria-label="Cue editor">
@@ -81,7 +99,7 @@ const template = `
           <p class="shortcut-hint">Space plays or pauses · M marks a cue · ←/→ nudges 1 second</p>
         </section>
 
-        <aside class="timing-panel" aria-labelledby="timing-title">
+        <section class="timing-panel" aria-labelledby="timing-title">
           <p class="eyebrow">Timing guide</p><h2 id="timing-title">Beat grid</h2>
           <div class="timing-inputs">
             <label>BPM<input id="bpm" type="number" min="20" max="300" step="0.01" value="120" inputmode="decimal" /></label>
@@ -89,15 +107,15 @@ const template = `
           </div>
           <div class="beat-now"><span>Playhead beat</span><strong id="current-beat">1.00</strong></div>
           <p class="advisory"><span aria-hidden="true">≈</span> Beat numbers are a manual guide. Cuebook always saves the exact audio time.</p>
-        </aside>
+        </section>
       </div>
 
       <section class="cue-sheet" aria-labelledby="cue-sheet-title">
         <div class="section-heading sheet-heading">
           <div><p class="eyebrow">Run of show</p><h2 id="cue-sheet-title">Cue sheet <span id="cue-count">0</span></h2></div>
           <div class="sheet-actions">
-            <button class="button secondary compact" id="import-cues" type="button">Import JSON</button>
-            <button class="button secondary compact" id="export-cues" type="button">Export JSON</button>
+            <button class="button secondary compact" id="import-cues" type="button">Import a cue file</button>
+            <button class="button secondary compact" id="export-cues" type="button">Export cue file</button>
           </div>
         </div>
         <div class="cue-empty" id="cue-empty"><span class="empty-beacon" aria-hidden="true"></span><p>No cues yet. Play to a transition, choose a scene, then mark it.</p></div>
@@ -108,13 +126,12 @@ const template = `
 
   <dialog id="plus-dialog" aria-labelledby="plus-title">
     <form method="dialog" class="dialog-shell"><button class="dialog-close" value="close" aria-label="Close Cuebook Plus">×</button>
-      <p class="eyebrow">One-time unlock</p><h2 id="plus-title">Rehearse without limits.</h2>
-      <p>Cuebook Plus adds unlimited cues and downloadable rehearsal recordings. Core cue export, all scenes, and accessibility stay free.</p>
+      <p class="eyebrow">One-time license</p><h2 id="plus-title">Cuebook Plus features</h2>
+      <p>Cuebook Plus adds more than five cues and downloadable rehearsal recordings. Core cue-file export, all scenes, and accessibility stay free.</p>
       <p class="price"><strong>US$12</strong> one time <span>No subscription</span></p>
-      <a class="button primary wide" href="${BUY_URL}">Buy Cuebook Plus</a>
-      <div class="restore-block"><label for="license-input">Already purchased? Paste your license</label><div><input id="license-input" autocomplete="off" spellcheck="false" /><button id="restore-license" class="button secondary" type="button">Verify</button></div></div>
+      ${DEMO_MODE ? '<p class="legal-note">Purchase and license restore are unavailable in the demo.</p>' : `<a class="button primary wide" href="${BUY_URL}">Buy Cuebook Plus</a><div class="restore-block"><label for="license-input">Already purchased? Paste your license</label><div><input id="license-input" autocomplete="off" spellcheck="false" /><button id="restore-license" class="button secondary" type="button">Verify license</button></div></div>`}
       <p class="license-status" id="license-status" role="status"></p>
-      <p class="legal-note">Checkout is hosted by Sociobot, with Dodo as merchant of record. Refunds are handled there. <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
+      <p class="legal-note">Checkout is hosted by Sociobot. Dodo is the merchant of record. Refunds are handled there. <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
     </form>
   </dialog>
   <dialog id="import-limit-dialog" aria-labelledby="import-limit-title">
@@ -126,7 +143,8 @@ const template = `
   </dialog>
   <input id="cue-file-input" type="file" accept="application/json,.json" hidden />
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <footer><span>Cuebook runs locally.</span><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><span>Param Factory · v1.0.2 · Original generated art</span></footer>
+  <div class="sr-only" id="route-announcer" aria-live="polite"></div>
+  <footer><span>Cuebook keeps one track and its cues in this browser.</span><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><span>Built by Param Factory · v1.0.2</span></footer>
 `;
 
 const root = document.querySelector<HTMLDivElement>('#app');
@@ -164,6 +182,11 @@ class CuebookApp {
     this.updateNetworkStatus();
     captureLicenseFromUrl();
     this.unlocked = cachedUnlock();
+    window.setTimeout(() => {
+      const title = this.el<HTMLHeadingElement>('page-title');
+      title.focus();
+      this.el<HTMLElement>('route-announcer').textContent = DEMO_MODE ? 'Demo — Cuebook' : 'Cuebook home';
+    }, 0);
     void this.boot();
   }
 
@@ -188,7 +211,7 @@ class CuebookApp {
     if (verdict !== undefined) {
       this.unlocked = verdict;
       this.updateLicenseUi();
-      if (!verdict && localStorage.getItem('sb_license:visualizer-cuebook')) this.toast('Your license is no longer active.', 'error');
+      if (!DEMO_MODE && !verdict && localStorage.getItem('sb_license:visualizer-cuebook')) this.toast('Your license is no longer active.', 'error');
     }
     this.registerServiceWorker();
   }
@@ -230,7 +253,8 @@ class CuebookApp {
     this.el<HTMLButtonElement>('new-set').addEventListener('click', () => void this.newSet());
     this.el<HTMLButtonElement>('record').addEventListener('click', () => void this.toggleRecording());
     this.el<HTMLButtonElement>('support-button').addEventListener('click', () => this.el<HTMLDialogElement>('plus-dialog').showModal());
-    this.el<HTMLButtonElement>('restore-license').addEventListener('click', () => void this.restoreLicense());
+    this.el<HTMLButtonElement>('landing-plus').addEventListener('click', () => this.el<HTMLDialogElement>('plus-dialog').showModal());
+    if (!DEMO_MODE) this.el<HTMLButtonElement>('restore-license').addEventListener('click', () => void this.restoreLicense());
     this.el<HTMLButtonElement>('reset-demo').addEventListener('click', () => void this.resetDemo());
     this.el<HTMLButtonElement>('confirm-limited-import').addEventListener('click', () => this.confirmLimitedImport());
     ['cancel-limited-import', 'cancel-limited-import-button'].forEach((id) => this.el<HTMLButtonElement>(id).addEventListener('click', () => this.cancelLimitedImport()));
@@ -306,7 +330,7 @@ class CuebookApp {
     this.empty.hidden = true;
     this.studio.hidden = false;
     const pageTitle = this.el<HTMLHeadingElement>('page-title');
-    pageTitle.textContent = 'Build a repeatable visual cue sheet';
+    pageTitle.textContent = 'Build repeatable visual cues for your audio.';
     pageTitle.className = 'sr-only';
     this.studio.prepend(pageTitle);
     this.el<HTMLInputElement>('project-title').value = this.project.title;
@@ -535,7 +559,7 @@ class CuebookApp {
     this.audio.removeAttribute('src');
     this.studio.hidden = true; this.empty.hidden = false;
     const pageTitle = this.el<HTMLHeadingElement>('page-title');
-    pageTitle.textContent = 'Make every visual cue land on time.';
+    pageTitle.textContent = 'Build repeatable visual cues for your audio.';
     pageTitle.className = 'hero-title';
     this.el<HTMLElement>('hero-copy').querySelector('.eyebrow')?.after(pageTitle);
     this.toast('Local set removed.');
@@ -561,19 +585,21 @@ class CuebookApp {
     return {
       id: 'current',
       title: 'Neon classroom rehearsal',
-      audioName: 'sample-rehearsal.wav',
+      audioName: 'sample-beacon-rhythm.wav',
       audioType: 'audio/wav',
       duration,
       bpm: 100,
       beatOffset: 0,
       cues,
       updatedAt: new Date().toISOString(),
-      audioBlob: this.makeSilentWav(duration)
+      audioBlob: this.makeSampleWav(duration)
     };
   }
 
-  private makeSilentWav(seconds: number): Blob {
-    const sampleRate = 8_000;
+  /** Original 100 BPM click-and-tone rehearsal loop. It is generated locally so
+   * the demo works offline and no sample is fetched or uploaded. */
+  private makeSampleWav(seconds: number): Blob {
+    const sampleRate = 16_000;
     const samples = sampleRate * seconds;
     const buffer = new ArrayBuffer(44 + samples * 2);
     const view = new DataView(buffer);
@@ -582,6 +608,17 @@ class CuebookApp {
     view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
     view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
     view.setUint16(32, 2, true); view.setUint16(34, 16, true); write(36, 'data'); view.setUint32(40, samples * 2, true);
+    // A short low kick on each beat plus a brighter tone on cue boundaries.
+    // Keep the envelope deterministic: tests can measure non-zero PCM energy.
+    for (let index = 0; index < samples; index += 1) {
+      const time = index / sampleRate;
+      const beatPhase = time % 0.6;
+      const cuePhase = time % 2.4;
+      const kick = beatPhase < 0.13 ? Math.sin(2 * Math.PI * 92 * beatPhase) * Math.exp(-beatPhase * 20) * 0.48 : 0;
+      const tone = cuePhase < 0.32 ? Math.sin(2 * Math.PI * 440 * cuePhase) * Math.exp(-cuePhase * 6) * 0.20 : 0;
+      const pulse = Math.sin(2 * Math.PI * 55 * time) * 0.035;
+      view.setInt16(44 + index * 2, Math.max(-1, Math.min(1, kick + tone + pulse)) * 32767, true);
+    }
     return new Blob([buffer], { type: 'audio/wav' });
   }
 
