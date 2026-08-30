@@ -15,11 +15,7 @@
   },
   "routes": [
     {
-      "route": "/demo",
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/demo/",
+      "route": "/demo*",
       "rewrite": "/index.html"
     },
     {
