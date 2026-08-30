@@ -10,7 +10,7 @@
 
 ## Revision
 
-Repair commit: `272f11d168678818138cee20427fd8a673157212`.
+Repair commit: `759f62e6da8169d11625bc6dc12f6924c4c38c3e` (includes the Azure-valid normalized demo route).
 
 ## Verification
 
@@ -40,14 +40,13 @@ The local Vite preview returns its development fallback for unknown paths. Produ
 
 ## Deployment and live check
 
-Push `main` to the configured static deployment. After the deployed revision is available, verify cold:
+Deployed production with the configured `sf-visualizer-cuebook` Azure Static Web App on 2026-08-30.
 
-- `https://visualizer-cuebook.sociobot.in/`
-- `https://visualizer-cuebook.sociobot.in/demo/`
-- `https://visualizer-cuebook.sociobot.in/privacy/`
-- `https://visualizer-cuebook.sociobot.in/terms/`
-- `https://visualizer-cuebook.sociobot.in/demo/nope` returns the designed HTTP 404.
+- Cold checks returned: `/` 200, `/demo/` 200, `/privacy/` 200, `/terms/` 200, and `/demo/nope` designed 404.
+- Live titles: Cuebook home, Demo — Cuebook, Privacy — Cuebook, Terms — Cuebook, and Page not found — Cuebook.
+- Live 390 px Axe checks found zero violations on home, demo, privacy, terms, and 404. Normal browser console checks were clean; Chrome reports the expected failed navigation resource for the 404 response itself.
+- Live screenshots: `.factory/evidence/live-demo-mobile.png` and `.factory/evidence/live-home-desktop.png`.
 
 ## Known gaps
 
-None in the repaired source. Live deployment validation remains dependent on the configured static-host release after this commit is pushed.
+None.
