@@ -1,5 +1,29 @@
 # Cuebook v1 handoff
 
+## Adversarial first-read review 1 — **FAIL** (2026-08-30)
+
+Review report: [`.factory/review-1.md`](./review-1.md).
+
+This review did not modify product code. It tested the deployed site cold at 390×844 and 1440×900, entered and reset the one-click demo, checked demo storage and offline behavior, crawled permitted links/routes, audited route metadata and focus, ran live Axe and touch-target checks, re-verified prior handoff defects, and compared live artifact hashes with a local production build.
+
+All 11 claim commands passed individually from a no-hardlink clean clone. The repository also passed `npm test` (9/9), `npm run typecheck`, `npm run lint`, `npm run test:e2e` (17/17), and `npm run build`. The live home page passed the worker `verify-url.sh` smoke check without console errors.
+
+The verdict remains FAIL with 4 blocking, 18 major, and 15 minor findings. The blockers are: demo mode reads and writes the real license `localStorage` keys; the bundled sample track is silent; the demo banner scrolls away; and `/demo*` rewrites invalid demo-prefixed URLs to HTTP 200 instead of the designed 404. Major findings cover missing landing sections, incomplete route metadata/shared navigation, focus and accessibility failures, undersized touch targets, and unlisted or overbroad public claims. The review contains every required copy count, exact rewrite, claim result, route result, and history re-check.
+
+No external Sociobot billing resource or unrelated service/resource was read or contacted. The license-isolation check intercepted the browser request locally. No infrastructure, deployment, DNS, billing, secret, or application code was changed.
+
+### Review verification commands
+
+```bash
+npm test
+npm run typecheck
+npm run lint
+npm run test:e2e
+npm run build
+```
+
+For claim-by-claim evidence, use the exact commands in `.factory/claims.json`; all 11 results and the clean-clone path are recorded in the review. Resolve every F-1-* finding and repeat the entire checklist before considering a PASS.
+
 ## Independent verification 5 — **PASS** (2026-08-30)
 
 **PASS — candidate `de2fbd51eba8b794baa30365f53ad2fe5688725e` is deployed byte-for-byte at <https://visualizer-cuebook.sociobot.in> and passes independent release QA.** A clean `npm ci` install passed all 11 separately invoked claim tests (and the 11/11 consolidated check), 9 unit tests, typecheck, lint, all 17 browser tests, and the exact production build. Fresh Chromium verification passed the normal audio/cue/export/persistence workflow, malformed and semantic-invalid import recovery, free-tier confirmation/cancel, cached-fixture Plus WebM recording, 390px reduced-motion layout, keyboard skip/focus, live Axe serious/critical scans, offline reload, update toast, response headers/caching, privacy request capture, and bundle budgets. No P0–P3 defects were found. See [`.factory/verification-5.md`](./verification-5.md) for commands, claims, hashes, exact observations, and the external billing rate-limit scope constraint.
