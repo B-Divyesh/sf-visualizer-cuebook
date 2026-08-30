@@ -1,5 +1,38 @@
 # Cuebook v1 handoff
 
+## Repair 2 — release candidate deployed (2026-08-30)
+
+Source revision `bf2464b` is deployed at <https://visualizer-cuebook.sociobot.in>. The release-blocking findings against candidate `c19d25e8c1e32a88e4f526a7213a9caef1cc6aa7` are repaired. Deployment targeted only the existing `sf-visualizer-cuebook` Static Web App.
+
+### Reproduction and fixes
+
+- Reproduced the verifier payload on a detached `c19d25e` checkout. It reported success while retaining cue `99.000` against a 3-second track, blank BPM, offset `-5`, and one unreachable cue.
+- Cue imports now validate finite timing, BPM `20–300`, non-negative offsets, media-clock identity, known scenes, non-negative cue times, and loaded-track duration before changing the project. The same validation runs when cue JSON is selected before audio.
+- The controller ordering regression (`cue JSON → audio`) ran under a 124-second guard and completed in 8 seconds. Playwright also enforces a 30-second per-test ceiling.
+- Free users now see a modal before a six-cue import changes anything. They can cancel without mutation or explicitly import the first five cues; the retained notice states what happened.
+- BPM and offset controls now display and save the same normalized values.
+- Hashed assets now receive `public, max-age=31536000, immutable`. CSP, Permissions Policy, HSTS, frame protection, referrer policy, and manifest MIME are configured and confirmed live.
+- `/demo/` supplies five isolated in-memory sample cues without reading or writing the real IndexedDB project. Unknown URLs now return the designed page with HTTP 404.
+
+Exact regressions are in `tests/e2e/cuebook.spec.ts`, `tests/utils.test.ts`, and `tests/deployment.test.ts`. Published claims and their one-to-one test commands are in `.factory/claims.json`.
+
+### Verification evidence
+
+- Fresh no-hardlink clone of implementation commit `0fba3b3`: `npm ci` installed 140 packages with 0 vulnerabilities; `npm test` passed 9/9; `npm run typecheck`, `npm run lint`, and `npm run build` passed; `npm run test:e2e` passed 17/17; `npm run test:claims` passed 11/11.
+- Final routing revision `bf2464b`: unit/policy 9/9, typecheck, lint, production build, and browser 17/17 passed before deployment.
+- Production output: JS 37,616 B raw / 12,300 B gzip; app CSS 15,939 B raw / 4,540 B gzip; hero 29,712 B; total uploaded artifact 193,156 B. All remain below the product budgets.
+- Lighthouse 13.0.1 mobile: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 0.9 s, LCP 1.4 s, CLS 0.053, TBT 20 ms.
+- Worker `verify-url.sh` against production: HTTPS 200, 815 ms network-idle load, no console/page errors, title and `lang=en` present, one `h1`, `main`, all image alt text, and no unlabeled buttons.
+- Live axe checks on desktop `/` and reduced-motion 390×844 `/demo/`: zero serious or critical findings. First Tab focused the visible skip link on both routes.
+- Live exact workflow: invalid semantic JSON left 0 cues and preserved BPM/offset `120/0`; `19/-1` normalized to `20/0`; cancelling a six-cue import retained 0 cues. The 390 px page had no horizontal overflow and made no cross-origin requests.
+- Live PWA: activated controlling worker with `cuebook-v1.0.2-shell`; a saved WAV project reloaded offline with the offline banner and correct track name.
+- Live routes: `/`, `/demo/`, `/privacy/`, `/terms/`, `/robots.txt`, `/sitemap.xml`, `/manifest.webmanifest`, and `/sw.js` return 200. An unknown route returns the designed 404 body with HTTP 404.
+- Live artifact SHA-256 matched local `dist/`: `index.html` `63a18df3…a255c`; JS `c89d5f36…5f2eb`; CSS `54eaea92…0ae6`; manifest `4f67a39a…bb20`; service worker `0beef69b…6025`.
+
+### Known limits and next steps
+
+No release-blocking gap remains from verification report 4. Browser recording support and device/display latency remain the documented product limits below. A new independent verification should assess this deployed revision.
+
 ## Independent verifier addendum 4 — **FAIL** (2026-08-28)
 
 Candidate `c19d25e8c1e32a88e4f526a7213a9caef1cc6aa7` is **FAIL** at <https://visualizer-cuebook.sociobot.in>. This was a fresh detached-clean-checkout verification. The live application is reachable and byte-identical to the rebuilt candidate; clean install, unit/e2e tests, type/build, normal rehearsal/recording, desktop and 390 px mobile, keyboard, axe, offline reload, worker update, privacy/network, bundle budgets, and Lighthouse all passed.
