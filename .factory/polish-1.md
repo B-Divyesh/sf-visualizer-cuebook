@@ -7,7 +7,7 @@ Revision repaired: `272f11d168678818138cee20427fd8a673157212`.
 | F-1-1 | Demo-aware license module never accesses real license keys; demo hides purchase/restore. | `@claim:demo-sandbox` sentinel test |
 | F-1-2 | Replaced zero PCM with original audible 12-second click-and-tone rhythm. | `@claim:demo-sandbox` PCM-energy assertion |
 | F-1-3 | Made labelled demo controls sticky below sticky header. | `demo-mobile.png`, mobile Axe test |
-| F-1-4 | Replaced `/demo*` with exact `/demo` and `/demo/` deployment routes. | deployment unit + route test |
+| F-1-4 | Replaced `/demo*` with the exact normalized `/demo` deployment route. | deployment unit + route test |
 | F-1-5 | Added preview, three steps, limits/privacy, and pricing sections. | browser route test, `demo-desktop.png` |
 | F-1-6 | Added canonical/social/apple/SVG icon metadata on every HTML route. | route metadata browser test |
 | F-1-7 | Added shared skip/header/nav/footer to privacy, terms, and 404. | route metadata browser test |

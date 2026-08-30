@@ -342,7 +342,7 @@ test('uses complete route metadata, shared navigation, focus, and a strict demo 
   await expect(page).toHaveTitle('Demo — Cuebook');
   await expect(page.locator('#demo-banner')).toBeVisible();
   const config = await page.evaluate(async () => (await fetch('/staticwebapp.config.json')).json());
-  expect(config.routes.map((route: { route: string }) => route.route)).toEqual(expect.arrayContaining(['/demo', '/demo/']));
+  expect(config.routes.map((route: { route: string }) => route.route)).toContain('/demo');
   expect(config.routes.map((route: { route: string }) => route.route)).not.toContain('/demo*');
 });
 

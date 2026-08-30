@@ -36,7 +36,7 @@ Executed locally on 2026-08-30:
 - Every claim command from `.factory/claims.json` passed separately in fresh clone `/tmp/cuebook-clean-hbVXx5/repo` after `npm ci` and `npm run build`.
 - Cold local screenshots: `.factory/evidence/demo-desktop.png` and `.factory/evidence/demo-mobile.png`.
 
-The local Vite preview returns its development fallback for unknown paths. Production strict 404 behavior is enforced by the exact `/demo` and `/demo/` rules in `staticwebapp.config.json`; the deployment-policy and browser configuration tests cover those rules.
+The local Vite preview returns its development fallback for unknown paths. Production strict 404 behavior is enforced by the exact normalized `/demo` rule in `staticwebapp.config.json`; the deployment-policy and browser configuration tests cover that rule.
 
 ## Deployment and live check
 
