@@ -33,7 +33,7 @@ Executed locally on 2026-08-30:
 - `npm run lint`: passed.
 - `npm run build`: passed; `dist/` created. Main JS: 40.10 KB raw / 12.84 KB gzip. Main CSS: 17.30 KB raw / 4.82 KB gzip.
 - `npm run test:e2e`: 22 passed, including desktop and 390 px zero-violation Axe checks for seeded demo.
-- Every claim command from `.factory/claims.json` passed separately in fresh clone `/tmp/cuebook-clean-hbVXx5/repo` after `npm ci` and `npm run build`.
+- Every claim command from `.factory/claims.json` passed separately in final fresh clone `/tmp/cuebook-final-bPPOSk/repo` after `npm ci` and `npm run build`.
 - Cold local screenshots: `.factory/evidence/demo-desktop.png` and `.factory/evidence/demo-mobile.png`.
 
 The local Vite preview returns its development fallback for unknown paths. Production strict 404 behavior is enforced by the exact normalized `/demo` rule in `staticwebapp.config.json`; the deployment-policy and browser configuration tests cover that rule.

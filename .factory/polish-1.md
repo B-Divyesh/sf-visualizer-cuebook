@@ -42,4 +42,4 @@ Revision repaired: `272f11d168678818138cee20427fd8a673157212`.
 | F-1-36 | Normalized user-facing media wording to track. | README/copy audit |
 | F-1-37 | Replaced 404 metaphor with Page not found. | route metadata browser test |
 
-All claim commands passed from clean clone `/tmp/cuebook-clean-hbVXx5/repo`; local screenshots are `.factory/evidence/demo-desktop.png` and `.factory/evidence/demo-mobile.png`. Live cold checks passed at `https://visualizer-cuebook.sociobot.in/` and `/demo/`; live 390 px and desktop evidence is `.factory/evidence/live-demo-mobile.png` and `.factory/evidence/live-home-desktop.png`. Live `/demo/nope` returned the designed HTTP 404.
+All claim commands passed from final clean clone `/tmp/cuebook-final-bPPOSk/repo`; local screenshots are `.factory/evidence/demo-desktop.png` and `.factory/evidence/demo-mobile.png`. Live cold checks passed at `https://visualizer-cuebook.sociobot.in/` and `/demo/`; live 390 px and desktop evidence is `.factory/evidence/live-demo-mobile.png` and `.factory/evidence/live-home-desktop.png`. Live `/demo/nope` returned the designed HTTP 404.
