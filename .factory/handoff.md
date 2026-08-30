@@ -1,5 +1,9 @@
 # Cuebook v1 handoff
 
+## Independent verification 5 — **PASS** (2026-08-30)
+
+**PASS — candidate `de2fbd51eba8b794baa30365f53ad2fe5688725e` is deployed byte-for-byte at <https://visualizer-cuebook.sociobot.in> and passes independent release QA.** A clean `npm ci` install passed all 11 separately invoked claim tests (and the 11/11 consolidated check), 9 unit tests, typecheck, lint, all 17 browser tests, and the exact production build. Fresh Chromium verification passed the normal audio/cue/export/persistence workflow, malformed and semantic-invalid import recovery, free-tier confirmation/cancel, cached-fixture Plus WebM recording, 390px reduced-motion layout, keyboard skip/focus, live Axe serious/critical scans, offline reload, update toast, response headers/caching, privacy request capture, and bundle budgets. No P0–P3 defects were found. See [`.factory/verification-5.md`](./verification-5.md) for commands, claims, hashes, exact observations, and the external billing rate-limit scope constraint.
+
 ## Repair 2 — release candidate deployed (2026-08-30)
 
 Source revision `bf2464b` is deployed at <https://visualizer-cuebook.sociobot.in>. The release-blocking findings against candidate `c19d25e8c1e32a88e4f526a7213a9caef1cc6aa7` are repaired. Deployment targeted only the existing `sf-visualizer-cuebook` Static Web App.
