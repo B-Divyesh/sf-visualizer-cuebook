@@ -4,6 +4,8 @@ Cuebook is a private, offline-first visual rehearsal desk for bedroom DJs, VJs, 
 
 Live product: <https://visualizer-cuebook.sociobot.in>
 
+Try the isolated sample: <https://visualizer-cuebook.sociobot.in/demo/>. It opens with five realistic cues, never reads your saved set, and resets on reload.
+
 ## What it does
 
 - Keeps one active audio track and cue sheet locally in IndexedDB.
@@ -36,11 +38,14 @@ Keyboard controls outside form fields:
 
 ```bash
 npm test
+npm run typecheck
+npm run lint
 npm run test:e2e
+npm run test:claims
 npm run build
 ```
 
-The Playwright suite pins Chromium-compatible Playwright 1.58.2 and checks the empty state, cue creation/persistence, JSON download, 390 px layout, axe accessibility, license return handling, and an explicit offline reload. The production command is exactly `npm run build`; static output is written to `dist/`, with `dist/index.html` at its root.
+The Playwright suite pins version 1.58.2 and checks the demo, cue creation and persistence, JSON download, 390 px layout, accessibility, license returns, and offline reload. Claim checks are mapped in [`.factory/claims.json`](./.factory/claims.json). The production command is exactly `npm run build`; static output is written to `dist/`, with `dist/index.html` at its root.
 
 Preview that output with:
 

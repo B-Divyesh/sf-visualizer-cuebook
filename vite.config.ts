@@ -10,6 +10,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         app: fromRoot('index.html'),
+        notFound: fromRoot('404.html'),
         privacy: fromRoot('privacy/index.html'),
         terms: fromRoot('terms/index.html')
       }

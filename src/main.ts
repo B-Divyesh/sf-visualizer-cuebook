@@ -1,30 +1,34 @@
 import './styles.css';
 import { BUY_URL, cachedUnlock, captureLicenseFromUrl, forgetLicense, storeLicense, verifyLicense } from './license';
 import { SceneRenderer } from './scenes';
-import { clearProject, loadProject, saveProject } from './storage';
+import { clearProject, isDemoMode, loadProject, saveProject } from './storage';
 import type { Cue, CueFile, CueProject, SceneId } from './types';
 import { SCENE_NAMES, cueAt, formatTime, makeCue, parseCueFile, timeToBeat, validateCueFileDuration } from './utils';
 
 const FREE_CUE_LIMIT = 5;
+const DEMO_MODE = isDemoMode();
 
 const template = `
   <header class="topbar">
-    <a class="brand" href="/" aria-label="Cuebook home"><span class="brand-mark" aria-hidden="true"></span><h1>Cuebook</h1></a>
+    <a class="brand" href="/" aria-label="Cuebook home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-title">Cuebook</span></a>
+    <nav class="top-nav" aria-label="Main navigation"><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a></nav>
     <div class="top-status"><span id="save-state">Saved locally</span><span class="status-dot" aria-hidden="true"></span></div>
     <button class="ghost small" id="support-button" type="button">Cuebook Plus</button>
   </header>
   <div class="offline-banner" id="offline-banner" role="status" hidden><span aria-hidden="true">↯</span> Offline and ready. Your saved set is on this device.</div>
+  <div class="demo-banner" id="demo-banner" ${DEMO_MODE ? '' : 'hidden'}><strong>Demo — sample data, nothing is saved</strong><button id="reset-demo" type="button">Reset demo</button><a href="/">Start for real</a></div>
   <main id="main" tabindex="-1">
     <section class="hero" id="empty-state">
-      <div class="hero-copy">
+      <div class="hero-copy" id="hero-copy">
         <p class="eyebrow">Private visual rehearsal</p>
-        <h2 class="hero-title">Make every visual cue land on time.</h2>
-        <p class="lede">Import a track you own, mark the moments that matter, and replay the same deterministic scene changes—offline, on your clock.</p>
+        <h1 class="hero-title" id="page-title">Make every visual cue land on time.</h1>
+        <p class="lede">For DJs, VJs, and educators who need repeatable scene changes from their own audio.</p>
         <div class="hero-actions">
-          <label class="button primary file-label">Choose an audio track<input id="audio-input" type="file" accept="audio/*" /></label>
+          <a class="button primary" href="/demo/">Try it with sample data</a>
+          <label class="button secondary file-label">Choose your audio track<input id="audio-input" type="file" accept="audio/*" /></label>
           <button class="button secondary" id="import-cues-empty" type="button">Import cue JSON</button>
         </div>
-        <p class="privacy-note"><span aria-hidden="true">◉</span> Audio stays in this browser. Nothing is uploaded.</p>
+        <ul class="plain-facts"><li>Audio stays in this browser.</li><li>Saved sets work offline.</li><li>Five cues are free.</li></ul>
       </div>
       <figure class="hero-art">
         <img src="/assets/cue-landscape.webp" srcset="/assets/cue-landscape-720.webp 720w, /assets/cue-landscape.webp 1200w" sizes="(max-width: 620px) calc(100vw - 40px), (max-width: 900px) 80vw, 52vw" width="1200" height="800" fetchpriority="high" decoding="async" alt="Five lime cue beacons positioned across an abstract glass rehearsal timeline" />
@@ -122,7 +126,7 @@ const template = `
   </dialog>
   <input id="cue-file-input" type="file" accept="application/json,.json" hidden />
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <footer><span>Cuebook runs locally.</span><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><span>Original visuals · AI-generated onboarding art</span></footer>
+  <footer><span>Cuebook runs locally.</span><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><span>Param Factory · v1.0.2 · Original generated art</span></footer>
 `;
 
 const root = document.querySelector<HTMLDivElement>('#app');
@@ -150,6 +154,11 @@ class CuebookApp {
   private cueFileInput = this.el<HTMLInputElement>('cue-file-input');
 
   constructor() {
+    if (DEMO_MODE) {
+      document.title = 'Demo — Cuebook';
+      document.querySelector<HTMLLinkElement>('#canonical-url')?.setAttribute('href', 'https://visualizer-cuebook.sociobot.in/demo/');
+      document.querySelector<HTMLMetaElement>('#og-url')?.setAttribute('content', 'https://visualizer-cuebook.sociobot.in/demo/');
+    }
     this.renderer = new SceneRenderer(this.canvas);
     this.bindEvents();
     this.updateNetworkStatus();
@@ -167,6 +176,10 @@ class CuebookApp {
   private async boot(): Promise<void> {
     try {
       this.project = await loadProject();
+      if (DEMO_MODE && !this.project) {
+        this.project = this.makeDemoProject();
+        await saveProject(this.project);
+      }
       if (this.project?.audioBlob) this.loadProjectIntoUi();
     } catch {
       this.toast('Local storage could not be opened. You can still rehearse, but refresh will lose this set.', 'error');
@@ -218,8 +231,13 @@ class CuebookApp {
     this.el<HTMLButtonElement>('record').addEventListener('click', () => void this.toggleRecording());
     this.el<HTMLButtonElement>('support-button').addEventListener('click', () => this.el<HTMLDialogElement>('plus-dialog').showModal());
     this.el<HTMLButtonElement>('restore-license').addEventListener('click', () => void this.restoreLicense());
+    this.el<HTMLButtonElement>('reset-demo').addEventListener('click', () => void this.resetDemo());
     this.el<HTMLButtonElement>('confirm-limited-import').addEventListener('click', () => this.confirmLimitedImport());
     ['cancel-limited-import', 'cancel-limited-import-button'].forEach((id) => this.el<HTMLButtonElement>(id).addEventListener('click', () => this.cancelLimitedImport()));
+    this.el<HTMLDialogElement>('import-limit-dialog').addEventListener('cancel', () => {
+      this.pendingLimitedCueFile = undefined;
+      this.toast('Cue import cancelled. Your current cue sheet was unchanged.');
+    });
     this.cueList.addEventListener('click', (event) => this.onCueListClick(event));
     this.cueList.addEventListener('change', (event) => this.onCueListChange(event));
     window.addEventListener('online', () => this.updateNetworkStatus());
@@ -255,6 +273,7 @@ class CuebookApp {
         } catch (error) {
           this.toast(error instanceof Error ? error.message : 'Cue JSON could not be imported.', 'error');
         }
+        return;
       }
       this.toast(replacing ? 'Audio replaced. Existing cues were kept.' : 'Track saved locally. Mark your first cue when ready.');
     } catch {
@@ -268,7 +287,12 @@ class CuebookApp {
       const probe = new Audio();
       const url = URL.createObjectURL(blob);
       probe.preload = 'metadata';
-      probe.onloadedmetadata = () => { const duration = probe.duration; URL.revokeObjectURL(url); Number.isFinite(duration) ? resolve(duration) : reject(); };
+      probe.onloadedmetadata = () => {
+        const duration = probe.duration;
+        URL.revokeObjectURL(url);
+        if (Number.isFinite(duration)) resolve(duration);
+        else reject();
+      };
       probe.onerror = () => { URL.revokeObjectURL(url); reject(); };
       probe.src = url;
     });
@@ -281,6 +305,10 @@ class CuebookApp {
     this.audio.src = this.audioUrl;
     this.empty.hidden = true;
     this.studio.hidden = false;
+    const pageTitle = this.el<HTMLHeadingElement>('page-title');
+    pageTitle.textContent = 'Build a repeatable visual cue sheet';
+    pageTitle.className = 'sr-only';
+    this.studio.prepend(pageTitle);
     this.el<HTMLInputElement>('project-title').value = this.project.title;
     this.el<HTMLElement>('track-name').textContent = this.project.audioName;
     this.el<HTMLElement>('track-duration').textContent = formatTime(this.project.duration);
@@ -400,7 +428,8 @@ class CuebookApp {
     const cue = this.project.cues.find((item) => item.id === row.dataset.id);
     if (!cue) return;
     if (input.dataset.field === 'time') {
-      cue.time = Math.min(this.project.duration, Math.max(0, Number(input.value)));
+      const entered = Number(input.value);
+      cue.time = Number.isFinite(entered) ? Math.min(this.project.duration, Math.max(0, entered)) : cue.time;
       cue.beat = timeToBeat(cue.time, this.project.bpm, this.project.beatOffset);
     } else if (input.dataset.field === 'scene') cue.scene = input.value as SceneId;
     else if (input.dataset.field === 'note') cue.note = input.value.trim();
@@ -505,7 +534,65 @@ class CuebookApp {
     if (this.audioUrl) URL.revokeObjectURL(this.audioUrl);
     this.audio.removeAttribute('src');
     this.studio.hidden = true; this.empty.hidden = false;
+    const pageTitle = this.el<HTMLHeadingElement>('page-title');
+    pageTitle.textContent = 'Make every visual cue land on time.';
+    pageTitle.className = 'hero-title';
+    this.el<HTMLElement>('hero-copy').querySelector('.eyebrow')?.after(pageTitle);
     this.toast('Local set removed.');
+  }
+
+  private makeDemoProject(): CueProject {
+    const duration = 12;
+    const cues = [
+      { time: 0, scene: 'contour' as const, note: 'Opening contour', intensity: 46, hue: -18 },
+      { time: 2.4, scene: 'orbital' as const, note: 'First pulse', intensity: 68, hue: 22 },
+      { time: 4.8, scene: 'shards' as const, note: 'Break into shards', intensity: 82, hue: 64 },
+      { time: 7.2, scene: 'orbital' as const, note: 'Return to orbit', intensity: 58, hue: -42 },
+      { time: 9.6, scene: 'contour' as const, note: 'Closing horizon', intensity: 74, hue: 10 }
+    ].map((cue, index) => ({
+      id: `demo-${index + 1}`,
+      beat: timeToBeat(cue.time, 100, 0),
+      hue: cue.hue,
+      intensity: cue.intensity,
+      note: cue.note,
+      scene: cue.scene,
+      time: cue.time
+    }));
+    return {
+      id: 'current',
+      title: 'Neon classroom rehearsal',
+      audioName: 'sample-rehearsal.wav',
+      audioType: 'audio/wav',
+      duration,
+      bpm: 100,
+      beatOffset: 0,
+      cues,
+      updatedAt: new Date().toISOString(),
+      audioBlob: this.makeSilentWav(duration)
+    };
+  }
+
+  private makeSilentWav(seconds: number): Blob {
+    const sampleRate = 8_000;
+    const samples = sampleRate * seconds;
+    const buffer = new ArrayBuffer(44 + samples * 2);
+    const view = new DataView(buffer);
+    const write = (offset: number, value: string): void => [...value].forEach((char, index) => view.setUint8(offset + index, char.charCodeAt(0)));
+    write(0, 'RIFF'); view.setUint32(4, 36 + samples * 2, true); write(8, 'WAVEfmt ');
+    view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true); view.setUint16(34, 16, true); write(36, 'data'); view.setUint32(40, samples * 2, true);
+    return new Blob([buffer], { type: 'audio/wav' });
+  }
+
+  private async resetDemo(): Promise<void> {
+    if (!DEMO_MODE) return;
+    this.audio.pause();
+    await clearProject();
+    this.project = this.makeDemoProject();
+    await saveProject(this.project);
+    this.loadProjectIntoUi();
+    this.toast('Demo reset to the five sample cues.');
   }
 
   private async toggleRecording(): Promise<void> {

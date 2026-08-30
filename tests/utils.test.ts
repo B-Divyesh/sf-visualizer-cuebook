@@ -43,6 +43,19 @@ describe('cue import validation', () => {
       cues: [{ id: 'bad', time: 99, beat: 1, scene: 'contour', intensity: 72, hue: 0, note: 'unreachable' }]
     };
     expect(() => parseCueFile(broken)).toThrow(/BPM must be a number from 20 to 300/i);
+    expect(() => parseCueFile({ ...broken, timing: { bpm: 301, beatOffset: 0, clock: 'media-currentTime' } })).toThrow(/BPM/i);
+    expect(() => parseCueFile({ ...broken, timing: { bpm: 120, beatOffset: Number.NaN, clock: 'media-currentTime' } })).toThrow(/Beat 1 offset/i);
+    expect(() => parseCueFile({ ...broken, timing: { bpm: 120, beatOffset: 0, clock: 'independent-clock' } })).toThrow(/media-currentTime/i);
+  });
+
+  it('rejects non-finite, negative, and unknown-scene cue values', () => {
+    const base = {
+      format: 'cuebook/v1', title: 'Broken cue', audio: { name: 'x.wav', duration: 3 }, exportedAt: '',
+      timing: { bpm: 120, beatOffset: 0, clock: 'media-currentTime' }
+    };
+    expect(() => parseCueFile({ ...base, cues: [{ time: Number.NaN, scene: 'contour' }] })).toThrow(/Cue 1/i);
+    expect(() => parseCueFile({ ...base, cues: [{ time: -1, scene: 'contour' }] })).toThrow(/Cue 1/i);
+    expect(() => parseCueFile({ ...base, cues: [{ time: 1, scene: 'unknown' }] })).toThrow(/Cue 1/i);
   });
 
   it('rejects cue times beyond the loaded track instead of creating unreachable cues', () => {

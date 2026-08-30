@@ -74,7 +74,7 @@ export function parseCueFile(value: unknown): CueFile {
       throw new Error(`Cue ${index + 1} is missing a valid time or scene.`);
     }
     return {
-      id: typeof cue.id === 'string' ? cue.id : `import-${index}`,
+      id: `import-${index}-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`,
       time: cue.time,
       beat: isFiniteNumber(cue.beat) ? cue.beat : 0,
       scene: cue.scene as SceneId,

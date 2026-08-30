@@ -10,8 +10,10 @@ describe('static deployment policy', () => {
     };
     expect(config.globalHeaders['Content-Security-Policy']).toContain("frame-ancestors 'none'");
     expect(config.globalHeaders['Permissions-Policy']).toContain('camera=()');
+    expect(config.globalHeaders['Strict-Transport-Security']).toContain('max-age=31536000');
     expect(config.globalHeaders['X-Frame-Options']).toBe('DENY');
     expect(config.routes.find((route) => route.route === '/assets/*')?.headers['Cache-Control']).toBe('public, max-age=31536000, immutable');
     expect(config.routes.find((route) => route.route === '/manifest.webmanifest')?.headers['Content-Type']).toContain('application/manifest+json');
+    expect((config as typeof config & { mimeTypes: Record<string, string> }).mimeTypes['.webmanifest']).toBe('application/manifest+json');
   });
 });

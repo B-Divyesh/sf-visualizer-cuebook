@@ -39,6 +39,14 @@ export class SceneRenderer {
     const hue = cue?.hue ?? 0;
     const t = this.reducedMotion ? Math.floor(time * 2) / 2 : time;
     const ctx = this.context;
+    // A frame must depend only on media time and cue data, never on whichever
+    // scene happened to render before it.
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.lineWidth = 1;
+    ctx.lineCap = 'butt';
+    ctx.lineJoin = 'miter';
     const gradient = ctx.createLinearGradient(0, 0, this.width, this.height);
     gradient.addColorStop(0, `hsl(${160 + hue} 46% 6%)`);
     gradient.addColorStop(0.55, `hsl(${171 + hue} 54% 10%)`);

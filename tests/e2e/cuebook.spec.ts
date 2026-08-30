@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFile } from 'node:fs/promises';
 
 function silentWav(seconds = 2): Buffer {
   const sampleRate = 8000;
@@ -30,12 +31,11 @@ function cue(time: number, id = `cue-${time}`): object {
   return { id, time, beat: 1, scene: 'contour', intensity: 72, hue: 0, note: 'transition' };
 }
 
-test('creates and persists a timed cue without accessibility violations', async ({ page }) => {
+test('@claim:cue-workflow creates, exports, and persists a timed cue without accessibility violations', async ({ page }) => {
   const consoleErrors: string[] = [];
   page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cuebook');
-  await expect(page.getByRole('heading', { level: 2, name: /Make every visual cue/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /Make every visual cue/ })).toBeVisible();
 
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
@@ -61,13 +61,18 @@ test('creates and persists a timed cue without accessibility violations', async 
 
 test('keeps the cue workflow within a 390px phone viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await expect(page.locator('body')).toHaveJSProperty('scrollWidth', 390);
+  const onboardingAccessibility = await new AxeBuilder({ page }).analyze();
+  expect(onboardingAccessibility.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
   await page.locator('#audio-input').setInputFiles({ name: 'mobile.wav', mimeType: 'audio/wav', buffer: silentWav() });
   await page.getByRole('button', { name: /Mark cue/ }).click();
   await expect(page.locator('.cue-row')).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);
+  const studioAccessibility = await new AxeBuilder({ page }).analyze();
+  expect(studioAccessibility.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
 });
 
 test('supports the documented keyboard path without trapping focus in controls', async ({ page }) => {
@@ -85,7 +90,9 @@ test('supports the documented keyboard path without trapping focus in controls',
   await expect(page.locator('.cue-row')).toHaveCount(1);
 });
 
-test('reopens the saved studio while offline', async ({ page, context }) => {
+test('@claim:offline-reload reopens the saved studio while offline', async ({ browser }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
   await page.goto('/');
   await page.locator('#audio-input').setInputFiles({ name: 'offline.wav', mimeType: 'audio/wav', buffer: silentWav() });
   await expect(page.locator('#studio')).toBeVisible();
@@ -95,9 +102,10 @@ test('reopens the saved studio while offline', async ({ page, context }) => {
   await page.reload();
   await expect(page.locator('#studio')).toBeVisible();
   await expect(page.locator('#offline-banner')).toBeVisible();
+  await context.close();
 });
 
-test('captures and verifies a returned Plus license without exposing it in the URL', async ({ page }) => {
+test('@claim:plus-license captures and verifies a returned Plus license without exposing it in the URL', async ({ page }) => {
   await page.route('https://api.sociobot.in/api/v1/products/visualizer-cuebook/verify?*', async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: true, reason: 'ok', expires_at: null }) });
   });
@@ -130,6 +138,14 @@ test('rejects imported cues beyond the loaded track duration', async ({ page }) 
   await expect(page.locator('.cue-row')).toHaveCount(0);
 });
 
+test('keeps the duration error visible when cue JSON is chosen before audio', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#cue-file-input').setInputFiles({ name: 'too-long-first.cuebook.json', mimeType: 'application/json', buffer: cueFile([cue(99)]) });
+  await page.locator('#audio-input').setInputFiles({ name: 'three-seconds.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
+  await expect(page.locator('#toast')).toContainText('beyond this track');
+  await expect(page.locator('.cue-row')).toHaveCount(0);
+});
+
 test('normalizes invalid timing controls to the saved values', async ({ page }) => {
   await page.goto('/');
   await page.locator('#audio-input').setInputFiles({ name: 'timing.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
@@ -140,16 +156,126 @@ test('normalizes invalid timing controls to the saved values', async ({ page }) 
   await page.locator('#beat-offset').press('Tab');
   await expect(page.locator('#beat-offset')).toHaveValue('0');
   await expect(page.locator('#toast')).toContainText('Timing adjusted');
+  await page.waitForTimeout(350);
+  await page.reload();
+  await expect(page.locator('#bpm')).toHaveValue('20');
+  await expect(page.locator('#beat-offset')).toHaveValue('0');
 });
 
-test('asks before truncating a free cue import and preserves the warning after confirmation', async ({ page }) => {
+test('@claim:free-five asks before truncating a free cue import and preserves the warning after confirmation', async ({ page }) => {
   await page.goto('/');
   await page.locator('#audio-input').setInputFiles({ name: 'limited.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
   const sixCues = [0, 0.2, 0.4, 0.6, 0.8, 1].map((time) => cue(time));
   await page.locator('#cue-file-input').setInputFiles({ name: 'six.cuebook.json', mimeType: 'application/json', buffer: cueFile(sixCues) });
   await expect(page.locator('#import-limit-dialog')).toBeVisible();
   await expect(page.locator('.cue-row')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Cancel import' }).click();
+  await expect(page.locator('#toast')).toContainText('current cue sheet was unchanged');
+  await expect(page.locator('.cue-row')).toHaveCount(0);
+  await page.locator('#cue-file-input').setInputFiles({ name: 'six-again.cuebook.json', mimeType: 'application/json', buffer: cueFile(sixCues) });
   await page.getByRole('button', { name: 'Import first five cues' }).click();
   await expect(page.locator('.cue-row')).toHaveCount(5);
   await expect(page.locator('#toast')).toContainText('Imported the first 5 of 6 cues');
+});
+
+test('@claim:demo-sandbox opens sample data in one click without changing the real set', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveTitle('Demo — Cuebook');
+  await expect(page.locator('#demo-banner')).toContainText('Demo — sample data, nothing is saved');
+  await expect(page.locator('#project-title')).toHaveValue('Neon classroom rehearsal');
+  await expect(page.locator('.cue-row')).toHaveCount(5);
+  await page.getByRole('button', { name: 'Delete cue 1' }).click();
+  await expect(page.locator('.cue-row')).toHaveCount(4);
+  await page.reload();
+  await expect(page.locator('.cue-row')).toHaveCount(5);
+  await page.getByRole('link', { name: 'Start for real' }).click();
+  await page.locator('#audio-input').setInputFiles({ name: 'my-real-set.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
+  await page.getByRole('link', { name: 'Demo' }).click();
+  await expect(page.locator('#project-title')).toHaveValue('Neon classroom rehearsal');
+  await page.getByRole('link', { name: 'Start for real' }).click();
+  await expect(page.locator('#track-name')).toHaveText('my-real-set.wav');
+});
+
+test('@claim:local-privacy keeps a complete demo rehearsal on the product origin', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', (request) => requests.push(request.url()));
+  await page.goto('/demo/');
+  await expect(page.locator('.cue-row')).toHaveCount(5);
+  await page.getByRole('button', { name: 'Orbit' }).click();
+  expect(requests.filter((url) => !url.startsWith('http://127.0.0.1:4173') && !url.startsWith('blob:'))).toEqual([]);
+});
+
+test('@claim:json-no-audio exports cue JSON without audio bytes', async ({ page }) => {
+  await page.goto('/demo/');
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export JSON' }).click();
+  const download = await downloadPromise;
+  const path = await download.path();
+  expect(path).not.toBeNull();
+  const data = JSON.parse(await readFile(path!, 'utf8')) as Record<string, unknown>;
+  expect(data).not.toHaveProperty('audioBlob');
+  expect(data.audio).toEqual({ name: 'sample-rehearsal.wav', duration: 12 });
+});
+
+test('@claim:three-scenes exposes all three deterministic scene choices', async ({ page }) => {
+  await page.goto('/demo/');
+  const sceneNames = ['Contour', 'Orbit', 'Shards'];
+  for (const name of sceneNames) {
+    const button = page.getByRole('button', { name });
+    await button.click();
+    await expect(button).toHaveAttribute('aria-pressed', 'true');
+  }
+});
+
+test('@claim:deterministic-scenes renders the same scene frame at the same media time', async ({ page }) => {
+  await page.goto('/demo/');
+  await page.waitForTimeout(200);
+  const frameHash = async (): Promise<string> => page.locator('#visual-canvas').evaluate((canvas: HTMLCanvasElement) => {
+    const pixels = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height).data;
+    let hash = 2166136261;
+    for (const value of pixels) {
+      hash ^= value;
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(16);
+  });
+  await page.locator('#timeline').fill('400');
+  await page.waitForTimeout(100);
+  const first = await frameHash();
+  await page.locator('#timeline').fill('700');
+  await page.locator('#timeline').fill('400');
+  await page.waitForTimeout(100);
+  const second = await frameHash();
+  expect(second).toBe(first);
+});
+
+test('@claim:pwa-install serves an install manifest and controls the page with a service worker', async ({ page }) => {
+  await page.goto('/');
+  const result = await page.evaluate(async () => {
+    const registration = await navigator.serviceWorker.ready;
+    const response = await fetch('/manifest.webmanifest');
+    const manifest = await response.json() as { display: string; icons: unknown[] };
+    return { active: registration.active?.state, controlled: Boolean(navigator.serviceWorker.controller), display: manifest.display, icons: manifest.icons.length };
+  });
+  expect(['activating', 'activated']).toContain(result.active);
+  expect(result).toMatchObject({ controlled: true, display: 'standalone', icons: 3 });
+});
+
+test('@claim:plus-recording saves a WebM rehearsal with a cached valid license', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('sb_license:visualizer-cuebook', 'recording-fixture');
+    localStorage.setItem('sb_license_cache:visualizer-cuebook', JSON.stringify({ valid: true, checkedAt: Date.now() }));
+  });
+  await page.goto('/demo/');
+  const sixCues = [0, 0.2, 0.4, 0.6, 0.8, 1].map((time) => cue(time));
+  await page.locator('#cue-file-input').setInputFiles({ name: 'plus-six.cuebook.json', mimeType: 'application/json', buffer: cueFile(sixCues) });
+  await expect(page.locator('.cue-row')).toHaveCount(6);
+  await page.getByRole('button', { name: 'Record rehearsal' }).click();
+  await expect(page.locator('#record-badge')).toBeVisible();
+  await page.waitForTimeout(1_100);
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Stop & save' }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/-rehearsal\.webm$/);
 });
