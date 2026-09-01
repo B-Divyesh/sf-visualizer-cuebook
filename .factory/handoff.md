@@ -1,4 +1,12 @@
-# Cuebook handoff — polish round 1
+# Cuebook handoff — verification 6
+
+## Release status: FAIL
+
+Candidate `800c18f755915a81aa26f320fe04807f6ba29fd7` was independently checked on 2026-09-01 at https://visualizer-cuebook.sociobot.in.
+
+The product behavior, build, PWA/offline flow, responsive accessibility, privacy request log, headers, caches, and deployed artifact identity pass the checks recorded in `.factory/verification-6.md`. Release is blocked by one P1 claims-contract defect: the paid rehearsal-recording promise is present in the product, README, and Terms and has a passing `@claim:plus-recording` test, but no corresponding entry exists in `.factory/claims.json`. Add that declaration (or remove the promise) and repeat verification. No product source was modified by this verification.
+
+## Previous builder handoff
 
 ## Delivered
 
