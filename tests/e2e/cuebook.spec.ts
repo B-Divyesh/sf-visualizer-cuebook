@@ -90,7 +90,7 @@ test('keeps the cue workflow within a 390px phone viewport', async ({ page }) =>
   expect(studioAccessibility.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
 });
 
-test('supports the documented keyboard path without trapping focus in controls', async ({ page }) => {
+test('@claim:accessibility-in-free supports keyboard controls and labelled Free controls without trapping focus', async ({ page }) => {
   await page.goto('/');
   await page.locator('.skip-link').focus();
   await expect(page.locator('.skip-link')).toBeFocused();
@@ -100,6 +100,8 @@ test('supports the documented keyboard path without trapping focus in controls',
   await page.locator('main').focus();
   await page.keyboard.press('m');
   await expect(page.locator('.cue-row')).toHaveCount(1);
+  await expect(page.getByRole('button', { name: 'Record rehearsal' })).toBeVisible();
+  await expect(page.getByRole('slider', { name: 'Track position' })).toBeVisible();
   await page.locator('#cue-note').focus();
   await page.keyboard.press('m');
   await expect(page.locator('.cue-row')).toHaveCount(1);
@@ -126,42 +128,32 @@ test('@claim:plus-license captures and verifies a returned Plus license without 
   });
   await page.goto('/?license=test-license-token');
   await expect(page).toHaveURL('http://127.0.0.1:4173/');
-  await expect(page.getByRole('button', { name: 'Plus unlocked' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Manage Plus license' })).toBeVisible();
   const stored = await page.evaluate(() => localStorage.getItem('sb_license:visualizer-cuebook'));
   expect(stored).toBe('test-license-token');
 });
 
-test('@claim:license-rate-limit reports Retry-After when the 31st immediate verification is limited', async ({ page }) => {
+test('@claim:license-rate-limit keeps a pasted license and reports Retry-After from a recorded 429 response', async ({ page }) => {
+  const fixture = JSON.parse(await readFile('.factory/license-429-fixture.json', 'utf8')) as { status: number; headers: Record<string, string>; body: string };
   let requestCount = 0;
   await page.route('https://api.sociobot.in/api/v1/products/visualizer-cuebook/verify?*', async (route) => {
     requestCount += 1;
-    if (requestCount <= 30) {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: false, reason: 'invalid', expires_at: null }) });
-      return;
-    }
     await route.fulfill({
-      status: 429,
-      headers: { 'Access-Control-Expose-Headers': 'Retry-After', 'Retry-After': '3' },
-      body: 'Too Many Requests! Wait for 3s'
+      status: fixture.status,
+      headers: { 'Access-Control-Expose-Headers': 'Retry-After', ...fixture.headers },
+      body: fixture.body
     });
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'See Plus options' }).click();
+  await page.locator('#support-button').click();
   const input = page.locator('#license-input');
   const status = page.locator('#license-status');
 
-  for (let request = 1; request <= 30; request += 1) {
-    await input.fill(`recorded-invalid-${request}`);
-    await page.getByRole('button', { name: 'Verify license' }).click();
-    await expect.poll(() => requestCount).toBe(request);
-    await expect(status).toHaveText('That license is not active. Check the token and try again.');
-  }
-
-  await input.fill('recorded-boundary-request');
+  await input.fill('recorded-limited-request');
   await page.getByRole('button', { name: 'Verify license' }).click();
-  await expect.poll(() => requestCount).toBe(31);
+  await expect.poll(() => requestCount).toBe(1);
   await expect(status).toHaveText('Too many license checks from this connection. Try again in 3 seconds.');
-  expect(await page.evaluate(() => localStorage.getItem('sb_license:visualizer-cuebook'))).toBe('recorded-boundary-request');
+  expect(await page.evaluate(() => localStorage.getItem('sb_license:visualizer-cuebook'))).toBe('recorded-limited-request');
 });
 
 test('rejects semantic-invalid cue JSON without changing the active rehearsal', async ({ page }) => {
@@ -202,10 +194,10 @@ test('asks before a shorter replacement, removes unreachable cues, and exports a
   await page.locator('#replace-audio-input').setInputFiles({ name: 'short.wav', mimeType: 'audio/wav', buffer: silentWav(1) });
   await expect(page.locator('#replace-audio-dialog')).toBeVisible();
   await expect(page.locator('#replace-audio-dialog')).toContainText('1 cue falls after short.wav ends at 0:01.000');
-  await expect(page.getByRole('button', { name: 'Keep current audio' })).toBeFocused();
+  await expect(page.getByRole('button', { name: 'Keep current track' })).toBeFocused();
   const replacementAccessibility = await new AxeBuilder({ page }).include('#replace-audio-dialog').analyze();
   expect(replacementAccessibility.violations).toEqual([]);
-  await page.getByRole('button', { name: 'Keep current audio' }).click();
+  await page.getByRole('button', { name: 'Keep current track' }).click();
   await expect(page.locator('#track-name')).toHaveText('long.wav');
   await expect(page.locator('.cue-row')).toHaveCount(2);
   await page.reload();
@@ -213,7 +205,7 @@ test('asks before a shorter replacement, removes unreachable cues, and exports a
   await expect(page.locator('.cue-row')).toHaveCount(2);
 
   await page.locator('#replace-audio-input').setInputFiles({ name: 'short.wav', mimeType: 'audio/wav', buffer: silentWav(1) });
-  await page.getByRole('button', { name: 'Remove later cue and replace audio' }).click();
+  await page.getByRole('button', { name: 'Remove later cue and replace track' }).click();
   await expect(page.locator('#track-name')).toHaveText('short.wav');
   await expect(page.locator('#track-duration')).toHaveText('0:01.000');
   await expect(page.locator('.cue-row')).toHaveCount(1);
@@ -443,7 +435,7 @@ test('@claim:plus-recording saves a WebM rehearsal with a cached valid license',
 
   await page.evaluate(() => { (HTMLCanvasElement.prototype as { captureStream?: unknown }).captureStream = undefined; });
   await page.getByRole('button', { name: 'Record rehearsal' }).click();
-  await expect(page.locator('#toast')).toContainText('Use a current Chromium or Firefox browser.');
+  await expect(page.locator('#toast')).toContainText('Use a browser that supports track-audio capture.');
 });
 
 test('@claim:no-tracking-runtime keeps app requests and runtime assets on the product origin', async ({ page }) => {
@@ -459,15 +451,72 @@ test('@claim:no-tracking-runtime keeps app requests and runtime assets on the pr
 });
 
 test('@claim:billing-contract displays the recorded Plus contract without requesting checkout', async ({ page }) => {
+  const fixture = JSON.parse(await readFile('.factory/billing-contract.json', 'utf8')) as {
+    price: { display: string; cadence: string; subscription: boolean };
+    checkout: { host: string; path: string };
+    merchant_of_record: string;
+    refunds: { handled_by: string; revokes_license: boolean };
+  };
   const requests: string[] = [];
   page.on('request', (request) => requests.push(request.url()));
   await page.goto('/');
-  await page.getByRole('button', { name: 'See Plus options' }).click();
-  await expect(page.locator('#plus-dialog')).toContainText('US$12');
+  await page.locator('#support-button').click();
+  await expect(page.locator('#plus-dialog')).toContainText(fixture.price.display);
+  await expect(page.locator('#plus-dialog')).toContainText(fixture.price.cadence);
+  expect(fixture.price.subscription).toBe(false);
   await expect(page.locator('#plus-dialog')).toContainText('No subscription');
-  await expect(page.locator('#plus-dialog')).toContainText('Dodo is the merchant of record');
-  await expect(page.locator('#plus-dialog').getByRole('link', { name: 'Buy Cuebook Plus' })).toHaveAttribute('href', 'https://api.sociobot.in/api/v1/products/visualizer-cuebook/checkout');
+  await expect(page.locator('#plus-dialog')).toContainText(`${fixture.merchant_of_record} is the merchant of record`);
+  await expect(page.locator('#plus-dialog')).toContainText(`Refunds are handled by ${fixture.refunds.handled_by}`);
+  expect(fixture.refunds.revokes_license).toBe(true);
+  await expect(page.locator('#plus-dialog')).toContainText('revoke the license');
+  await expect(page.locator('#plus-dialog').getByRole('link', { name: 'Buy Cuebook Plus' })).toHaveAttribute('href', `https://${fixture.checkout.host}${fixture.checkout.path}`);
+  await page.goto('/terms/');
+  await expect(page.locator('main')).toContainText(`Refunds are handled by ${fixture.refunds.handled_by} and revoke the license.`);
   expect(requests.some((url) => url.startsWith('https://api.sociobot.in/'))).toBe(false);
+});
+
+test('@claim:beat-grid updates beat numbers without moving the selected cue time', async ({ page }) => {
+  await page.goto('/demo/');
+  await page.locator('#timeline').fill('200');
+  await page.locator('#bpm').fill('120');
+  await page.locator('#bpm').press('Tab');
+  await page.locator('#beat-offset').fill('1');
+  await page.locator('#beat-offset').press('Tab');
+  await expect(page.locator('#current-beat')).toHaveText('3.80');
+  const selectedCue = page.locator('.cue-row').nth(1);
+  await expect(selectedCue.locator('.cue-time input')).toHaveValue('2.400');
+  await expect(selectedCue.locator('.cue-beat strong')).toHaveText('3.80');
+  await page.locator('#beat-offset').fill('0');
+  await page.locator('#beat-offset').press('Tab');
+  await expect(page.locator('#current-beat')).toHaveText('5.80');
+  await expect(selectedCue.locator('.cue-time input')).toHaveValue('2.400');
+  await expect(selectedCue.locator('.cue-beat strong')).toHaveText('5.80');
+});
+
+test('@claim:license-cache-day reuses a verdict before one day and verifies again at the boundary', async ({ page }) => {
+  const start = 1_000_000;
+  let requests = 0;
+  await page.addInitScript((startTime) => {
+    const now = Number(sessionStorage.getItem('cuebook-test-now') ?? startTime);
+    Object.defineProperty(window, '__cuebookNow', { value: now, writable: true });
+    Date.now = () => (window as unknown as { __cuebookNow: number }).__cuebookNow;
+    if (!localStorage.getItem('sb_license:visualizer-cuebook')) {
+      localStorage.setItem('sb_license:visualizer-cuebook', 'cache-fixture');
+      localStorage.setItem('sb_license_cache:visualizer-cuebook', JSON.stringify({ valid: true, checkedAt: startTime }));
+    }
+  }, start);
+  await page.route('https://api.sociobot.in/api/v1/products/visualizer-cuebook/verify?*', async (route) => {
+    requests += 1;
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: true }) });
+  });
+  await page.goto('/');
+  expect(requests).toBe(0);
+  await page.evaluate((value) => { sessionStorage.setItem('cuebook-test-now', String(value)); (window as unknown as { __cuebookNow: number }).__cuebookNow = value; }, start + 86_399_999);
+  await page.reload();
+  expect(requests).toBe(0);
+  await page.evaluate((value) => { sessionStorage.setItem('cuebook-test-now', String(value)); (window as unknown as { __cuebookNow: number }).__cuebookNow = value; }, start + 86_400_000);
+  await page.reload();
+  await expect.poll(() => requests).toBe(1);
 });
 
 test('@claim:static-deployment serves a complete static demo without runtime environment configuration', async ({ page }) => {
@@ -479,9 +528,9 @@ test('@claim:static-deployment serves a complete static demo without runtime env
   expect(html).not.toContain('process.env');
 });
 
-test('uses complete route metadata, shared navigation, focus, and a strict demo route', async ({ page }) => {
+test('uses complete route metadata, shared navigation, focus, touch targets, and a strict demo route', async ({ page }) => {
   const packageData = JSON.parse(await readFile('package.json', 'utf8')) as { version: string };
-  for (const [path, title] of [['/', 'Cuebook — visual cues for your audio'], ['/demo/', 'Demo — Cuebook'], ['/privacy/', 'Privacy — Cuebook'], ['/terms/', 'Terms — Cuebook'], ['/404.html', 'Page not found — Cuebook']] as const) {
+  for (const [path, title] of [['/', 'Cuebook — visual cues for your track'], ['/demo/', 'Demo — Cuebook'], ['/privacy/', 'Privacy — Cuebook'], ['/terms/', 'Terms — Cuebook'], ['/404.html', 'Page not found — Cuebook'], ['/offline.html', 'Offline setup — Cuebook']] as const) {
     await page.goto(path);
     await expect(page).toHaveTitle(title);
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
@@ -491,13 +540,38 @@ test('uses complete route metadata, shared navigation, focus, and a strict demo 
     await expect(page.locator('footer')).toContainText('Built by Param Factory');
     await expect(page.locator('footer')).toContainText(`v${packageData.version}`);
     await expect(page.locator('h1')).toBeFocused();
+    await page.setViewportSize({ width: 390, height: 844 });
+    const undersizedTargets = await page.locator('button, a, input:not([type="file"]), select').evaluateAll((elements) => elements.flatMap((element) => {
+      const bounds = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return style.display !== 'none' && style.visibility !== 'hidden' && bounds.width > 0 && bounds.height > 0 && (bounds.width < 44 || bounds.height < 44)
+        ? [`${element.tagName} ${element.textContent} ${bounds.width}×${bounds.height}`] : [];
+    }));
+    expect(undersizedTargets).toEqual([]);
+    await page.setViewportSize({ width: 1280, height: 720 });
   }
   await page.goto('/?demo=1');
   await expect(page).toHaveTitle('Demo — Cuebook');
   await expect(page.locator('#demo-banner')).toBeVisible();
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Demo — Cuebook');
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', 'Demo — Cuebook');
   const config = await page.evaluate(async () => (await fetch('/staticwebapp.config.json')).json());
   expect(config.routes.map((route: { route: string }) => route.route)).toContain('/demo');
   expect(config.routes.map((route: { route: string }) => route.route)).not.toContain('/demo*');
+});
+
+test('renders the offline setup under the production CSP without console errors', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
+  await page.route('**/offline.html', async (route) => {
+    const response = await route.fetch();
+    await route.fulfill({ response, headers: { ...response.headers(), 'content-security-policy': "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; media-src 'self' blob:; connect-src 'self' https://api.sociobot.in; worker-src 'self' blob:; frame-ancestors 'none'; form-action 'self'" } });
+  });
+  await page.goto('/offline.html');
+  await expect(page.getByRole('heading', { level: 1, name: 'Reconnect once to finish offline setup' })).toBeVisible();
+  const report = await new AxeBuilder({ page }).analyze();
+  expect(report.violations).toEqual([]);
+  expect(errors).toEqual([]);
 });
 
 test('has zero Axe violations on seeded demo at phone and desktop widths', async ({ page }) => {

@@ -1,9 +1,9 @@
 import type { Cue, CueFile, CueProject, SceneId } from './types';
 
 export const SCENE_NAMES: Record<SceneId, string> = {
-  contour: 'Contour field',
-  orbital: 'Signal orbit',
-  shards: 'Glass shards'
+  contour: 'Contour',
+  orbital: 'Orbit',
+  shards: 'Shards'
 };
 
 export function formatTime(seconds: number): string {
@@ -100,6 +100,6 @@ export function validateCueFileDuration(file: CueFile, duration: number): void {
   if (!Number.isFinite(duration) || duration < 0) throw new Error('Cuebook could not read the loaded track duration.');
   const invalid = file.cues.find((cue) => cue.time > duration);
   if (invalid) {
-    throw new Error(`Cue at ${formatTime(invalid.time)} is beyond this track's ${formatTime(duration)} duration. Choose matching audio or edit the cue JSON.`);
+    throw new Error(`Cue at ${formatTime(invalid.time)} is beyond this track's ${formatTime(duration)} duration. Choose a matching track or edit the cue file.`);
   }
 }

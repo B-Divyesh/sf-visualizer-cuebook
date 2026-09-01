@@ -1,22 +1,30 @@
-# Copy audit — repair 6
+# Copy audit — polish 2
 
-All visitor-facing landing and README sentences were reviewed on 1 September 2026. No audited sentence exceeds 22 words or uses a banned marketing word.
+Reviewed 1 September 2026. Landing, demo, legal pages, and README use sentence case, literal headings, and no banned marketing words. No visitor-facing sentence exceeds 22 words.
 
 | Surface | Longest sentence | Words | Result |
 | --- | --- | ---: | --- |
-| Landing | “Opens a 12-second rehearsal with five editable cues.” | 8 | Pass |
-| README | “Cuebook helps DJs, VJs, and educators rehearse visual changes against their own audio.” | 13 | Pass |
-| License allowance | “Cuebook keeps the pasted token after a `429`.” | 8 | Pass |
+| Landing | “Free includes five cues, every scene, cue-file export, keyboard controls, and screen-reader labels.” | 12 | Pass |
+| Demo | “Beat numbers use the BPM and offset you enter.” | 10 | Pass |
 | Privacy | “Cuebook includes no behavioral analytics, advertising, tracking pixels, cloud audio processing, third-party runtime scripts, or CDN font requests.” | 15 | Pass |
-| Terms | “Cuebook Plus is a US$12 one-time license for more than five cues and rehearsal video recording.” | 16 | Pass |
+| Terms | “The free edition supports up to five saved cues, all three scenes, keyboard controls, screen-reader labels, and cue-file import and export.” | 19 | Pass |
+| README | “Record rehearsals in browsers that support track-audio capture.” | 9 | Pass |
+| Offline setup | “Open Cuebook while connected once.” | 5 | Pass |
 
 ## Terminology
 
 | Concept | Required term |
 | --- | --- |
-| One audio-and-cues workspace | set |
-| Imported media | track |
-| Portable timing file | cue file |
+| One track-and-cues workspace | set |
+| Imported media | track; use “audio file” only for a file format or technical capture |
+| Portable timing file | cue file; “Cuebook cue file (JSON)” only when format matters |
 | Scenes | Contour, Orbit, Shards |
 | Paid tier | Cuebook Plus, then Plus |
 | Isolated sample | demo |
+
+## Repaired labels
+
+- `See Plus options` is the locked header action; `Manage Plus license` is the unlocked action.
+- `Add the next cue` names the editor controls.
+- `Start a new set` names the destructive set-reset action.
+- `Reconnect once to finish offline setup` names the offline fallback recovery step.

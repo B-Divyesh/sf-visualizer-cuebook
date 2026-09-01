@@ -1,0 +1,6 @@
+{
+  "status": 429,
+  "headers": { "Retry-After": "3" },
+  "body": "Too Many Requests! Wait for 3s",
+  "source": "Recorded license-verification recovery fixture for product UI testing"
+}

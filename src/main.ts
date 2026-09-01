@@ -27,15 +27,15 @@ const template = `
     <section class="hero" id="empty-state" ${DEMO_MODE ? 'hidden' : ''}>
       <div class="hero-copy" id="hero-copy">
         <p class="eyebrow">Private visual rehearsal</p>
-        <h1 class="hero-title" id="page-title" tabindex="-1">Build repeatable visual cues for your audio.</h1>
-        <p class="lede">For DJs, VJs, and educators who need repeatable scene changes from their own audio.</p>
+        <h1 class="hero-title" id="page-title" tabindex="-1">Build repeatable visual cues for your track.</h1>
+        <p class="lede">For DJs, VJs, and educators who need repeatable scene changes from their own track.</p>
         <div class="hero-actions">
           <a class="button primary" href="/demo/">Try it with sample data</a>
-          <label class="button secondary file-label">Choose your audio track<input id="audio-input" type="file" accept="audio/*" /></label>
+          <label class="button secondary file-label">Choose your track<input id="audio-input" type="file" accept="audio/*" /></label>
           <button class="button secondary" id="import-cues-empty" type="button">Import a cue file</button>
         </div>
         <p class="action-note">Opens a 12-second rehearsal with five editable cues. Your saved set stays unchanged.</p>
-        <ul class="plain-facts"><li>Audio stays in this browser.</li><li>Saved sets work offline.</li><li>Five cues are free.</li></ul>
+        <ul class="plain-facts"><li>Your track stays in this browser.</li><li>Saved sets work offline.</li><li>Five cues are free.</li></ul>
       </div>
       <figure class="hero-art">
         <img src="/assets/cue-landscape.webp" srcset="/assets/cue-landscape-720.webp 720w, /assets/cue-landscape.webp 1200w" sizes="(max-width: 620px) calc(100vw - 40px), (max-width: 900px) 80vw, 52vw" width="1200" height="800" fetchpriority="high" decoding="async" alt="Five lime cue beacons positioned across an abstract glass rehearsal timeline" />
@@ -44,7 +44,7 @@ const template = `
     </section>
 
     <section class="landing-detail" aria-labelledby="preview-title" ${DEMO_MODE ? 'hidden' : ''}>
-      <div class="section-intro"><p class="eyebrow">Preview</p><h2 id="preview-title">See the cue sheet before you import</h2><p>A track, a clear playhead, and the next scene stay together while you rehearse.</p></div>
+      <div class="section-intro"><p class="eyebrow">Preview</p><h2 id="preview-title">See the cue sheet before you import</h2><p>Each cue lists its time, scene, and note before you import a track.</p></div>
       <ol class="preview-cues"><li><span>00:00</span><strong>Contour</strong><small>Opening contour</small></li><li><span>00:04.800</span><strong>Shards</strong><small>Break into shards</small></li><li><span>00:09.600</span><strong>Contour</strong><small>Closing horizon</small></li></ol>
     </section>
     <section class="landing-detail how-it-works" aria-labelledby="how-title" ${DEMO_MODE ? 'hidden' : ''}>
@@ -53,11 +53,11 @@ const template = `
     </section>
     <section class="landing-detail privacy-detail" aria-labelledby="privacy-title" ${DEMO_MODE ? 'hidden' : ''}>
       <div class="section-intro"><p class="eyebrow">Privacy and limits</p><h2 id="privacy-title">What Cuebook keeps on this device</h2></div>
-      <p>Your track and set stay in this browser. Cuebook does not stream, sync, or detect beats automatically. Export a cue file to keep a copy.</p><a href="/privacy/">Read the privacy details</a>
+      <p>Your track and set stay in this browser. Beat numbers use the BPM and offset you enter. Export a cue file to keep a copy.</p><a href="/privacy/">Read the privacy details</a>
     </section>
     <section class="landing-detail pricing-detail" aria-labelledby="pricing-title" ${DEMO_MODE ? 'hidden' : ''}>
       <div class="section-intro"><p class="eyebrow">Pricing</p><h2 id="pricing-title">Cuebook Free and Cuebook Plus</h2></div>
-      <p>Free includes five cues, every scene, cue-file export, and accessibility features. Plus is a US$12 one-time license for more than five cues and rehearsal recording.</p><button class="button secondary" id="landing-plus" type="button">See Plus options</button>
+      <p>Free includes five cues, every scene, cue-file export, keyboard controls, and screen-reader labels. Plus is a US$12 one-time license for more than five cues and rehearsal recording.</p><button class="button secondary" id="landing-plus" type="button">See Plus options</button>
     </section>
 
     <section class="studio" id="studio" hidden aria-label="Cue editor">
@@ -68,20 +68,20 @@ const template = `
           <p class="track-meta"><span id="track-name"></span><span aria-hidden="true">·</span><span id="track-duration"></span></p>
         </div>
         <div class="studio-actions">
-          <label class="button secondary compact file-label">Replace audio<input id="replace-audio-input" type="file" accept="audio/*" /></label>
-          <button class="button secondary compact" id="new-set" type="button">New set</button>
+          <label class="button secondary compact file-label">Replace track<input id="replace-audio-input" type="file" accept="audio/*" /></label>
+          <button class="button secondary compact" id="new-set" type="button">Start a new set</button>
         </div>
       </div>
 
       <div class="performance-frame">
         <canvas id="visual-canvas" width="1280" height="720" role="img" aria-label="Deterministic visual preview. The current scene and cue are described below."></canvas>
-        <div class="canvas-overlay"><span id="canvas-scene">Contour field</span><span id="canvas-cue">Before first cue</span></div>
+        <div class="canvas-overlay"><span id="canvas-scene">Contour</span><span id="canvas-cue">Before first cue</span></div>
         <div class="record-badge" id="record-badge" hidden><span></span> Recording rehearsal</div>
       </div>
-      <p class="sr-only" id="canvas-description">Contour field at the start of the track.</p>
+      <p class="sr-only" id="canvas-description">Contour at the start of the track.</p>
       <audio id="audio" preload="metadata"></audio>
 
-      <div class="transport" aria-label="Audio transport">
+      <div class="transport" aria-label="Track transport">
         <button class="play-button" id="play" type="button" aria-label="Play"><span aria-hidden="true">▶</span></button>
         <div class="time-readout"><strong id="current-time">0:00.000</strong><span>/</span><span id="total-time">0:00.000</span></div>
         <label class="timeline-label"><span class="sr-only">Track position</span><input id="timeline" type="range" min="0" max="1000" value="0" /></label>
@@ -90,7 +90,7 @@ const template = `
 
       <div class="workspace-grid">
         <section class="cue-maker" aria-labelledby="cue-maker-title">
-          <div class="section-heading"><div><p class="eyebrow">At the playhead</p><h2 id="cue-maker-title">Shape the next moment</h2></div><kbd>M</kbd></div>
+          <div class="section-heading"><div><p class="eyebrow">At the playhead</p><h2 id="cue-maker-title">Add the next cue</h2></div><kbd>M</kbd></div>
           <fieldset class="scene-picker"><legend>Visual scene</legend>
             <button type="button" data-scene="contour" aria-pressed="true"><span class="scene-icon contour-icon" aria-hidden="true"></span>Contour</button>
             <button type="button" data-scene="orbital" aria-pressed="false"><span class="scene-icon orbit-icon" aria-hidden="true"></span>Orbit</button>
@@ -112,7 +112,7 @@ const template = `
             <label>Beat 1 offset (s)<input id="beat-offset" type="number" min="0" step="0.001" value="0" inputmode="decimal" /></label>
           </div>
           <div class="beat-now"><span>Playhead beat</span><strong id="current-beat">1.00</strong></div>
-          <p class="advisory"><span aria-hidden="true">≈</span> Beat numbers are a manual guide. Cuebook always saves the exact audio time.</p>
+          <p class="advisory"><span aria-hidden="true">≈</span> Beat numbers use the BPM and offset you enter. Cue times stay at the selected track time.</p>
         </section>
       </div>
 
@@ -133,17 +133,17 @@ const template = `
   <dialog id="plus-dialog" aria-labelledby="plus-title">
     <form method="dialog" class="dialog-shell"><button class="dialog-close" value="close" aria-label="Close Cuebook Plus">×</button>
       <p class="eyebrow">One-time license</p><h2 id="plus-title">Cuebook Plus features</h2>
-      <p>Cuebook Plus adds more than five cues and downloadable rehearsal recordings. Core cue-file export, all scenes, and accessibility stay free.</p>
+      <p>Cuebook Plus adds more than five cues and downloadable rehearsal recordings. Core cue-file export, all scenes, keyboard controls, and screen-reader labels stay free.</p>
       <p class="price"><strong>US$12</strong> one time <span>No subscription</span></p>
       ${DEMO_MODE ? '<p class="legal-note">Purchase and license restore are unavailable in the demo.</p>' : `<a class="button primary wide" href="${BUY_URL}">Buy Cuebook Plus</a><div class="restore-block"><label for="license-input">Already purchased? Paste your license</label><div><input id="license-input" autocomplete="off" spellcheck="false" /><button id="restore-license" class="button secondary" type="button">Verify license</button></div></div>`}
       <p class="license-status" id="license-status" role="status"></p>
-      <p class="legal-note">Checkout is hosted by Sociobot. Dodo is the merchant of record. Refunds are handled there. <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
+      <p class="legal-note">Checkout is hosted by Sociobot. Dodo is the merchant of record. Refunds are handled by Dodo and revoke the license. <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
     </form>
   </dialog>
   <dialog id="import-limit-dialog" aria-labelledby="import-limit-title">
     <div class="dialog-shell"><button class="dialog-close" id="cancel-limited-import" type="button" aria-label="Close limited import">×</button>
       <p class="eyebrow">Free cue sheet limit</p><h2 id="import-limit-title">This sheet has more than five cues.</h2>
-      <p id="import-limit-copy">Cuebook Free can keep the first five cues. The source JSON stays unchanged, so you can cancel and export or unlock Plus before importing.</p>
+      <p id="import-limit-copy">Cuebook Free can keep the first five cues. The source cue file stays unchanged, so you can cancel and export or unlock Plus before importing.</p>
       <div class="dialog-actions"><button class="button secondary" id="cancel-limited-import-button" type="button">Cancel import</button><button class="button primary" id="confirm-limited-import" type="button">Import first five cues</button></div>
     </div>
   </dialog>
@@ -151,8 +151,8 @@ const template = `
     <div class="dialog-shell">
       <p class="eyebrow">Shorter replacement</p><h2 id="replace-audio-title">Some cues cannot play on this track.</h2>
       <p id="replace-audio-copy"></p>
-      <p class="legal-note">Your current audio and cues stay unchanged unless you confirm.</p>
-      <div class="dialog-actions"><button class="button secondary" id="cancel-audio-replacement" type="button">Keep current audio</button><button class="button primary" id="confirm-audio-replacement" type="button">Remove later cues and replace audio</button></div>
+      <p class="legal-note">Your current track and cues stay unchanged unless you confirm.</p>
+      <div class="dialog-actions"><button class="button secondary" id="cancel-audio-replacement" type="button">Keep current track</button><button class="button primary" id="confirm-audio-replacement" type="button">Remove later cues and replace track</button></div>
     </div>
   </dialog>
   <dialog id="delete-cue-dialog" aria-labelledby="delete-cue-title" aria-describedby="delete-cue-copy">
@@ -202,6 +202,12 @@ class CuebookApp {
       document.title = 'Demo — Cuebook';
       document.querySelector<HTMLLinkElement>('#canonical-url')?.setAttribute('href', 'https://visualizer-cuebook.sociobot.in/demo/');
       document.querySelector<HTMLMetaElement>('#og-url')?.setAttribute('content', 'https://visualizer-cuebook.sociobot.in/demo/');
+      const demoTitle = 'Demo — Cuebook';
+      const demoDescription = 'Try a 12-second Cuebook rehearsal with five editable sample cues.';
+      document.querySelector<HTMLMetaElement>('meta[property="og:title"]')?.setAttribute('content', demoTitle);
+      document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]')?.setAttribute('content', demoTitle);
+      document.querySelector<HTMLMetaElement>('meta[property="og:description"]')?.setAttribute('content', demoDescription);
+      document.querySelector<HTMLMetaElement>('meta[name="twitter:description"]')?.setAttribute('content', demoDescription);
     }
     this.renderer = new SceneRenderer(this.canvas);
     this.bindEvents();
@@ -324,8 +330,8 @@ class CuebookApp {
       if (affectedCues.length > 0) {
         this.pendingAudioReplacement = { file, duration, affectedCueIds: affectedCues.map((cue) => cue.id) };
         const count = affectedCues.length;
-        this.el<HTMLElement>('replace-audio-copy').textContent = `${count} ${count === 1 ? 'cue falls' : 'cues fall'} after ${file.name} ends at ${formatTime(duration)}. Remove ${count === 1 ? 'it' : 'them'} and replace the audio?`;
-        this.el<HTMLButtonElement>('confirm-audio-replacement').textContent = `Remove later ${count === 1 ? 'cue' : 'cues'} and replace audio`;
+        this.el<HTMLElement>('replace-audio-copy').textContent = `${count} ${count === 1 ? 'cue falls' : 'cues fall'} after ${file.name} ends at ${formatTime(duration)}. Remove ${count === 1 ? 'it' : 'them'} and replace the track?`;
+        this.el<HTMLButtonElement>('confirm-audio-replacement').textContent = `Remove later ${count === 1 ? 'cue' : 'cues'} and replace track`;
         this.setSaveState('Saved locally');
         this.el<HTMLDialogElement>('replace-audio-dialog').showModal();
         return;
@@ -362,14 +368,14 @@ class CuebookApp {
       try {
         this.beginCueImport(cueFile);
       } catch (error) {
-        this.toast(error instanceof Error ? error.message : 'Cue JSON could not be imported.', 'error');
+        this.toast(error instanceof Error ? error.message : 'Cue file could not be imported.', 'error');
       }
       return;
     }
     if (removedCueIds.length > 0) {
-      this.toast(`Audio replaced. Removed ${removedCueIds.length} ${removedCueIds.length === 1 ? 'cue' : 'cues'} after ${formatTime(duration)}.`);
+      this.toast(`Track replaced. Removed ${removedCueIds.length} ${removedCueIds.length === 1 ? 'cue' : 'cues'} after ${formatTime(duration)}.`);
     } else {
-      this.toast(replacing ? 'Audio replaced. Existing cues were kept.' : 'Track saved locally. Mark your first cue when ready.');
+      this.toast(replacing ? 'Track replaced. Existing cues were kept.' : 'Track saved locally. Mark your first cue when ready.');
     }
   }
 
@@ -391,7 +397,7 @@ class CuebookApp {
     this.pendingAudioReplacement = undefined;
     this.el<HTMLDialogElement>('replace-audio-dialog').close();
     this.setSaveState('Saved locally');
-    this.toast('Audio replacement cancelled. Your current audio and cues were kept.');
+    this.toast('Track replacement cancelled. Your current track and cues were kept.');
   }
 
   private readDuration(blob: Blob): Promise<number> {
@@ -418,7 +424,7 @@ class CuebookApp {
     this.empty.hidden = true;
     this.studio.hidden = false;
     const pageTitle = this.el<HTMLHeadingElement>('page-title');
-    pageTitle.textContent = 'Build repeatable visual cues for your audio.';
+    pageTitle.textContent = 'Build repeatable visual cues for your track.';
     pageTitle.className = 'sr-only';
     this.studio.prepend(pageTitle);
     this.el<HTMLInputElement>('project-title').value = this.project.title;
@@ -642,7 +648,7 @@ class CuebookApp {
       cues: this.project.cues, exportedAt: new Date().toISOString()
     };
     this.download(new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' }), `${this.slug(this.project.title)}.cuebook.json`);
-    this.toast('Cue JSON exported. Audio was not included.');
+    this.toast('Cue file exported. Audio was not included.');
   }
 
   private async importCues(event: Event): Promise<void> {
@@ -652,14 +658,14 @@ class CuebookApp {
     try {
       const parsed = parseCueFile(JSON.parse(await file.text()));
       if (!this.project) {
-        this.toast('Cue JSON loaded. Choose its matching audio track to continue.');
+        this.toast('Cue file loaded. Choose its matching track to continue.');
         this.pendingCueFile = parsed;
         this.el<HTMLInputElement>('audio-input').click();
         return;
       }
       this.beginCueImport(parsed);
     } catch (error) {
-      this.toast(error instanceof Error ? error.message : 'Cue JSON could not be read.', 'error');
+      this.toast(error instanceof Error ? error.message : 'Cue file could not be read.', 'error');
     }
   }
 
@@ -668,7 +674,7 @@ class CuebookApp {
     validateCueFileDuration(file, this.project.duration);
     if (!this.unlocked && file.cues.length > FREE_CUE_LIMIT) {
       this.pendingLimitedCueFile = file;
-      this.el<HTMLElement>('import-limit-copy').textContent = `This sheet has ${file.cues.length} cues. Cuebook Free can keep the first ${FREE_CUE_LIMIT}. The source JSON stays unchanged, so you can cancel and export or unlock Plus before importing.`;
+      this.el<HTMLElement>('import-limit-copy').textContent = `This sheet has ${file.cues.length} cues. Cuebook Free can keep the first ${FREE_CUE_LIMIT}. The source cue file stays unchanged, so you can cancel and export or unlock Plus before importing.`;
       this.el<HTMLDialogElement>('import-limit-dialog').showModal();
       return;
     }
@@ -700,8 +706,8 @@ class CuebookApp {
     }));
     this.loadProjectIntoUi(); this.queueSave();
     this.toast(truncated
-      ? `Imported the first ${FREE_CUE_LIMIT} of ${file.cues.length} cues. The source JSON is unchanged; unlock Plus for the full sheet.`
-      : 'Cue sheet imported. Check that the audio matches.');
+      ? `Imported the first ${FREE_CUE_LIMIT} of ${file.cues.length} cues. The source cue file is unchanged; unlock Plus for the full sheet.`
+      : 'Cue sheet imported. Check that the track matches.');
   }
 
   private async newSet(): Promise<void> {
@@ -713,7 +719,7 @@ class CuebookApp {
     this.audio.removeAttribute('src');
     this.studio.hidden = true; this.empty.hidden = false;
     const pageTitle = this.el<HTMLHeadingElement>('page-title');
-    pageTitle.textContent = 'Build repeatable visual cues for your audio.';
+    pageTitle.textContent = 'Build repeatable visual cues for your track.';
     pageTitle.className = 'hero-title';
     this.el<HTMLElement>('hero-copy').querySelector('.eyebrow')?.after(pageTitle);
     this.toast('Local set removed.');
@@ -790,7 +796,7 @@ class CuebookApp {
     if (!this.unlocked) { this.el<HTMLDialogElement>('plus-dialog').showModal(); return; }
     if (this.recorder?.state === 'recording') { this.recorder.stop(); return; }
     if (!('MediaRecorder' in window) || !this.canvas.captureStream) {
-      this.toast('Rehearsal recording is not supported here. Use a current Chromium or Firefox browser.', 'error'); return;
+      this.toast('This browser cannot capture track audio. Use a browser that supports track-audio capture.', 'error'); return;
     }
     try {
       const canvasStream = this.canvas.captureStream(30);
@@ -813,7 +819,7 @@ class CuebookApp {
       this.el<HTMLButtonElement>('record').textContent = 'Stop & save';
       if (this.audio.paused) await this.audio.play();
     } catch {
-      this.toast('This browser cannot capture track audio. Try Chrome on desktop.', 'error');
+      this.toast('This browser cannot capture track audio. Use a browser that supports track-audio capture.', 'error');
     }
   }
 
@@ -835,7 +841,7 @@ class CuebookApp {
   }
 
   private updateLicenseUi(): void {
-    this.el<HTMLButtonElement>('support-button').textContent = this.unlocked ? 'Plus unlocked' : 'Cuebook Plus';
+    this.el<HTMLButtonElement>('support-button').textContent = this.unlocked ? 'Manage Plus license' : 'See Plus options';
     this.el<HTMLButtonElement>('record').title = this.unlocked ? 'Capture the canvas and track audio as WebM' : 'Available with Cuebook Plus';
   }
 
@@ -862,7 +868,7 @@ class CuebookApp {
         if (revision === this.saveRevision) this.setSaveState('Saved locally');
       } catch {
         if (revision === this.saveRevision) this.setSaveState('Save failed');
-        this.toast('Changes could not be saved locally. Export a cue JSON before closing.', 'error');
+        this.toast('Changes could not be saved locally. Export a cue file before closing.', 'error');
       }
     }, 250);
   }

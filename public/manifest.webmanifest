@@ -3,7 +3,7 @@
   "name": "Cuebook — Visual Rehearsal",
   "short_name": "Cuebook",
   "description": "Private, repeatable cue sheets for music visual rehearsals.",
-  "start_url": "/?v=6",
+  "start_url": "/?v=7",
   "scope": "/",
   "display": "standalone",
   "background_color": "#07110f",

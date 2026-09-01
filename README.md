@@ -1,6 +1,6 @@
 # Cuebook
 
-Cuebook helps DJs, VJs, and educators rehearse visual changes against their own audio.
+Cuebook helps DJs, VJs, and educators rehearse visual changes against their own tracks.
 
 Try the isolated sample: <https://visualizer-cuebook.sociobot.in/demo/>.
 
@@ -18,7 +18,7 @@ It opens a 12-second rhythm with five editable cues. Your saved set and license 
 
 Tracks are not uploaded. Cuebook has no analytics, trackers, third-party runtime scripts, or CDN font requests.
 
-Choose an audio file your browser can play. Record rehearsals in desktop Chrome or Firefox.
+Choose an audio file your browser can play. Record rehearsals in browsers that support track-audio capture.
 
 See [privacy](./privacy/index.html) and [terms](./terms/index.html).
 
@@ -54,21 +54,11 @@ Browser tests use Playwright 1.58.2. They cover demo isolation, cues, downloads,
 
 Claim checks are mapped in [`.factory/claims.json`](./.factory/claims.json).
 
-### License verification allowance
+### License verification
 
-Cuebook checks a restored license, then caches its verdict for one day. The Sociobot endpoint allows 30 immediate checks per source client.
-
-An immediate 31st check returns `429` with `Retry-After` in seconds. The allowance replenishes, so there is no fixed reset window.
+Cuebook checks a restored license, then caches its verdict for one day.
 
 Cuebook keeps the pasted token after a `429`. It shows the delay when browsers can read that header, with safe wait guidance otherwise.
-
-The browser suite uses the recorded boundary on every run. This opt-in check verifies the live endpoint with safe invalid tokens:
-
-```bash
-npm run verify:license-rate-limit
-```
-
-The live check waits 35 seconds for the client allowance to refill. It then verifies 30 invalid responses and the required 31st response.
 
 `npm run build` writes static files to `dist/`, with `dist/index.html` at its root.
 
@@ -77,6 +67,10 @@ npm run preview
 ```
 
 No backend or environment variable is required.
+
+## Deploy
+
+Build `dist/` and deploy it as a static site with `public/staticwebapp.config.json` at the site root. The factory deployment uses this configuration for routes, CSP, caching, and the designed 404 page.
 
 ## Project notes
 

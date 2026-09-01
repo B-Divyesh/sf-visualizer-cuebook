@@ -1,0 +1,9 @@
+{
+  "product": "visualizer-cuebook",
+  "recorded_at": "2026-09-01",
+  "source": "Sociobot billing product contract supplied for Cuebook release verification",
+  "price": { "currency": "USD", "amount": 12, "display": "US$12", "cadence": "one time", "subscription": false },
+  "checkout": { "host": "api.sociobot.in", "path": "/api/v1/products/visualizer-cuebook/checkout" },
+  "merchant_of_record": "Dodo",
+  "refunds": { "handled_by": "Dodo", "revokes_license": true }
+}
