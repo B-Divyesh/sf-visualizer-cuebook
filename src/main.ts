@@ -8,6 +8,12 @@ import { SCENE_NAMES, cueAt, formatTime, makeCue, parseCueFile, timeToBeat, vali
 const FREE_CUE_LIMIT = 5;
 const DEMO_MODE = isDemoMode();
 
+type PendingAudioReplacement = {
+  file: File;
+  duration: number;
+  affectedCueIds: string[];
+};
+
 const template = `
   <header class="topbar">
     <a class="brand" href="/" aria-label="Cuebook home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-title">Cuebook</span></a>
@@ -18,7 +24,7 @@ const template = `
   <div class="offline-banner" id="offline-banner" role="status" hidden><span aria-hidden="true">↯</span> Offline and ready. Your saved set is on this device.</div>
   <section class="demo-banner" id="demo-banner" aria-label="Demo controls" ${DEMO_MODE ? '' : 'hidden'}><strong>Demo — sample data, nothing is saved</strong><button id="reset-demo" type="button">Reset demo</button><a href="/">Start for real</a></section>
   <main id="main" tabindex="-1">
-    <section class="hero" id="empty-state">
+    <section class="hero" id="empty-state" ${DEMO_MODE ? 'hidden' : ''}>
       <div class="hero-copy" id="hero-copy">
         <p class="eyebrow">Private visual rehearsal</p>
         <h1 class="hero-title" id="page-title" tabindex="-1">Build repeatable visual cues for your audio.</h1>
@@ -37,19 +43,19 @@ const template = `
       </figure>
     </section>
 
-    <section class="landing-detail" aria-labelledby="preview-title">
+    <section class="landing-detail" aria-labelledby="preview-title" ${DEMO_MODE ? 'hidden' : ''}>
       <div class="section-intro"><p class="eyebrow">Preview</p><h2 id="preview-title">See the cue sheet before you import</h2><p>A track, a clear playhead, and the next scene stay together while you rehearse.</p></div>
       <ol class="preview-cues"><li><span>00:00</span><strong>Contour</strong><small>Opening contour</small></li><li><span>00:04.800</span><strong>Shards</strong><small>Break into shards</small></li><li><span>00:09.600</span><strong>Contour</strong><small>Closing horizon</small></li></ol>
     </section>
-    <section class="landing-detail how-it-works" aria-labelledby="how-title">
+    <section class="landing-detail how-it-works" aria-labelledby="how-title" ${DEMO_MODE ? 'hidden' : ''}>
       <div class="section-intro"><p class="eyebrow">How it works</p><h2 id="how-title">Rehearse a scene change in three steps</h2></div>
       <ol><li><strong>Choose a track</strong><span>Keep it in this browser.</span></li><li><strong>Mark each change</strong><span>Pick a scene at the playhead.</span></li><li><strong>Play it again</strong><span>Check the same run before you perform.</span></li></ol>
     </section>
-    <section class="landing-detail privacy-detail" aria-labelledby="privacy-title">
+    <section class="landing-detail privacy-detail" aria-labelledby="privacy-title" ${DEMO_MODE ? 'hidden' : ''}>
       <div class="section-intro"><p class="eyebrow">Privacy and limits</p><h2 id="privacy-title">What Cuebook keeps on this device</h2></div>
       <p>Your track and set stay in this browser. Cuebook does not stream, sync, or detect beats automatically. Export a cue file to keep a copy.</p><a href="/privacy/">Read the privacy details</a>
     </section>
-    <section class="landing-detail pricing-detail" aria-labelledby="pricing-title">
+    <section class="landing-detail pricing-detail" aria-labelledby="pricing-title" ${DEMO_MODE ? 'hidden' : ''}>
       <div class="section-intro"><p class="eyebrow">Pricing</p><h2 id="pricing-title">Cuebook Free and Cuebook Plus</h2></div>
       <p>Free includes five cues, every scene, cue-file export, and accessibility features. Plus is a US$12 one-time license for more than five cues and rehearsal recording.</p><button class="button secondary" id="landing-plus" type="button">See Plus options</button>
     </section>
@@ -141,10 +147,25 @@ const template = `
       <div class="dialog-actions"><button class="button secondary" id="cancel-limited-import-button" type="button">Cancel import</button><button class="button primary" id="confirm-limited-import" type="button">Import first five cues</button></div>
     </div>
   </dialog>
+  <dialog id="replace-audio-dialog" aria-labelledby="replace-audio-title" aria-describedby="replace-audio-copy">
+    <div class="dialog-shell">
+      <p class="eyebrow">Shorter replacement</p><h2 id="replace-audio-title">Some cues cannot play on this track.</h2>
+      <p id="replace-audio-copy"></p>
+      <p class="legal-note">Your current audio and cues stay unchanged unless you confirm.</p>
+      <div class="dialog-actions"><button class="button secondary" id="cancel-audio-replacement" type="button">Keep current audio</button><button class="button primary" id="confirm-audio-replacement" type="button">Remove later cues and replace audio</button></div>
+    </div>
+  </dialog>
+  <dialog id="delete-cue-dialog" aria-labelledby="delete-cue-title" aria-describedby="delete-cue-copy">
+    <div class="dialog-shell">
+      <p class="eyebrow">Confirm deletion</p><h2 id="delete-cue-title">Delete this cue?</h2>
+      <p id="delete-cue-copy"></p>
+      <div class="dialog-actions"><button class="button secondary" id="cancel-cue-deletion" type="button">Keep cue</button><button class="button danger" id="confirm-cue-deletion" type="button">Delete this cue</button></div>
+    </div>
+  </dialog>
   <input id="cue-file-input" type="file" accept="application/json,.json" hidden />
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <div class="sr-only" id="route-announcer" aria-live="polite"></div>
-  <footer><span>Cuebook keeps one track and its cues in this browser.</span><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><span>Built by Param Factory · v1.0.2</span></footer>
+  <footer><span>Cuebook keeps one track and its cues in this browser.</span><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><span>Built by Param Factory · v1.0.5</span></footer>
 `;
 
 const root = document.querySelector<HTMLDivElement>('#app');
@@ -166,6 +187,8 @@ class CuebookApp {
   private cueSaveInFlight = false;
   private pendingCueFile?: CueFile;
   private pendingLimitedCueFile?: CueFile;
+  private pendingAudioReplacement?: PendingAudioReplacement;
+  private pendingDeleteCueId?: string;
 
   private audio = this.el<HTMLAudioElement>('audio');
   private canvas = this.el<HTMLCanvasElement>('visual-canvas');
@@ -265,6 +288,18 @@ class CuebookApp {
       this.pendingLimitedCueFile = undefined;
       this.toast('Cue import cancelled. Your current cue sheet was unchanged.');
     });
+    this.el<HTMLButtonElement>('confirm-audio-replacement').addEventListener('click', () => void this.confirmAudioReplacement());
+    this.el<HTMLButtonElement>('cancel-audio-replacement').addEventListener('click', () => this.cancelAudioReplacement());
+    this.el<HTMLDialogElement>('replace-audio-dialog').addEventListener('cancel', (event) => {
+      event.preventDefault();
+      this.cancelAudioReplacement();
+    });
+    this.el<HTMLButtonElement>('confirm-cue-deletion').addEventListener('click', () => void this.confirmCueDeletion());
+    this.el<HTMLButtonElement>('cancel-cue-deletion').addEventListener('click', () => this.cancelCueDeletion());
+    this.el<HTMLDialogElement>('delete-cue-dialog').addEventListener('cancel', (event) => {
+      event.preventDefault();
+      this.cancelCueDeletion();
+    });
     this.cueList.addEventListener('click', (event) => this.onCueListClick(event));
     this.cueList.addEventListener('change', (event) => this.onCueListChange(event));
     window.addEventListener('online', () => this.updateNetworkStatus());
@@ -284,29 +319,78 @@ class CuebookApp {
     this.setSaveState('Reading audio…');
     try {
       const duration = await this.readDuration(file);
-      const replacing = Boolean(this.project);
-      this.project = {
-        id: 'current', title: replacing ? this.project?.title ?? file.name.replace(/\.[^.]+$/, '') : file.name.replace(/\.[^.]+$/, ''),
-        audioName: file.name, audioType: file.type, duration, bpm: this.project?.bpm ?? 120,
-        beatOffset: this.project?.beatOffset ?? 0, cues: replacing ? this.project?.cues ?? [] : [], updatedAt: new Date().toISOString(), audioBlob: file
-      };
-      await this.persistProject(this.project);
-      this.loadProjectIntoUi();
-      if (this.pendingCueFile) {
-        const cueFile = this.pendingCueFile;
-        this.pendingCueFile = undefined;
-        try {
-          this.beginCueImport(cueFile);
-        } catch (error) {
-          this.toast(error instanceof Error ? error.message : 'Cue JSON could not be imported.', 'error');
-        }
+      const affectedCues = this.project?.cues.filter((cue) => cue.time > duration) ?? [];
+      if (affectedCues.length > 0) {
+        this.pendingAudioReplacement = { file, duration, affectedCueIds: affectedCues.map((cue) => cue.id) };
+        const count = affectedCues.length;
+        this.el<HTMLElement>('replace-audio-copy').textContent = `${count} ${count === 1 ? 'cue falls' : 'cues fall'} after ${file.name} ends at ${formatTime(duration)}. Remove ${count === 1 ? 'it' : 'them'} and replace the audio?`;
+        this.el<HTMLButtonElement>('confirm-audio-replacement').textContent = `Remove later ${count === 1 ? 'cue' : 'cues'} and replace audio`;
+        this.setSaveState('Saved locally');
+        this.el<HTMLDialogElement>('replace-audio-dialog').showModal();
         return;
       }
-      this.toast(replacing ? 'Audio replaced. Existing cues were kept.' : 'Track saved locally. Mark your first cue when ready.');
+      await this.applyAudioFile(file, duration);
     } catch {
       this.toast('Cuebook could not read that audio file. Try a different format.', 'error');
       this.setSaveState('Not saved');
     }
+  }
+
+  private async applyAudioFile(file: File, duration: number, removedCueIds: string[] = []): Promise<void> {
+    const previous = this.project;
+    const replacing = Boolean(previous);
+    const removed = new Set(removedCueIds);
+    const nextProject: CueProject = {
+      id: 'current',
+      title: replacing ? previous?.title ?? file.name.replace(/\.[^.]+$/, '') : file.name.replace(/\.[^.]+$/, ''),
+      audioName: file.name,
+      audioType: file.type,
+      duration,
+      bpm: previous?.bpm ?? 120,
+      beatOffset: previous?.beatOffset ?? 0,
+      cues: replacing ? (previous?.cues ?? []).filter((cue) => !removed.has(cue.id)).map((cue) => ({ ...cue })) : [],
+      updatedAt: new Date().toISOString(),
+      audioBlob: file
+    };
+    await this.persistProject(nextProject);
+    this.project = nextProject;
+    this.loadProjectIntoUi();
+    if (this.pendingCueFile) {
+      const cueFile = this.pendingCueFile;
+      this.pendingCueFile = undefined;
+      try {
+        this.beginCueImport(cueFile);
+      } catch (error) {
+        this.toast(error instanceof Error ? error.message : 'Cue JSON could not be imported.', 'error');
+      }
+      return;
+    }
+    if (removedCueIds.length > 0) {
+      this.toast(`Audio replaced. Removed ${removedCueIds.length} ${removedCueIds.length === 1 ? 'cue' : 'cues'} after ${formatTime(duration)}.`);
+    } else {
+      this.toast(replacing ? 'Audio replaced. Existing cues were kept.' : 'Track saved locally. Mark your first cue when ready.');
+    }
+  }
+
+  private async confirmAudioReplacement(): Promise<void> {
+    const replacement = this.pendingAudioReplacement;
+    this.pendingAudioReplacement = undefined;
+    this.el<HTMLDialogElement>('replace-audio-dialog').close();
+    if (!replacement) return;
+    this.setSaveState('Saving…');
+    try {
+      await this.applyAudioFile(replacement.file, replacement.duration, replacement.affectedCueIds);
+    } catch {
+      this.setSaveState('Save failed');
+      this.toast('The replacement audio was not saved. Your current set is still available.', 'error');
+    }
+  }
+
+  private cancelAudioReplacement(): void {
+    this.pendingAudioReplacement = undefined;
+    this.el<HTMLDialogElement>('replace-audio-dialog').close();
+    this.setSaveState('Saved locally');
+    this.toast('Audio replacement cancelled. Your current audio and cues were kept.');
   }
 
   private readDuration(blob: Blob): Promise<number> {
@@ -470,8 +554,47 @@ class CuebookApp {
     if (!cue) return;
     if (button.dataset.action === 'seek') { this.audio.currentTime = cue.time; this.updateTimeUi(); }
     if (button.dataset.action === 'delete') {
-      this.project.cues = this.project.cues.filter((item) => item.id !== cue.id);
-      this.renderCueList(); this.queueSave(); this.toast('Cue removed.');
+      const cueNumber = this.project.cues.indexOf(cue) + 1;
+      const note = cue.note ? ` “${cue.note}”` : '';
+      this.pendingDeleteCueId = cue.id;
+      this.el<HTMLElement>('delete-cue-copy').textContent = `Delete cue ${cueNumber} at ${formatTime(cue.time)}?${note} will be removed from this set.`;
+      this.el<HTMLDialogElement>('delete-cue-dialog').showModal();
+    }
+  }
+
+  private cancelCueDeletion(): void {
+    this.pendingDeleteCueId = undefined;
+    this.el<HTMLDialogElement>('delete-cue-dialog').close();
+  }
+
+  private async confirmCueDeletion(): Promise<void> {
+    const cueId = this.pendingDeleteCueId;
+    this.pendingDeleteCueId = undefined;
+    this.el<HTMLDialogElement>('delete-cue-dialog').close();
+    if (!cueId || !this.project) return;
+    const nextProject: CueProject = { ...this.project, cues: this.project.cues.filter((cue) => cue.id !== cueId) };
+    if (nextProject.cues.length === this.project.cues.length) return;
+    if (this.pendingSave) {
+      clearTimeout(this.pendingSave);
+      this.pendingSave = undefined;
+    }
+    const revision = ++this.saveRevision;
+    this.studio.inert = true;
+    this.studio.setAttribute('aria-busy', 'true');
+    this.setSaveState('Saving…');
+    try {
+      await this.persistProject(nextProject);
+      this.project = nextProject;
+      this.renderCueList();
+      this.renderPreview();
+      if (revision === this.saveRevision) this.setSaveState('Saved locally');
+      this.toast('Cue deleted.');
+    } catch {
+      this.setSaveState('Save failed');
+      this.toast('The cue was not deleted. Keep this page open and try again.', 'error');
+    } finally {
+      this.studio.inert = false;
+      this.studio.removeAttribute('aria-busy');
     }
   }
 

@@ -70,6 +70,8 @@ h2 { font-size: clamp(22px, 3vw, 28px); }
 .primary:hover { background: #cbff83; }
 .secondary { color: var(--chalk); background: rgba(16,35,31,.72); border-color: var(--line); }
 .secondary:hover, .ghost:hover { border-color: rgba(88,230,210,.55); background: rgba(31,64,57,.62); }
+.danger { color: #210806; background: var(--coral); }
+.danger:hover { background: #ffa39a; }
 .ghost { padding: 8px 14px; background: transparent; border-color: var(--line); }
 .small { min-height: 44px; font-size: 14px; }
 .compact { padding: 8px 13px; font-size: 14px; }
@@ -166,6 +168,7 @@ dialog::backdrop { background: rgba(2,8,7,.78); backdrop-filter: blur(8px); }
 .dialog-shell { position: relative; padding: clamp(24px, 5vw, 40px); }
 .dialog-shell h2 { font-size: 34px; }
 .dialog-shell > p:not(.eyebrow, .price, .legal-note, .license-status) { color: var(--reed); }
+.dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 24px; }
 .dialog-close { position: absolute; right: 16px; top: 16px; width: 44px; background: transparent; border-color: var(--line); font-size: 24px; }
 .price { display: flex; align-items: baseline; gap: 8px; margin: 24px 0 16px; }
 .price strong { font: 600 30px var(--display); color: var(--signal); }
@@ -204,10 +207,10 @@ main :focus { scroll-margin-top: 140px; }
   .studio-heading { align-items: stretch; flex-direction: column; }
   .performance-frame { aspect-ratio: 1 / .82; min-height: 280px; }
   .canvas-overlay { inset: 12px 12px auto; font-size: 10px; }
-  .transport { grid-template-columns: auto 1fr auto; gap: 10px; }
+  .transport { grid-template-columns: auto minmax(0, 1fr); gap: 10px; }
   .timeline-label { grid-column: 1 / -1; grid-row: 2; }
   .time-readout { min-width: 0; }
-  #record { min-width: 84px; padding-inline: 10px; }
+  #record { width: 100%; grid-column: 1 / -1; grid-row: 3; }
   .cue-maker, .timing-panel { padding: 20px 16px; }
   .scene-picker { gap: 8px; }
   .scene-picker button { min-height: 80px; font-size: 13px; }

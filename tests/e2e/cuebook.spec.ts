@@ -71,6 +71,12 @@ test('keeps the cue workflow within a 390px phone viewport', async ({ page }) =>
   await expect(page.locator('.cue-row')).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);
+  const transportOverlap = await page.evaluate(() => {
+    const time = document.querySelector('.time-readout')!.getBoundingClientRect();
+    const record = document.querySelector('#record')!.getBoundingClientRect();
+    return time.left < record.right && time.right > record.left && time.top < record.bottom && time.bottom > record.top;
+  });
+  expect(transportOverlap).toBe(false);
   const undersizedTargets = await page.locator('button, a, input:not([type="file"]), select').evaluateAll((elements) => elements.flatMap((element) => {
     const bounds = element.getBoundingClientRect();
     const style = getComputedStyle(element);
@@ -147,6 +153,86 @@ test('rejects imported cues beyond the loaded track duration', async ({ page }) 
   await expect(page.locator('.cue-row')).toHaveCount(0);
 });
 
+test('asks before a shorter replacement, removes unreachable cues, and exports a file that re-imports', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#audio-input').setInputFiles({ name: 'long.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
+
+  for (const time of [0.5, 2.499]) {
+    await page.locator('#audio').evaluate((audio, cueTime) => {
+      (audio as HTMLAudioElement).currentTime = cueTime;
+      audio.dispatchEvent(new Event('timeupdate'));
+    }, time);
+    await page.getByRole('button', { name: /Mark cue/ }).click();
+  }
+  await expect(page.locator('.cue-row')).toHaveCount(2);
+
+  await page.locator('#replace-audio-input').setInputFiles({ name: 'short.wav', mimeType: 'audio/wav', buffer: silentWav(1) });
+  await expect(page.locator('#replace-audio-dialog')).toBeVisible();
+  await expect(page.locator('#replace-audio-dialog')).toContainText('1 cue falls after short.wav ends at 0:01.000');
+  await expect(page.getByRole('button', { name: 'Keep current audio' })).toBeFocused();
+  const replacementAccessibility = await new AxeBuilder({ page }).include('#replace-audio-dialog').analyze();
+  expect(replacementAccessibility.violations).toEqual([]);
+  await page.getByRole('button', { name: 'Keep current audio' }).click();
+  await expect(page.locator('#track-name')).toHaveText('long.wav');
+  await expect(page.locator('.cue-row')).toHaveCount(2);
+  await page.reload();
+  await expect(page.locator('#track-name')).toHaveText('long.wav');
+  await expect(page.locator('.cue-row')).toHaveCount(2);
+
+  await page.locator('#replace-audio-input').setInputFiles({ name: 'short.wav', mimeType: 'audio/wav', buffer: silentWav(1) });
+  await page.getByRole('button', { name: 'Remove later cue and replace audio' }).click();
+  await expect(page.locator('#track-name')).toHaveText('short.wav');
+  await expect(page.locator('#track-duration')).toHaveText('0:01.000');
+  await expect(page.locator('.cue-row')).toHaveCount(1);
+  await expect(page.locator('.cue-time input')).toHaveValue('0.500');
+  await expect(page.locator('#toast')).toContainText('Removed 1 cue after 0:01.000');
+  await page.reload();
+  await expect(page.locator('#track-name')).toHaveText('short.wav');
+  await expect(page.locator('.cue-row')).toHaveCount(1);
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export cue file' }).click();
+  const exported = await downloadPromise;
+  const exportedPath = await exported.path();
+  expect(exportedPath).not.toBeNull();
+  const exportedBuffer = await readFile(exportedPath!);
+  const exportedData = JSON.parse(exportedBuffer.toString()) as { audio: { name: string; duration: number }; cues: Array<{ time: number }> };
+  expect(exportedData.audio).toEqual({ name: 'short.wav', duration: 1 });
+  expect(exportedData.cues.map((item) => item.time)).toEqual([0.5]);
+
+  await page.locator('#cue-file-input').setInputFiles({ name: 'short.cuebook.json', mimeType: 'application/json', buffer: exportedBuffer });
+  await expect(page.locator('#toast')).toContainText('Cue sheet imported');
+  await expect(page.locator('.cue-row')).toHaveCount(1);
+});
+
+test('asks for specific confirmation before deleting a cue', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#audio-input').setInputFiles({ name: 'delete.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
+  await page.locator('#audio').evaluate((audio) => {
+    (audio as HTMLAudioElement).currentTime = 0.5;
+    audio.dispatchEvent(new Event('timeupdate'));
+  });
+  await page.getByLabel('Cue note').fill('Opening pulse');
+  await page.getByRole('button', { name: /Mark cue/ }).click();
+
+  await page.getByRole('button', { name: 'Delete cue 1' }).click();
+  await expect(page.locator('#delete-cue-dialog')).toBeVisible();
+  await expect(page.locator('#delete-cue-dialog')).toContainText('cue 1 at 0:00.500');
+  await expect(page.locator('#delete-cue-dialog')).toContainText('Opening pulse');
+  await expect(page.getByRole('button', { name: 'Keep cue' })).toBeFocused();
+  const deletionAccessibility = await new AxeBuilder({ page }).include('#delete-cue-dialog').analyze();
+  expect(deletionAccessibility.violations).toEqual([]);
+  await page.getByRole('button', { name: 'Keep cue' }).click();
+  await expect(page.locator('.cue-row')).toHaveCount(1);
+
+  await page.getByRole('button', { name: 'Delete cue 1' }).click();
+  await page.getByRole('button', { name: 'Delete this cue' }).click();
+  await expect(page.locator('.cue-row')).toHaveCount(0);
+  await expect(page.locator('#save-state')).toHaveText('Saved locally');
+  await page.reload();
+  await expect(page.locator('.cue-row')).toHaveCount(0);
+});
+
 test('keeps the duration error visible when cue JSON is chosen before audio', async ({ page }) => {
   await page.goto('/');
   await page.locator('#cue-file-input').setInputFiles({ name: 'too-long-first.cuebook.json', mimeType: 'application/json', buffer: cueFile([cue(99)]) });
@@ -206,6 +292,7 @@ test('@claim:demo-sandbox opens audible sample data in one click without changin
   expect(energy).toBeGreaterThan(1000);
   await expect(page.locator('#restore-license')).toHaveCount(0);
   await page.getByRole('button', { name: 'Delete cue 1' }).click();
+  await page.getByRole('button', { name: 'Delete this cue' }).click();
   await expect(page.locator('.cue-row')).toHaveCount(4);
   await page.reload();
   await expect(page.locator('.cue-row')).toHaveCount(5);
@@ -217,6 +304,25 @@ test('@claim:demo-sandbox opens audible sample data in one click without changin
   await expect(page.locator('#project-title')).toHaveValue('Neon classroom rehearsal');
   await page.getByRole('link', { name: 'Start for real' }).click();
   await expect(page.locator('#track-name')).toHaveText('my-real-set.wav');
+});
+
+test('places the demo studio directly after its banner without retained landing sections', async ({ page }) => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/demo/');
+    await expect(page.locator('#studio')).toBeVisible();
+    const layout = await page.evaluate(() => ({
+      visibleMainChildren: [...document.querySelector('main')!.children]
+        .filter((element) => getComputedStyle(element).display !== 'none')
+        .map((element) => element.id || element.className),
+      scrollY: window.scrollY,
+      bannerBottom: document.querySelector('#demo-banner')!.getBoundingClientRect().bottom,
+      studioTop: document.querySelector('#studio')!.getBoundingClientRect().top
+    }));
+    expect(layout.visibleMainChildren).toEqual(['studio']);
+    expect(layout.scrollY).toBe(0);
+    expect(layout.studioTop - layout.bannerBottom).toBeLessThanOrEqual(1);
+  }
 });
 
 test('@claim:local-privacy keeps a complete demo rehearsal on the product origin', async ({ page }) => {
