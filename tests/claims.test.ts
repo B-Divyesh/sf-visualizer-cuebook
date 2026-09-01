@@ -9,10 +9,15 @@ interface Claim {
 }
 
 describe('factory claims contract', () => {
-  it('maps every unique claim to exactly one tagged browser regression', () => {
+  it('maps every unique declared claim and tagged browser regression one-to-one', () => {
     const claims = JSON.parse(readFileSync(resolve('.factory/claims.json'), 'utf8')) as Claim[];
     const browserTests = readFileSync(resolve('tests/e2e/cuebook.spec.ts'), 'utf8');
-    expect(new Set(claims.map((claim) => claim.id)).size).toBe(claims.length);
+    const claimIds = claims.map((claim) => claim.id);
+    const taggedIds = [...browserTests.matchAll(/@claim:([a-z0-9-]+)/g)].map((match) => match[1]);
+
+    expect(new Set(claimIds).size).toBe(claims.length);
+    expect(new Set(taggedIds).size).toBe(taggedIds.length);
+    expect(new Set(taggedIds)).toEqual(new Set(claimIds));
     for (const claim of claims) {
       const tag = `@claim:${claim.id}`;
       expect(claim.claim.trim().length).toBeGreaterThan(0);

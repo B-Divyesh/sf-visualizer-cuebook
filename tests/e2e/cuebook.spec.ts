@@ -292,6 +292,10 @@ test('@claim:plus-recording saves a WebM rehearsal with a cached valid license',
   await page.getByRole('button', { name: 'Stop & save' }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/-rehearsal\.webm$/);
+
+  await page.evaluate(() => { (HTMLCanvasElement.prototype as { captureStream?: unknown }).captureStream = undefined; });
+  await page.getByRole('button', { name: 'Record rehearsal' }).click();
+  await expect(page.locator('#toast')).toContainText('Use a current Chromium or Firefox browser.');
 });
 
 test('@claim:no-tracking-runtime keeps app requests and runtime assets on the product origin', async ({ page }) => {
