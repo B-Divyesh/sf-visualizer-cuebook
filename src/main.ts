@@ -161,6 +161,9 @@ class CuebookApp {
   private recorder?: MediaRecorder;
   private chunks: Blob[] = [];
   private pendingSave?: number;
+  private saveChain: Promise<void> = Promise.resolve();
+  private saveRevision = 0;
+  private cueSaveInFlight = false;
   private pendingCueFile?: CueFile;
   private pendingLimitedCueFile?: CueFile;
 
@@ -201,7 +204,7 @@ class CuebookApp {
       this.project = await loadProject();
       if (DEMO_MODE && !this.project) {
         this.project = this.makeDemoProject();
-        await saveProject(this.project);
+        await this.persistProject(this.project);
       }
       if (this.project?.audioBlob) this.loadProjectIntoUi();
     } catch {
@@ -239,7 +242,7 @@ class CuebookApp {
       this.el<HTMLOutputElement>(`${id}-output`).value = `${this.el<HTMLInputElement>(id).value}${id === 'hue' ? '°' : '%'}`;
       this.renderPreview();
     }));
-    this.el<HTMLButtonElement>('add-cue').addEventListener('click', () => this.addCue());
+    this.el<HTMLButtonElement>('add-cue').addEventListener('click', () => void this.addCue());
     this.el<HTMLInputElement>('project-title').addEventListener('input', (event) => {
       if (!this.project) return;
       this.project.title = (event.target as HTMLInputElement).value.trim() || 'Untitled set';
@@ -287,7 +290,7 @@ class CuebookApp {
         audioName: file.name, audioType: file.type, duration, bpm: this.project?.bpm ?? 120,
         beatOffset: this.project?.beatOffset ?? 0, cues: replacing ? this.project?.cues ?? [] : [], updatedAt: new Date().toISOString(), audioBlob: file
       };
-      await saveProject(this.project);
+      await this.persistProject(this.project);
       this.loadProjectIntoUi();
       if (this.pendingCueFile) {
         const cueFile = this.pendingCueFile;
@@ -393,8 +396,8 @@ class CuebookApp {
     this.el<HTMLElement>('canvas-description').textContent = `${SCENE_NAMES[shown.scene]} at ${formatTime(this.audio.currentTime)}. ${active?.note ?? 'No saved cue active yet.'}`;
   }
 
-  private addCue(): void {
-    if (!this.project) return;
+  private async addCue(): Promise<void> {
+    if (!this.project || this.cueSaveInFlight) return;
     if (!this.unlocked && this.project.cues.length >= FREE_CUE_LIMIT) {
       this.el<HTMLElement>('license-status').textContent = 'The free cue sheet holds five cues. Your existing work is safe.';
       this.el<HTMLDialogElement>('plus-dialog').showModal();
@@ -404,12 +407,39 @@ class CuebookApp {
     cue.intensity = Number(this.el<HTMLInputElement>('intensity').value);
     cue.hue = Number(this.el<HTMLInputElement>('hue').value);
     cue.note = this.el<HTMLInputElement>('cue-note').value.trim();
-    this.project.cues.push(cue);
-    this.project.cues.sort((a, b) => a.time - b.time);
-    this.el<HTMLInputElement>('cue-note').value = '';
-    this.renderCueList();
-    this.queueSave();
-    this.toast(`Cue marked at ${formatTime(cue.time)}.`);
+    const nextProject: CueProject = {
+      ...this.project,
+      cues: [...this.project.cues, cue].sort((a, b) => a.time - b.time)
+    };
+    if (this.pendingSave) {
+      clearTimeout(this.pendingSave);
+      this.pendingSave = undefined;
+    }
+    const revision = ++this.saveRevision;
+    const markButton = this.el<HTMLButtonElement>('add-cue');
+    this.cueSaveInFlight = true;
+    this.studio.inert = true;
+    this.studio.setAttribute('aria-busy', 'true');
+    markButton.disabled = true;
+    markButton.setAttribute('aria-busy', 'true');
+    this.setSaveState('Saving…');
+    try {
+      await this.persistProject(nextProject);
+      this.project = nextProject;
+      this.el<HTMLInputElement>('cue-note').value = '';
+      this.renderCueList();
+      if (revision === this.saveRevision) this.setSaveState('Saved locally');
+      this.toast(`Cue marked at ${formatTime(cue.time)}.`);
+    } catch {
+      this.setSaveState('Save failed');
+      this.toast('The cue was not saved. Keep this page open and try marking it again.', 'error');
+    } finally {
+      this.cueSaveInFlight = false;
+      this.studio.inert = false;
+      this.studio.removeAttribute('aria-busy');
+      markButton.disabled = false;
+      markButton.removeAttribute('aria-busy');
+    }
   }
 
   private renderCueList(): void {
@@ -627,7 +657,7 @@ class CuebookApp {
     this.audio.pause();
     await clearProject();
     this.project = this.makeDemoProject();
-    await saveProject(this.project);
+    await this.persistProject(this.project);
     this.loadProjectIntoUi();
     this.toast('Demo reset to the five sample cues.');
   }
@@ -685,7 +715,7 @@ class CuebookApp {
     const target = event.target as HTMLElement;
     if (/INPUT|SELECT|TEXTAREA|BUTTON/.test(target.tagName)) return;
     if (event.code === 'Space') { event.preventDefault(); void this.togglePlay(); }
-    if (event.key.toLowerCase() === 'm') { event.preventDefault(); this.addCue(); }
+    if (event.key.toLowerCase() === 'm') { event.preventDefault(); void this.addCue(); }
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault(); this.audio.currentTime = Math.max(0, Math.min(this.project.duration, this.audio.currentTime + (event.key === 'ArrowRight' ? 1 : -1))); this.updateTimeUi();
     }
@@ -693,12 +723,26 @@ class CuebookApp {
 
   private queueSave(): void {
     if (!this.project) return;
+    const revision = ++this.saveRevision;
     this.setSaveState('Saving…');
     if (this.pendingSave) clearTimeout(this.pendingSave);
     this.pendingSave = window.setTimeout(async () => {
-      try { if (this.project) await saveProject(this.project); this.setSaveState('Saved locally'); }
-      catch { this.setSaveState('Save failed'); this.toast('Changes could not be saved locally. Export a cue JSON before closing.', 'error'); }
+      this.pendingSave = undefined;
+      try {
+        if (this.project) await this.persistProject(this.project);
+        if (revision === this.saveRevision) this.setSaveState('Saved locally');
+      } catch {
+        if (revision === this.saveRevision) this.setSaveState('Save failed');
+        this.toast('Changes could not be saved locally. Export a cue JSON before closing.', 'error');
+      }
     }, 250);
+  }
+
+  private persistProject(project: CueProject): Promise<void> {
+    const snapshot: CueProject = { ...project, cues: project.cues.map((cue) => ({ ...cue })) };
+    const save = this.saveChain.catch(() => undefined).then(() => saveProject(snapshot));
+    this.saveChain = save;
+    return save;
   }
 
   private setSaveState(value: string): void { this.el<HTMLElement>('save-state').textContent = value; }

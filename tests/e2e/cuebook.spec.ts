@@ -48,14 +48,14 @@ test('@claim:cue-workflow creates, exports, and persists a timed cue without acc
   await page.getByRole('button', { name: /Mark cue/ }).click();
   await expect(page.locator('.cue-row')).toHaveCount(1);
   await expect(page.locator('.cue-note input')).toHaveValue('Opening pulse');
+  await page.reload();
+  await expect(page.locator('#studio')).toBeVisible();
+  await expect(page.locator('.cue-row')).toHaveCount(1);
+  await expect(page.locator('.cue-note input')).toHaveValue('Opening pulse');
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export cue file' }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/\.cuebook\.json$/);
-  await page.waitForTimeout(500);
-  await page.reload();
-  await expect(page.locator('#studio')).toBeVisible();
-  await expect(page.locator('.cue-row')).toHaveCount(1);
   expect(consoleErrors).toEqual([]);
 });
 
