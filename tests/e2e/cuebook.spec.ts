@@ -131,6 +131,39 @@ test('@claim:plus-license captures and verifies a returned Plus license without 
   expect(stored).toBe('test-license-token');
 });
 
+test('@claim:license-rate-limit reports Retry-After when the 31st immediate verification is limited', async ({ page }) => {
+  let requestCount = 0;
+  await page.route('https://api.sociobot.in/api/v1/products/visualizer-cuebook/verify?*', async (route) => {
+    requestCount += 1;
+    if (requestCount <= 30) {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: false, reason: 'invalid', expires_at: null }) });
+      return;
+    }
+    await route.fulfill({
+      status: 429,
+      headers: { 'Access-Control-Expose-Headers': 'Retry-After', 'Retry-After': '3' },
+      body: 'Too Many Requests! Wait for 3s'
+    });
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'See Plus options' }).click();
+  const input = page.locator('#license-input');
+  const status = page.locator('#license-status');
+
+  for (let request = 1; request <= 30; request += 1) {
+    await input.fill(`recorded-invalid-${request}`);
+    await page.getByRole('button', { name: 'Verify license' }).click();
+    await expect.poll(() => requestCount).toBe(request);
+    await expect(status).toHaveText('That license is not active. Check the token and try again.');
+  }
+
+  await input.fill('recorded-boundary-request');
+  await page.getByRole('button', { name: 'Verify license' }).click();
+  await expect.poll(() => requestCount).toBe(31);
+  await expect(status).toHaveText('Too many license checks from this connection. Try again in 3 seconds.');
+  expect(await page.evaluate(() => localStorage.getItem('sb_license:visualizer-cuebook'))).toBe('recorded-boundary-request');
+});
+
 test('rejects semantic-invalid cue JSON without changing the active rehearsal', async ({ page }) => {
   await page.goto('/');
   await page.locator('#audio-input').setInputFiles({ name: 'three-seconds.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
@@ -447,6 +480,7 @@ test('@claim:static-deployment serves a complete static demo without runtime env
 });
 
 test('uses complete route metadata, shared navigation, focus, and a strict demo route', async ({ page }) => {
+  const packageData = JSON.parse(await readFile('package.json', 'utf8')) as { version: string };
   for (const [path, title] of [['/', 'Cuebook — visual cues for your audio'], ['/demo/', 'Demo — Cuebook'], ['/privacy/', 'Privacy — Cuebook'], ['/terms/', 'Terms — Cuebook'], ['/404.html', 'Page not found — Cuebook']] as const) {
     await page.goto(path);
     await expect(page).toHaveTitle(title);
@@ -455,6 +489,7 @@ test('uses complete route metadata, shared navigation, focus, and a strict demo 
     await expect(page.locator('link[rel="apple-touch-icon"][sizes="180x180"]')).toHaveCount(1);
     await expect(page.locator('header nav')).toBeVisible();
     await expect(page.locator('footer')).toContainText('Built by Param Factory');
+    await expect(page.locator('footer')).toContainText(`v${packageData.version}`);
     await expect(page.locator('h1')).toBeFocused();
   }
   await page.goto('/?demo=1');

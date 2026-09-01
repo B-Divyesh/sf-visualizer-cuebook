@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-09-01",
+  "endpoint": "https://api.sociobot.in/api/v1/products/visualizer-cuebook/verify",
+  "token_kind": "generated invalid test token",
+  "source_client_allowance": 30,
+  "boundary_request": 31,
+  "boundary_status": 429,
+  "retry_after_seconds": 4,
+  "command": "npm run verify:license-rate-limit"
+}

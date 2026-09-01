@@ -5,6 +5,10 @@ const VERIFY_URL = `https://api.sociobot.in/api/v1/products/${SLUG}/verify`;
 export const BUY_URL = `https://api.sociobot.in/api/v1/products/${SLUG}/checkout`;
 
 type Verdict = { valid: boolean; checkedAt: number };
+export type LicenseVerification =
+  | { status: 'valid' | 'invalid' }
+  | { status: 'rate-limited'; retryAfterSeconds?: number }
+  | { status: 'unavailable' };
 
 // The demo is deliberately not a "real account" preview.  Keep this check in
 // this module (rather than trusting callers) so a future license control
@@ -49,21 +53,33 @@ export function forgetLicense(): void {
   localStorage.removeItem(CACHE_KEY);
 }
 
-export async function verifyLicense(force = false): Promise<boolean | undefined> {
-  if (isDemo()) return false;
+function retryAfterSeconds(response: Response): number | undefined {
+  const value = response.headers.get('Retry-After');
+  if (!value) return undefined;
+  if (/^\d+$/.test(value.trim())) return Math.max(1, Number(value));
+  const retryAt = Date.parse(value);
+  if (!Number.isFinite(retryAt)) return undefined;
+  return Math.max(1, Math.ceil((retryAt - Date.now()) / 1000));
+}
+
+export async function verifyLicense(force = false): Promise<LicenseVerification> {
+  if (isDemo()) return { status: 'invalid' };
   const token = localStorage.getItem(TOKEN_KEY);
-  if (!token) return false;
+  if (!token) return { status: 'invalid' };
   try {
     const old = JSON.parse(localStorage.getItem(CACHE_KEY) ?? '') as Verdict;
-    if (!force && Date.now() - old.checkedAt < 86_400_000) return old.valid;
+    if (!force && Date.now() - old.checkedAt < 86_400_000) return { status: old.valid ? 'valid' : 'invalid' };
   } catch { /* first verification */ }
   try {
     const response = await fetch(`${VERIFY_URL}?license=${encodeURIComponent(token)}`);
-    if (!response.ok) throw new Error('Verification unavailable');
+    if (response.status === 429) {
+      return { status: 'rate-limited', retryAfterSeconds: retryAfterSeconds(response) };
+    }
+    if (!response.ok) return { status: 'unavailable' };
     const body = await response.json() as { valid: boolean };
     localStorage.setItem(CACHE_KEY, JSON.stringify({ valid: body.valid, checkedAt: Date.now() }));
-    return body.valid;
+    return { status: body.valid ? 'valid' : 'invalid' };
   } catch {
-    return undefined;
+    return { status: 'unavailable' };
   }
 }

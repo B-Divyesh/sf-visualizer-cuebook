@@ -165,7 +165,7 @@ const template = `
   <input id="cue-file-input" type="file" accept="application/json,.json" hidden />
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <div class="sr-only" id="route-announcer" aria-live="polite"></div>
-  <footer><span>Cuebook keeps one track and its cues in this browser.</span><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><span>Built by Param Factory · v1.0.5</span></footer>
+  <footer><span>Cuebook keeps one track and its cues in this browser.</span><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><span>Built by Param Factory · v${__APP_VERSION__}</span></footer>
 `;
 
 const root = document.querySelector<HTMLDivElement>('#app');
@@ -233,11 +233,12 @@ class CuebookApp {
     } catch {
       this.toast('Local storage could not be opened. You can still rehearse, but refresh will lose this set.', 'error');
     }
-    const verdict = await verifyLicense();
-    if (verdict !== undefined) {
-      this.unlocked = verdict;
+    const verification = await verifyLicense();
+    if (verification.status === 'valid' || verification.status === 'invalid') {
+      const valid = verification.status === 'valid';
+      this.unlocked = valid;
       this.updateLicenseUi();
-      if (!DEMO_MODE && !verdict && localStorage.getItem('sb_license:visualizer-cuebook')) this.toast('Your license is no longer active.', 'error');
+      if (!DEMO_MODE && !valid && localStorage.getItem('sb_license:visualizer-cuebook')) this.toast('Your license is no longer active.', 'error');
     }
     this.registerServiceWorker();
   }
@@ -822,10 +823,15 @@ class CuebookApp {
     if (!input.value.trim()) { status.textContent = 'Paste the license from your receipt.'; return; }
     storeLicense(input.value);
     status.textContent = 'Checking license…';
-    const verdict = await verifyLicense(true);
-    if (verdict === true) { this.unlocked = true; status.textContent = 'Plus is unlocked on this device.'; input.value = ''; this.updateLicenseUi(); }
-    else if (verdict === false) { forgetLicense(); this.unlocked = false; status.textContent = 'That license is not active. Check the token and try again.'; }
-    else status.textContent = 'Could not reach verification. Check your connection and try again.';
+    const verification = await verifyLicense(true);
+    if (verification.status === 'valid') { this.unlocked = true; status.textContent = 'Plus is unlocked on this device.'; input.value = ''; this.updateLicenseUi(); }
+    else if (verification.status === 'invalid') { forgetLicense(); this.unlocked = false; status.textContent = 'That license is not active. Check the token and try again.'; }
+    else if (verification.status === 'rate-limited') {
+      const delay = verification.retryAfterSeconds;
+      status.textContent = delay
+        ? `Too many license checks from this connection. Try again in ${delay} ${delay === 1 ? 'second' : 'seconds'}.`
+        : 'Too many license checks from this connection. Wait, then try again.';
+    } else status.textContent = 'Could not reach verification. Check your connection and try again.';
   }
 
   private updateLicenseUi(): void {

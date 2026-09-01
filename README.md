@@ -54,6 +54,22 @@ Browser tests use Playwright 1.58.2. They cover demo isolation, cues, downloads,
 
 Claim checks are mapped in [`.factory/claims.json`](./.factory/claims.json).
 
+### License verification allowance
+
+Cuebook checks a restored license, then caches its verdict for one day. The Sociobot endpoint allows 30 immediate checks per source client.
+
+An immediate 31st check returns `429` with `Retry-After` in seconds. The allowance replenishes, so there is no fixed reset window.
+
+Cuebook keeps the pasted token after a `429`. It shows the delay when browsers can read that header, with safe wait guidance otherwise.
+
+The browser suite uses the recorded boundary on every run. This opt-in check verifies the live endpoint with safe invalid tokens:
+
+```bash
+npm run verify:license-rate-limit
+```
+
+The live check waits 35 seconds for the client allowance to refill. It then verifies 30 invalid responses and the required 31st response.
+
 `npm run build` writes static files to `dist/`, with `dist/index.html` at its root.
 
 ```bash

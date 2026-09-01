@@ -19,4 +19,20 @@ describe('static deployment policy', () => {
     expect((config as typeof config & { navigationFallback?: unknown }).navigationFallback).toBeUndefined();
     expect((config as typeof config & { mimeTypes: Record<string, string> }).mimeTypes['.webmanifest']).toBe('application/manifest+json');
   });
+
+  it('keeps the PWA cache and every built footer on the package version', () => {
+    const packageData = JSON.parse(readFileSync(resolve('package.json'), 'utf8')) as { version: string };
+    const serviceWorker = readFileSync(resolve('public/sw.js'), 'utf8');
+    const manifest = JSON.parse(readFileSync(resolve('public/manifest.webmanifest'), 'utf8')) as { start_url: string };
+    const patchVersion = packageData.version.split('.').at(-1);
+
+    expect(serviceWorker).toContain(`const VERSION = 'cuebook-v${packageData.version}'`);
+    expect(manifest.start_url).toBe(`/?v=${patchVersion}`);
+    for (const path of ['404.html', 'privacy/index.html', 'terms/index.html']) {
+      const html = readFileSync(resolve(path), 'utf8');
+      expect(html).toContain('Built by Param Factory · v__APP_VERSION__');
+      expect(html).not.toMatch(/Built by Param Factory · v\d/);
+    }
+    expect(readFileSync(resolve('src/main.ts'), 'utf8')).toContain('Built by Param Factory · v${__APP_VERSION__}');
+  });
 });
