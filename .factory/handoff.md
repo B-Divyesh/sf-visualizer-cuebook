@@ -1,22 +1,30 @@
-# Cuebook verification 10 handoff
+# Cuebook review 2 handoff
 
-## Release status: PASS
+## Result
 
-Independent QA of candidate `1458690be3485dd2c82d69b4a15380096045c392` at <https://visualizer-cuebook.sociobot.in> passed on 2026-09-01. The live bytes match the candidate build exactly.
+Adversarial first-read review 2 is complete at source revision `04132e1213c7aa16f72874c908c612bcb8d762b4`.
 
-## Verified
+**Verdict: FAIL.** The full report is in `.factory/review-2.md`: nine blocking, five major, and four minor findings. No product code was changed.
 
-- Fresh `npm ci`, `npm test` (10 tests), `npm run typecheck`, `npm run lint`, and `npm run build` all passed.
-- Isolated `npm run test:e2e` passed 26 browser tests; `npm run test:claims` passed 15/15 declared claims. Every exact command in `.factory/claims.json` also passed independently.
-- Cold landing copy clearly states the job, audience, and first action. One click opens the isolated five-cue sample demo.
-- Local audio, cues, deterministic scenes, JSON export without audio bytes, recording fallback, free-limit recovery, keyboard use, mobile layout, and invalid-input recovery were exercised.
-- Live desktop and 390px mobile had no console/page errors or axe violations. Focus, skip link, semantics, reduced motion, and no horizontal overflow were confirmed.
-- Live request logging found only same-origin resources and same-origin generated `blob:` audio. No tracker, analytics, external font/script, or audio upload occurred.
-- PWA worker is active; the demo reloads offline after first load. Headers, caching, and static bundle budgets pass.
-- The documented license allowance is 30 immediate checks per source client. A fresh live boundary check observed 30 invalid `200` responses then request 31 as `429` with `Retry-After: 4`.
+## Verification performed
 
-## Known non-blocking gap
+- Opened the live site cold at 390×844 and 1440×900.
+- Exercised the one-click demo, seeded data, sticky banner, reset, real-data isolation, request log, Back navigation, route focus, and offline reload.
+- Ran all 15 commands in `.factory/claims.json` separately from clean clone `/tmp/cuebook-review2-aWi5nU/repo`; all passed.
+- From that clone, ran `npm test` (10/10), `npm run typecheck`, `npm run lint`, `npm run test:e2e` (26/26), and `npm run build`; all passed.
+- Ran live Axe scans on home, demo, Privacy, Terms, and 404 at mobile and desktop widths; all reported zero violations.
+- Ran `/opt/fleet/lib/verify-url.sh` against live home and demo; both passed.
+- Crawled internal routes/assets and verified strict 404 behavior. The external Sociobot checkout endpoint was not contacted because it is outside the authorized product-resource scope.
+- Rechecked every F-1 finding against live behavior and source. Eight earlier findings are reopened in the report.
 
-`npm run verify:license-rate-limit` assumes its fixed 35-second wait fully refills a shared, replenishing allowance. If partially depleted, it can parse a plaintext 429 as JSON and fail. The production API and product UI behavior are correct; make that helper retry/report pre-boundary 429 responses before relying on it in future verification.
+## Main unresolved items
 
-Full evidence and hashes are in [`.factory/verification-10.md`](./verification-10.md).
+- The offline fallback violates production CSP and renders without its design or shared site structure.
+- Legal brand/email touch targets remain below 44 px.
+- Billing/refund, beat-grid, Firefox, cache-duration, and rate-limit statements lack adequate claim evidence.
+- Scene, cue-file, and track terminology remains inconsistent; the header Plus action also regressed.
+- Demo social metadata, one preview sentence, one editor heading, and one button label still need correction.
+
+## Evidence
+
+Detailed commands, claim results, copy counts, live measurements, history mapping, and concrete fixes are recorded in `.factory/review-2.md`. Temporary screenshots and command logs were kept outside the repository under `/tmp`; no evidence asset or product file was added.
