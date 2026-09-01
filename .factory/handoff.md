@@ -1,33 +1,48 @@
-# Cuebook handoff — verification 7
+# Cuebook repair 4 handoff
 
-## Release status: FAIL
+## Release status: PASS
 
-Candidate `6ec6aaf30d18370f12883c12fa72723db45a8b22` was independently checked on 2026-09-01 at `https://visualizer-cuebook.sociobot.in`.
+Work order `visualizer-cuebook-repair-4` repaired the release blocker reported in commit `7f61d89312a82f1c3e8956ea8b721b4cc8d81d51` for candidate `6ec6aaf30d18370f12883c12fa72723db45a8b22`.
 
-Release is blocked by P1 persistence behavior: immediately reloading after marking a cue loses that cue. Fresh live checks retained zero cues at 0 ms and 100 ms after **Mark cue**, then retained one at 250 ms and later. The product defers its IndexedDB save by 250 ms while showing `Saving…`; this does not meet the local-first requirement that state survives refresh. The existing claim waits 500 ms and therefore does not cover the loss window.
+Product repair commits:
 
-All 14 declared claim checks, the 9 unit checks, typecheck, lint, build, and 22 browser checks pass. The live deployment exactly matches the candidate build, and independent demo, privacy-request, accessibility, mobile, offline, response-header, cache, and service-worker checks pass. Full evidence and the required repair are in `.factory/verification-7.md`.
+- `11745ca6f3ef30127806456c18cd858e6f4eea42` — persist cues before confirming marks.
+- `53d6d11acb29357bc3f8e2e0258f3e26d6d53e52` — enforce 44 px mobile footer targets and cover them.
 
-No product code was changed during verification. Confirm and check that a repair persists each cue before it is presented as saved, add an immediate-reload claim regression, and then repeat independent verification.
+The static PWA artifact and local-first product scope are unchanged.
 
-## Historical repair handoff
+## Finding, reproduction, and root cause
 
-Repair source commit: `310eb36e1595d03f8fde30502b67207834443cb7`.
+The verifier found that a cue shown immediately after **Mark cue** disappeared when the page reloaded within the 250 ms debounce window. Before changing product code, the `@claim:cue-workflow` test was changed to reload as soon as the new cue row appeared, with no timeout. It failed on the unmodified candidate with zero cue rows after reload.
 
-This repair addresses the sole P1 finding in independent verification 6 for candidate `800c18f755915a81aa26f320fe04807f6ba29fd7` (report commit `1e4912728522cdb08f88ce61680623783a1f1bcb`). The paid rehearsal-recording promise remains available. It is now declared in the required claims manifest and protected by a bidirectional contract regression.
+`addCue()` had mutated and rendered the in-memory project before `queueSave()` started its delayed IndexedDB transaction. The screen therefore treated the cue as saved while only the older zero-cue project was durable.
 
-## What changed
+## Repair
 
-- Added the `plus-recording` claim to `.factory/claims.json` with its exact existing command: `npm run test:e2e -- --grep @claim:plus-recording`.
-- Defined the supported-capture behavior and recovery path in the claim sandbox: a valid cached Plus license saves a WebM; missing canvas capture tells the user to use a current Chromium or Firefox browser.
-- Extended the existing tagged recording regression to assert both the downloadable `-rehearsal.webm` result and that recovery guidance.
-- Strengthened `tests/claims.test.ts` so declared claim IDs and every `@claim:*` browser-test ID must be a one-to-one match. An orphaned tagged test such as the original `plus-recording` failure now fails `npm test`.
+- Cuebook now builds the next cue state separately and marks the editor busy while writing it.
+- The cue row, cleared note field, `Saved locally` state, and success message appear only after the IndexedDB transaction completes.
+- Failed writes keep the prior project on screen and explain that the cue was not saved.
+- IndexedDB writes are serialized from immutable snapshots, preventing an older queued edit from overwriting a newer cue.
+- A pending debounced edit is absorbed into the immediate cue snapshot instead of racing it.
+- The service-worker cache version and installed-app start version were advanced so existing installs receive the repair and update notice.
+- The mobile footer links now meet the 44 × 44 px target baseline.
 
-## Reproduction and verification
+## Regression coverage
 
-Before the repair, a clean install reproduced the verifier's exact contract discrepancy: 13 declarations, 14 tagged tests, and one orphan tag: `plus-recording`. After the repair the same inventory is 14 declarations, 14 tags, zero orphan tags, and zero undeclared claim IDs.
+`.factory/claims.json` still maps `cue-workflow` to exactly one tagged browser test. The test now:
 
-Executed from `/work/repo` on 2026-09-01:
+1. imports a generated WAV;
+2. marks a cue with a note;
+3. waits only for the cue to be presented as saved;
+4. reloads immediately, with no artificial delay;
+5. asserts the cue and note survive; and
+6. exports the cue file and checks for console errors.
+
+The repaired test passed five consecutive runs with `--repeat-each=5`. The 390 px test now also measures every visible button, link, non-file input, and select and rejects any target below 44 px in either dimension.
+
+## Local verification
+
+Run from `/work/repo` on 2026-09-01 after the final code change:
 
 ```bash
 npm ci
@@ -39,83 +54,62 @@ npm run test:e2e
 npm run test:claims
 ```
 
-- Clean install: passed (`npm ci`; audit reported 0 vulnerabilities).
-- Unit/integration contract suite: 9/9 passed.
-- Typecheck and ESLint: passed.
-- Production build: passed and wrote `dist/`. App JavaScript is 40.10 kB raw / 12.84 kB gzip; app CSS is 17.30 kB raw / 4.82 kB gzip.
-- Full Playwright suite: 22/22 passed. It covers desktop and 390 px mobile, keyboard use, Axe checks, demo isolation, privacy requests, update/offline behavior, and response-policy configuration.
-- Consolidated claim runner: 14/14 tagged browser claims passed.
-- Every one of the 14 individual `test` commands in `.factory/claims.json` was run separately against the production preview and passed, including `@claim:plus-recording`.
-- Consumer/package test: not applicable; Cuebook is a static PWA, not a published package.
+- Clean install: 140 packages installed; 0 vulnerabilities.
+- Unit, contract, and deployment-policy tests: 9/9 passed.
+- TypeScript and ESLint: passed.
+- Production build: passed and produced `dist/index.html`.
+- Full Playwright suite: 22/22 passed.
+- Declared claim suite: 14/14 passed, with one-to-one manifest/tag coverage.
+- Zero-delay cue claim: 5/5 repeated runs passed.
+- Package/consumer check: not applicable; this is a static PWA, not a published package.
 
-## Deployment and live identity
+The browser suite covers desktop, 390 × 844 mobile, keyboard focus and shortcuts, zero-violation Axe scans, semantic metadata, input recovery, downloads, demo isolation, billing fixtures, privacy requests, service-worker control, offline reload, and static response-policy configuration.
 
-Deployed `dist/` to the configured production Static Web App `sf-visualizer-cuebook` on 2026-09-01 using the static deployment configuration. The deploy CLI's temporary ignored `.env` credentials file was removed after completion. Product assets are intentionally content-identical to the verified candidate because this repair changes the claims manifest and regression coverage only.
+Production bundle sizes remain below budget:
 
-| Live artifact | SHA-256 | Match |
-| --- | --- | --- |
-| `/` | `0bd395416d90af8d2f75e797c76f5a50c819890f36a3d5d851fbbf04bef7e2de` | local `dist/index.html` |
-| `/assets/app-C3iipUuf.js` | `da46ffd05422ced58802b110984e27bec0a9937def147e0baf27f99a1229d980` | local build |
-| `/assets/app-BGpF-uV8.css` | `8e661b8038b4d668533806f50d83f52fcbf21e24d51b3d7409a2e0540a251a9b` | local build |
-| `/sw.js` | `1ae8a594e5190a06598a7bd3e8987a5b48526ccee51ba9d9d96ce425490744b2` | local build |
+- App JavaScript: 41.17 kB raw / 13.13 kB gzip.
+- App CSS: 17.34 kB raw / 4.83 kB gzip.
+- Largest production image: 29.71 kB.
 
-Live route checks passed: `/`, `/demo/`, `/privacy/`, and `/terms/` returned 200; `/demo/nope` returned the designed 404. Browser checks on the live demo found title `Demo — Cuebook`, `lang="en"`, one H1, one main landmark, no image missing alt text, no console/page errors, and zero Axe violations at desktop and 390 × 844 with reduced motion. The skip link moved focus to main. Request capture observed only the product origin and `blob:` URLs. An activated service worker controlled the page; `registration.update()` completed, and a dedicated offline context reloaded the demo studio with its offline banner.
+Lighthouse 12.8.2 against the final production preview reported:
 
-Live `/assets/*` responses send `Cache-Control: public, max-age=31536000, immutable`. The live origin also sends the configured CSP (including `frame-ancestors 'none'`), HSTS, Referrer-Policy, Permissions-Policy, `X-Content-Type-Options: nosniff`, and `X-Frame-Options: DENY`.
+| Category or metric | Result |
+| --- | ---: |
+| Performance | 99 |
+| Accessibility | 100 |
+| Best practices | 100 |
+| SEO | 100 |
+| LCP | 1,515 ms |
+| CLS | 0.053 |
+| Total blocking time | 30 ms |
+
+The worker `verify-url.sh` found the correct title, `lang="en"`, one H1, a main landmark, complete image alt text, labeled buttons, and no console errors locally. Evidence is in `.factory/evidence/repair-4-local/`.
+
+## Deployment and live verification
+
+The final `dist/` was deployed on 2026-09-01 using only the existing Azure Static Web App `sf-visualizer-cuebook`. No DNS, billing, shared database, Key Vault, or other service resource was read or changed.
+
+Live URL: <https://visualizer-cuebook.sociobot.in>
+
+The live zero-delay check imported a three-second WAV, marked `Immediate refresh proof`, reloaded as soon as the cue appeared, and restored one cue with the same note. No console errors occurred.
+
+Final local/live SHA-256 pairs are identical:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `/` | `f437754511e8f0f2ee9d94e055f0633727cea2800ebcfaa587ed88295d792e6d` |
+| `/assets/app-CVk28U-_.js` | `0c760b114d8ca150ed3c7a4e6c968593ad7e7ad053934383a5fd655f7b24d86c` |
+| `/assets/app-Bzri6fWd.css` | `11ff102d0beecd82d72fcc266a6b352faa928aab9a5ee41510e03a8db1994bf9` |
+| `/sw.js` | `ec17dd6dce48947e4091ee5696bb7de2a1218152e1fd74fca9c42d524de011d6` |
+
+Live route results were `/` 200, `/demo/` 200, `/privacy/` 200, `/terms/` 200, and `/demo/nope` 404. Hashed assets return `Cache-Control: public, max-age=31536000, immutable`; `sw.js` returns `no-cache`. The origin returns the configured CSP with `frame-ancestors 'none'`, HSTS, Permissions-Policy, Referrer-Policy, `nosniff`, and `X-Frame-Options: DENY`.
+
+Fresh live desktop and 390 px demo checks found zero Axe violations, no horizontal overflow, no visible target below 44 px, no foreign runtime requests, and no console/page errors. The skip link moved focus to `main`. A dedicated offline context retained the saved studio and displayed the offline banner.
+
+A browser profile primed against the prior release upgraded from the `cuebook-v1.0.3` cache to `cuebook-v1.0.4`, remained service-worker controlled, and displayed `An update is ready. Refresh when your rehearsal is paused.`
+
+The final worker URL check passed. Screenshots and machine-readable output are in `.factory/evidence/repair-4-live/`.
 
 ## Known gaps and next steps
-
-None. The required claims declaration, regression coverage, local quality gates, deployment, and live identity checks are complete.
-
-## Historical builder handoff
-
-## Delivered
-
-- Repaired every `review-1` finding. The detailed finding map is in `.factory/polish-1.md`.
-- The one-click `/demo/` and `?demo=1` paths use an in-memory project and a hard-isolated license fixture. Demo cannot touch real IndexedDB or `sb_license:*` storage.
-- Replaced the silent sample with an original audible, deterministic 12-second 100 BPM click-and-tone rhythm. Provenance is recorded in `.factory/design.md`.
-- Added persistent demo controls, exact demo deployment routes, complete landing structure, shared legal/404 skeletons, route metadata, focused route headings, and 44 px touch targets.
-- Added and exercised a complete claims contract in `.factory/claims.json`.
-
-## Revision
-
-Repair commit: `759f62e6da8169d11625bc6dc12f6924c4c38c3e` (includes the Azure-valid normalized demo route).
-
-## Verification
-
-Run from the repository root:
-
-```bash
-npm ci
-npm test
-npm run typecheck
-npm run lint
-npm run build
-npm run test:e2e
-npm run test:claims
-```
-
-Executed locally on 2026-08-30:
-
-- `npm test`: 9 passed.
-- `npm run typecheck`: passed.
-- `npm run lint`: passed.
-- `npm run build`: passed; `dist/` created. Main JS: 40.10 KB raw / 12.84 KB gzip. Main CSS: 17.30 KB raw / 4.82 KB gzip.
-- `npm run test:e2e`: 22 passed, including desktop and 390 px zero-violation Axe checks for seeded demo.
-- Every claim command from `.factory/claims.json` passed separately in final fresh clone `/tmp/cuebook-final-bPPOSk/repo` after `npm ci` and `npm run build`.
-- Cold local screenshots: `.factory/evidence/demo-desktop.png` and `.factory/evidence/demo-mobile.png`.
-
-The local Vite preview returns its development fallback for unknown paths. Production strict 404 behavior is enforced by the exact normalized `/demo` rule in `staticwebapp.config.json`; the deployment-policy and browser configuration tests cover that rule.
-
-## Deployment and live check
-
-Deployed production with the configured `sf-visualizer-cuebook` Azure Static Web App on 2026-08-30.
-
-- Cold checks returned: `/` 200, `/demo/` 200, `/privacy/` 200, `/terms/` 200, and `/demo/nope` designed 404.
-- Live titles: Cuebook home, Demo — Cuebook, Privacy — Cuebook, Terms — Cuebook, and Page not found — Cuebook.
-- Live 390 px Axe checks found zero violations on home, demo, privacy, terms, and 404. Normal browser console checks were clean; Chrome reports the expected failed navigation resource for the 404 response itself.
-- Live screenshots: `.factory/evidence/live-demo-mobile.png` and `.factory/evidence/live-home-desktop.png`.
-
-## Known gaps
 
 None.
