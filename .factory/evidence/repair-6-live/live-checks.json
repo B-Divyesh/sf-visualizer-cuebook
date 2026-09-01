@@ -1,0 +1,17 @@
+{
+  "deployment_id": "516ec66b-2665-4470-9e60-df34bc693e59",
+  "version": "1.0.6",
+  "desktop_serious_critical_axe": 0,
+  "mobile_serious_critical_axe": 0,
+  "mobile_width": 390,
+  "mobile_scroll_width": 390,
+  "demo_cues": 5,
+  "offline_reload": true,
+  "valid_route_console_errors": 0,
+  "external_demo_requests": 0,
+  "unknown_route_status": 404,
+  "update_from": "cuebook-v1.0.5",
+  "update_to": "cuebook-v1.0.6",
+  "update_notice": "An update is ready. Refresh when your rehearsal is paused.",
+  "remaining_caches": ["cuebook-v1.0.6-shell", "cuebook-v1.0.6-runtime"]
+}
