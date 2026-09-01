@@ -30,3 +30,4 @@ Live evidence was rechecked after deployment `8ee15d81-8774-4f03-9569-e72b2c7824
 - Fresh-clone claim run: `/tmp/cuebook-polish2-OJwQa1/repo`, `npm ci`, then every command in `.factory/claims.json` individually: 18/18 passed.
 - Source suite: `npm test` (10/10), `npm run typecheck`, `npm run lint`, `npm run build`, and `npm run test:e2e` (29/29) passed.
 - Live cold checks: home, demo, Privacy, Terms, designed 404, and offline setup had zero console errors, zero Axe violations, and no mobile target below 44 px. `/demo/nope`, `/demo-extra`, `/demonstration`, and `/unknown/nested` each returned HTTP 404 with the designed page.
+- Live mobile Lighthouse: Performance 100 and Accessibility 100; report at `.factory/evidence/polish-2-live/lighthouse.json`.
