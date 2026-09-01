@@ -71,6 +71,15 @@ test('keeps the cue workflow within a 390px phone viewport', async ({ page }) =>
   await expect(page.locator('.cue-row')).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);
+  const undersizedTargets = await page.locator('button, a, input:not([type="file"]), select').evaluateAll((elements) => elements.flatMap((element) => {
+    const bounds = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return style.display !== 'none' && style.visibility !== 'hidden' && bounds.width > 0 && bounds.height > 0
+      && (bounds.width < 44 || bounds.height < 44)
+      ? [`${element.tagName.toLowerCase()}#${element.id || '(no-id)'} ${bounds.width.toFixed(1)}×${bounds.height.toFixed(1)}`]
+      : [];
+  }));
+  expect(undersizedTargets).toEqual([]);
   const studioAccessibility = await new AxeBuilder({ page }).analyze();
   expect(studioAccessibility.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
 });
