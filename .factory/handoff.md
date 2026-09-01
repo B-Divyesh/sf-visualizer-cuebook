@@ -1,48 +1,33 @@
-# Cuebook repair 4 handoff
+# Cuebook verification 8 handoff
 
-## Release status: PASS
+## Release status: FAIL
 
-Work order `visualizer-cuebook-repair-4` repaired the release blocker reported in commit `7f61d89312a82f1c3e8956ea8b721b4cc8d81d51` for candidate `6ec6aaf30d18370f12883c12fa72723db45a8b22`.
+Candidate `efac3cb641896a1c8cfdc6d996958aca8561d5c1` was independently checked on 2026-09-01 against <https://visualizer-cuebook.sociobot.in>. The live root, app JavaScript, app CSS, and service worker match the fresh candidate build byte-for-byte. Product code was not changed.
 
-Product repair commits:
+The candidate is not ready to release because replacing a longer track with a shorter track silently keeps cues beyond the replacement duration. A three-second track with a cue at 2.499 seconds was replaced by a one-second track; Cuebook saved the cue at 2.499, exported it with one-second audio metadata, then refused that same export because its cue is beyond the track. See `.factory/verification-8.md` for complete evidence and the required correction.
 
-- `11745ca6f3ef30127806456c18cd858e6f4eea42` — persist cues before confirming marks.
-- `53d6d11acb29357bc3f8e2e0258f3e26d6d53e52` — enforce 44 px mobile footer targets and cover them.
+Two additional findings remain:
 
-The static PWA artifact and local-first product scope are unchanged.
+- Cue deletion has no confirmation or undo and remains deleted after reload.
+- `/demo/` retains landing sections before the studio and opens partway through the pricing section, although the sample project and persistent demo banner are visible in the first viewport.
 
-## Finding, reproduction, and root cause
+## Checks completed
 
-The verifier found that a cue shown immediately after **Mark cue** disappeared when the page reloaded within the 250 ms debounce window. Before changing product code, the `@claim:cue-workflow` test was changed to reload as soon as the new cue row appeared, with no timeout. It failed on the unmodified candidate with zero cue rows after reload.
+- Confirm and check all 14 commands in `.factory/claims.json`: 14/14 passed independently.
+- Confirm and check `npm test`: 9/9 passed.
+- Confirm and check `npm run typecheck`: passed.
+- Confirm and check `npm run lint`: passed.
+- Confirm and check `npm run build`: passed and produced `dist/`.
+- Confirm and check `npm run test:e2e`: 22/22 passed.
+- Confirm and check `npm run test:claims`: 14/14 passed.
+- Confirm and check desktop and 390 px live routes with Axe: zero findings.
+- Confirm and check live timing across two rehearsals: all five transitions were within ±150 ms; the largest observed offset was 131 ms.
+- Confirm and check privacy requests: only the product origin and browser `blob:` URLs appeared during normal use.
+- Confirm and check real-project offline reload, service-worker update notice, response headers, caching, and deployment identity: passed.
+- Confirm and check Lighthouse 12.8.2: Performance 99, Accessibility 100, Best Practices 100, SEO 100, LCP 1,170 ms, total blocking time 3 ms, CLS 0.053.
+- Confirm and check the factory URL verifier: passed; evidence is in `.factory/evidence/verification-8-live/`.
 
-`addCue()` had mutated and rendered the in-memory project before `queueSave()` started its delayed IndexedDB transaction. The screen therefore treated the cue as saved while only the older zero-cue project was durable.
-
-## Repair
-
-- Cuebook now builds the next cue state separately and marks the editor busy while writing it.
-- The cue row, cleared note field, `Saved locally` state, and success message appear only after the IndexedDB transaction completes.
-- Failed writes keep the prior project on screen and explain that the cue was not saved.
-- IndexedDB writes are serialized from immutable snapshots, preventing an older queued edit from overwriting a newer cue.
-- A pending debounced edit is absorbed into the immediate cue snapshot instead of racing it.
-- The service-worker cache version and installed-app start version were advanced so existing installs receive the repair and update notice.
-- The mobile footer links now meet the 44 × 44 px target baseline.
-
-## Regression coverage
-
-`.factory/claims.json` still maps `cue-workflow` to exactly one tagged browser test. The test now:
-
-1. imports a generated WAV;
-2. marks a cue with a note;
-3. waits only for the cue to be presented as saved;
-4. reloads immediately, with no artificial delay;
-5. asserts the cue and note survive; and
-6. exports the cue file and checks for console errors.
-
-The repaired test passed five consecutive runs with `--repeat-each=5`. The 390 px test now also measures every visible button, link, non-file input, and select and rejects any target below 44 px in either dimension.
-
-## Local verification
-
-Run from `/work/repo` on 2026-09-01 after the final code change:
+## How to repeat
 
 ```bash
 npm ci
@@ -54,62 +39,14 @@ npm run test:e2e
 npm run test:claims
 ```
 
-- Clean install: 140 packages installed; 0 vulnerabilities.
-- Unit, contract, and deployment-policy tests: 9/9 passed.
-- TypeScript and ESLint: passed.
-- Production build: passed and produced `dist/index.html`.
-- Full Playwright suite: 22/22 passed.
-- Declared claim suite: 14/14 passed, with one-to-one manifest/tag coverage.
-- Zero-delay cue claim: 5/5 repeated runs passed.
-- Package/consumer check: not applicable; this is a static PWA, not a published package.
+For the release-blocking case, choose a three-second WAV, mark a cue near 2.5 seconds, replace the audio with a one-second WAV, export the cue file, then import that export against the current track.
 
-The browser suite covers desktop, 390 × 844 mobile, keyboard focus and shortcuts, zero-violation Axe scans, semantic metadata, input recovery, downloads, demo isolation, billing fixtures, privacy requests, service-worker control, offline reload, and static response-policy configuration.
+## Required next steps
 
-Production bundle sizes remain below budget:
+1. Confirm and check that replacement audio cannot leave any cue after the new duration; ask before changing affected cues.
+2. Confirm and check that the resulting cue file imports again with its referenced replacement track.
+3. Add the shorter-replacement case to browser regression coverage.
+4. Confirm and check that cue deletion is reversible or specifically confirmed.
+5. Confirm and check that the demo studio follows the banner directly, without retained landing sections before it.
 
-- App JavaScript: 41.17 kB raw / 13.13 kB gzip.
-- App CSS: 17.34 kB raw / 4.83 kB gzip.
-- Largest production image: 29.71 kB.
-
-Lighthouse 12.8.2 against the final production preview reported:
-
-| Category or metric | Result |
-| --- | ---: |
-| Performance | 99 |
-| Accessibility | 100 |
-| Best practices | 100 |
-| SEO | 100 |
-| LCP | 1,515 ms |
-| CLS | 0.053 |
-| Total blocking time | 30 ms |
-
-The worker `verify-url.sh` found the correct title, `lang="en"`, one H1, a main landmark, complete image alt text, labeled buttons, and no console errors locally. Evidence is in `.factory/evidence/repair-4-local/`.
-
-## Deployment and live verification
-
-The final `dist/` was deployed on 2026-09-01 using only the existing Azure Static Web App `sf-visualizer-cuebook`. No DNS, billing, shared database, Key Vault, or other service resource was read or changed.
-
-Live URL: <https://visualizer-cuebook.sociobot.in>
-
-The live zero-delay check imported a three-second WAV, marked `Immediate refresh proof`, reloaded as soon as the cue appeared, and restored one cue with the same note. No console errors occurred.
-
-Final local/live SHA-256 pairs are identical:
-
-| Artifact | SHA-256 |
-| --- | --- |
-| `/` | `f437754511e8f0f2ee9d94e055f0633727cea2800ebcfaa587ed88295d792e6d` |
-| `/assets/app-CVk28U-_.js` | `0c760b114d8ca150ed3c7a4e6c968593ad7e7ad053934383a5fd655f7b24d86c` |
-| `/assets/app-Bzri6fWd.css` | `11ff102d0beecd82d72fcc266a6b352faa928aab9a5ee41510e03a8db1994bf9` |
-| `/sw.js` | `ec17dd6dce48947e4091ee5696bb7de2a1218152e1fd74fca9c42d524de011d6` |
-
-Live route results were `/` 200, `/demo/` 200, `/privacy/` 200, `/terms/` 200, and `/demo/nope` 404. Hashed assets return `Cache-Control: public, max-age=31536000, immutable`; `sw.js` returns `no-cache`. The origin returns the configured CSP with `frame-ancestors 'none'`, HSTS, Permissions-Policy, Referrer-Policy, `nosniff`, and `X-Frame-Options: DENY`.
-
-Fresh live desktop and 390 px demo checks found zero Axe violations, no horizontal overflow, no visible target below 44 px, no foreign runtime requests, and no console/page errors. The skip link moved focus to `main`. A dedicated offline context retained the saved studio and displayed the offline banner.
-
-A browser profile primed against the prior release upgraded from the `cuebook-v1.0.3` cache to `cuebook-v1.0.4`, remained service-worker controlled, and displayed `An update is ready. Refresh when your rehearsal is paused.`
-
-The final worker URL check passed. Screenshots and machine-readable output are in `.factory/evidence/repair-4-live/`.
-
-## Known gaps and next steps
-
-None.
+Detailed results: `.factory/verification-8.md`.
