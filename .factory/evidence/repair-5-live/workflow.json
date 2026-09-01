@@ -1,0 +1,10 @@
+{
+  "shorterReplacement": "cancel preserved 2 cues; confirm kept 0.500 and removed 2.499; export re-imported",
+  "cueDeletion": "specific cancel and confirm paths passed; confirmed deletion survived reload",
+  "demoLayout": "studio is sole visible main child at 1440x900 and 390x844; scrollY 0",
+  "accessibility": "zero Axe violations in replacement dialog and both demo viewports",
+  "offlineReload": "saved real studio and offline banner visible",
+  "serviceWorkerUpdate": "v1.0.4 profile received update notice; reload retained only v1.0.5 shell and runtime caches",
+  "foreignRequests": [],
+  "consoleErrors": []
+}

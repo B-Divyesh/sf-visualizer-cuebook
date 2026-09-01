@@ -157,14 +157,14 @@ test('asks before a shorter replacement, removes unreachable cues, and exports a
   await page.goto('/');
   await page.locator('#audio-input').setInputFiles({ name: 'long.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
 
-  for (const time of [0.5, 2.499]) {
+  for (const [index, time] of [0.5, 2.499].entries()) {
     await page.locator('#audio').evaluate((audio, cueTime) => {
       (audio as HTMLAudioElement).currentTime = cueTime;
       audio.dispatchEvent(new Event('timeupdate'));
     }, time);
     await page.getByRole('button', { name: /Mark cue/ }).click();
+    await expect(page.locator('.cue-row')).toHaveCount(index + 1);
   }
-  await expect(page.locator('.cue-row')).toHaveCount(2);
 
   await page.locator('#replace-audio-input').setInputFiles({ name: 'short.wav', mimeType: 'audio/wav', buffer: silentWav(1) });
   await expect(page.locator('#replace-audio-dialog')).toBeVisible();
