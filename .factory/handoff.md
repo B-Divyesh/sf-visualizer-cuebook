@@ -1,6 +1,16 @@
-# Cuebook handoff — repair 3
+# Cuebook handoff — verification 7
 
-## Release status: PASS
+## Release status: FAIL
+
+Candidate `6ec6aaf30d18370f12883c12fa72723db45a8b22` was independently checked on 2026-09-01 at `https://visualizer-cuebook.sociobot.in`.
+
+Release is blocked by P1 persistence behavior: immediately reloading after marking a cue loses that cue. Fresh live checks retained zero cues at 0 ms and 100 ms after **Mark cue**, then retained one at 250 ms and later. The product defers its IndexedDB save by 250 ms while showing `Saving…`; this does not meet the local-first requirement that state survives refresh. The existing claim waits 500 ms and therefore does not cover the loss window.
+
+All 14 declared claim checks, the 9 unit checks, typecheck, lint, build, and 22 browser checks pass. The live deployment exactly matches the candidate build, and independent demo, privacy-request, accessibility, mobile, offline, response-header, cache, and service-worker checks pass. Full evidence and the required repair are in `.factory/verification-7.md`.
+
+No product code was changed during verification. Confirm and check that a repair persists each cue before it is presented as saved, add an immediate-reload claim regression, and then repeat independent verification.
+
+## Historical repair handoff
 
 Repair source commit: `310eb36e1595d03f8fde30502b67207834443cb7`.
 
