@@ -408,6 +408,8 @@ test('@claim:clear-site-data browser controls remove the saved set, audio, cache
   const context = await browser.newContext();
   const page = await context.newPage();
   try {
+    await page.goto('/privacy/');
+    await expect(page.locator('main')).toContainText('Use browser site-data controls to remove the saved set, audio, and cached app files.');
     await page.goto('/');
     await page.locator('#audio-input').setInputFiles({ name: 'clear-everything.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
     await page.getByLabel('Cue note').fill('Remove with site data');

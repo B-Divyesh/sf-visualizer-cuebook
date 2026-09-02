@@ -61,7 +61,7 @@ The first screen reads clearly in one breath. It names the job and audience, the
 | Surface | Longest sentence | Words | Result |
 | --- | --- | ---: | --- |
 | Demo | Rehearse five sample visual cues. | 5 | Pass; visible route h1 |
-| Privacy | Cuebook has no accounts and does not upload your creative work. | 11 | Pass |
+| Privacy | Use browser site-data controls to remove the saved set, audio, and cached app files. | 14 | Pass; `clear-site-data` |
 | Terms | The software is provided as is, without warranties of merchantability, fitness for a particular purpose, or uninterrupted availability. | 18 | Pass |
 | README | That file defines the exact demo route, security headers, asset caching, and designed 404 response. | 15 | Pass |
 | Offline setup | After that, your saved set can reopen offline on this device. | 10 | Pass |
