@@ -879,16 +879,18 @@ test('uses complete route metadata, shared navigation, focus, 44px targets, and 
       expect(undersizedTargets, `${path} at ${viewport.width}px`).toEqual([]);
     }
   }
-  await page.goto('/?demo=1');
-  await expect(page).toHaveTitle('Demo — Cuebook');
-  await expect(page.getByRole('heading', { level: 1, name: 'Rehearse five sample visual cues.' })).toBeVisible();
-  await expect(page.locator('h1')).toHaveCount(1);
-  await expect(page.locator('h1')).toBeFocused();
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Try a 12-second Cuebook rehearsal with five editable sample cues.');
-  await expect(page.locator('#demo-banner')).toBeVisible();
-  await expect(page.locator('.skip-link')).toHaveText('Skip to cue editor');
-  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Demo — Cuebook');
-  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', 'Demo — Cuebook');
+  for (const demoPath of ['/?demo=1', '/demo/']) {
+    await page.goto(demoPath);
+    await expect(page).toHaveTitle('Demo — Cuebook');
+    await expect(page.getByRole('heading', { level: 1, name: 'Rehearse five sample visual cues.' })).toBeVisible();
+    await expect(page.locator('h1')).toHaveCount(1);
+    await expect(page.locator('h1')).toBeFocused();
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Try a 12-second Cuebook rehearsal with five editable sample cues.');
+    await expect(page.locator('#demo-banner')).toBeVisible();
+    await expect(page.locator('.skip-link')).toHaveText('Skip to cue editor');
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Demo — Cuebook');
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', 'Demo — Cuebook');
+  }
   await page.goto('/');
   await expect(page.locator('.skip-link')).toHaveText('Skip to main content');
   await expect(page.getByRole('link', { name: 'Try it with sample data' })).toHaveAttribute('href', '/?demo=1');
