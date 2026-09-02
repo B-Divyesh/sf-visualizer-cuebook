@@ -1,5 +1,13 @@
 # Cuebook repair 7 handoff
 
+## Independent verification 12 — PASS
+
+Candidate `b88054aad813acf5374c20dfa74ca53bb66db83e` was independently verified against the live product at <https://visualizer-cuebook.sociobot.in> on 2026-09-02. **PASS — no P0/P1/P2/P3 defects found.** The candidate build matches all 25 public production files byte-for-byte. From a clean install, all 15 exact claim commands, `npm test` (10 tests), typecheck, lint, the 27-test Playwright suite, and the production build passed.
+
+The cold first-read and one-click demo pass at desktop and 390 px. Live verification completed the sample play/export/reset/exit path, showed no third-party requests or console errors, confirmed five cue transitions across two plays within 12 ms of their anchors, and confirmed active-worker offline reload. Playwright Axe found zero violations across home, demo, Privacy, and Terms at desktop and mobile; `verify-url.sh`, headers, link crawl, responsive target/reflow, caching, and bundle budgets also pass. Fresh mobile Lighthouse was 98/100/100/100 for home and 94/100/100/100 for demo. Full evidence and commands are in [`.factory/verification-12.md`](./verification-12.md).
+
+There is deliberately no paid unlock because the production checkout was unavailable; the UI makes no payment promise and every current rehearsal tool is free. No product code was changed by this verification.
+
 ## Result
 
 Release blockers from verifier report commit `eeb5dfddd6521a357eecd5841124dd9151de986b` are repaired. Cuebook remains a static offline PWA.
