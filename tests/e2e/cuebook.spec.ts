@@ -1,7 +1,12 @@
 import { expect, test, type Browser, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { readFile, readdir } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
 
 function silentWav(seconds = 2): Buffer {
   const sampleRate = 8000;
@@ -370,6 +375,35 @@ test('asks for specific confirmation before deleting a cue', async ({ page }) =>
   await expect(page.locator('.cue-row')).toHaveCount(0);
 });
 
+test('@claim:delete-local-set removes the complete local set and returns to the empty screen', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#audio-input').setInputFiles({ name: 'remove-me.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
+  await page.locator('#audio').evaluate((audio) => {
+    (audio as HTMLAudioElement).currentTime = 0.5;
+    audio.dispatchEvent(new Event('timeupdate'));
+  });
+  await page.getByLabel('Cue note').fill('Remove this cue and track');
+  await page.getByRole('button', { name: /Mark cue/ }).click();
+  const saved = await savedProjectSnapshot(page);
+  expect(saved?.audioBytes).toBe(silentWav(3).byteLength);
+  expect(saved?.cues).toHaveLength(1);
+
+  page.once('dialog', async (dialog) => {
+    expect(dialog.message()).toContain('will be removed from this device');
+    await dialog.accept();
+  });
+  await page.getByRole('button', { name: 'Start a new set' }).click();
+  await expect(page.locator('#empty-state')).toBeVisible();
+  await expect(page.locator('#studio')).toBeHidden();
+  await expect(page.locator('#toast')).toHaveText('Local set removed.');
+  expect(await savedProjectSnapshot(page)).toBeUndefined();
+
+  await page.reload();
+  await expect(page.locator('#empty-state')).toBeVisible();
+  await expect(page.locator('#studio')).toBeHidden();
+  expect(await savedProjectSnapshot(page)).toBeUndefined();
+});
+
 test('keeps the duration error visible when cue JSON is chosen before audio', async ({ page }) => {
   await page.goto('/');
   await page.locator('#cue-file-input').setInputFiles({ name: 'too-long-first.cuebook.json', mimeType: 'application/json', buffer: cueFile([cue(99)]) });
@@ -607,7 +641,17 @@ test('@claim:rehearsal-recording saves a WebM rehearsal with video and track aud
 
   await page.evaluate(() => { (HTMLCanvasElement.prototype as { captureStream?: unknown }).captureStream = undefined; });
   await page.getByRole('button', { name: 'Record rehearsal' }).click();
-  await expect(page.locator('#toast')).toContainText('Use a browser that supports track-audio capture.');
+  await expect(page.locator('#toast')).toContainText('This browser cannot include the track in a recording.');
+  await expect(page.locator('#toast')).toContainText('Try another browser, or export the cue file instead.');
+});
+
+test('uses browser-playable audio guidance without recommending untested formats', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#audio-input').setInputFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('not audio') });
+  await expect(page.locator('#toast')).toHaveText('Choose an audio file your browser can play.');
+  const productSource = await readFile('src/main.ts', 'utf8');
+  expect(productSource).not.toMatch(/Try MP3|such as MP3/);
+  expect(productSource).not.toContain('track-audio capture');
 });
 
 test('@claim:no-tracking-runtime keeps full workflow requests and runtime assets on the product origin', async ({ browser }) => {
@@ -628,6 +672,36 @@ test('@claim:free-access removes the unavailable purchase path and keeps every c
   await expect(page.locator('main')).toContainText('All current Cuebook tools are available without charge.');
   await expect(page.locator('a[href*="checkout"], a[href*="api.sociobot.in"]')).toHaveCount(0);
   expect(requests.some((url) => url.startsWith('https://api.sociobot.in/'))).toBe(false);
+});
+
+test('@claim:no-accounts exposes no sign-in path, identity traffic, or credential storage', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', (request) => requests.push(request.url()));
+  for (const path of ['/', '/?demo=1', '/privacy/', '/terms/']) {
+    await page.goto(path);
+    await expect(page.locator('input[type="password"], input[autocomplete="username"], input[autocomplete="current-password"]')).toHaveCount(0);
+    await expect(page.locator('a[href*="login"], a[href*="signin"], a[href*="signup"], a[href*="auth"]')).toHaveCount(0);
+  }
+  await expect(page.locator('main')).not.toContainText(/sign in|sign up|create an account/i);
+  await page.goto('/privacy/');
+  await expect(page.locator('main')).toContainText('Cuebook has no accounts');
+  const browserStorage = await page.evaluate(async () => ({
+    localKeys: Object.keys(localStorage),
+    sessionKeys: Object.keys(sessionStorage),
+    databases: (await indexedDB.databases()).map((database) => database.name ?? '')
+  }));
+  expect(browserStorage.localKeys).toEqual([]);
+  expect(browserStorage.sessionKeys).toEqual([]);
+  expect(browserStorage.databases.filter((name) => /account|auth|credential|identity|session|token/i.test(name))).toEqual([]);
+  expect(requests.filter((url) => /\/(?:auth|login|identity|session)(?:\/|\?|$)/i.test(new URL(url).pathname))).toEqual([]);
+  assertProductOnlyRequests(requests);
+});
+
+test('@claim:content-ownership keeps the rendered Terms ownership promise aligned with its contract fixture', async ({ page }) => {
+  const contract = JSON.parse(await readFile('.factory/legal-contract.json', 'utf8')) as { userContentOwnership: string };
+  expect(contract.userContentOwnership).toBeTruthy();
+  await page.goto('/terms/');
+  await expect(page.locator('main')).toContainText(contract.userContentOwnership);
 });
 
 test('@claim:beat-grid updates beat numbers without moving the selected cue time', async ({ page }) => {
@@ -657,6 +731,23 @@ test('@claim:static-deployment serves a complete static demo without runtime env
   expect(html).not.toContain('process.env');
 });
 
+test('@claim:node-20-build compiles and builds the production site with the pinned Node 20 runtime', async () => {
+  const packageData = JSON.parse(await readFile('package.json', 'utf8')) as { engines?: { node?: string }; devDependencies?: { node?: string } };
+  expect(packageData.engines?.node).toBe('>=20');
+  expect(packageData.devDependencies?.node).toBe('20.19.5');
+  const node20 = join(process.cwd(), 'node_modules', 'node', 'bin', 'node');
+  const version = await execFileAsync(node20, ['--version']);
+  expect(version.stdout.trim()).toBe('v20.19.5');
+  await execFileAsync(node20, [join(process.cwd(), 'node_modules', 'typescript', 'bin', 'tsc'), '--noEmit']);
+  const outputDirectory = await mkdtemp(join(tmpdir(), 'cuebook-node20-'));
+  try {
+    await execFileAsync(node20, [join(process.cwd(), 'node_modules', 'vite', 'bin', 'vite.js'), 'build', '--outDir', outputDirectory, '--emptyOutDir']);
+    expect(await readFile(join(outputDirectory, 'index.html'), 'utf8')).toContain('<title>Cuebook — visual cues for your track</title>');
+  } finally {
+    await rm(outputDirectory, { recursive: true, force: true });
+  }
+});
+
 test('uses complete route metadata, shared navigation, focus, 44px targets, and a strict demo route', async ({ page }) => {
   const packageData = JSON.parse(await readFile('package.json', 'utf8')) as { version: string };
   for (const [path, title] of [['/', 'Cuebook — visual cues for your track'], ['/demo/', 'Demo — Cuebook'], ['/privacy/', 'Privacy — Cuebook'], ['/terms/', 'Terms — Cuebook'], ['/404.html', 'Page not found — Cuebook'], ['/offline.html', 'Offline setup — Cuebook']] as const) {
@@ -665,12 +756,15 @@ test('uses complete route metadata, shared navigation, focus, 44px targets, and 
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
     await expect(page.locator('meta[property="og:image"]')).toHaveCount(1);
     await expect(page.locator('link[rel="apple-touch-icon"][sizes="180x180"]')).toHaveCount(1);
-    await expect(page.locator('header nav')).toBeVisible();
     await expect(page.locator('footer')).toContainText('Built by Param Factory');
     await expect(page.locator('footer')).toContainText(`v${packageData.version}`);
     await expect(page.locator('h1')).toBeFocused();
     for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
       await page.setViewportSize(viewport);
+      await expect(page.locator('header nav')).toBeVisible();
+      await expect(page.locator('header nav').getByRole('link', { name: 'Demo' })).toBeVisible();
+      await expect(page.locator('header nav').getByRole('link', { name: 'Privacy' })).toBeVisible();
+      await expect(page.locator('header nav').getByRole('link', { name: 'Terms' })).toBeVisible();
       const undersizedTargets = await page.locator('button, a, input:not([type="file"]), select').evaluateAll((elements) => elements.flatMap((element) => {
         const bounds = element.getBoundingClientRect();
         const style = getComputedStyle(element);
@@ -692,6 +786,22 @@ test('uses complete route metadata, shared navigation, focus, 44px targets, and 
   const config = await page.evaluate(async () => (await fetch('/staticwebapp.config.json')).json());
   expect(config.routes.map((route: { route: string }) => route.route)).toContain('/demo');
   expect(config.routes.map((route: { route: string }) => route.route)).not.toContain('/demo*');
+});
+
+test('keeps app navigation keyboard-operable and restores heading focus on a 390px phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const demoLink = page.locator('header nav').getByRole('link', { name: 'Demo' });
+  await expect(demoLink).toBeVisible();
+  await demoLink.focus();
+  await expect(demoLink).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\?demo=1$/);
+  await expect(page.locator('h1')).toBeFocused();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator('h1')).toBeFocused();
+  await expect(page.locator('header nav')).toBeVisible();
 });
 
 test('keeps the demo within the viewport from 621px through 768px', async ({ page }) => {

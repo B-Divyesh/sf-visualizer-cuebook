@@ -25,7 +25,7 @@ See [privacy](./privacy/index.html) and [terms](./terms/index.html).
 
 ## Run locally
 
-Node.js 20 or newer is required.
+Cuebook requires Node.js 20 or newer for local builds.
 
 ```bash
 npm ci

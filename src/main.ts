@@ -15,7 +15,7 @@ type PendingAudioReplacement = {
 const template = `
   <header class="topbar">
     <a class="brand" href="/" aria-label="Cuebook home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-title">Cuebook</span></a>
-    <nav class="top-nav" aria-label="Main navigation"><a href="/?demo=1">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
+    <nav class="top-nav" aria-label="Main navigation"><a href="/?demo=1" ${DEMO_MODE ? 'aria-current="page"' : ''}>Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
     <div class="top-status"><span id="save-state">${DEMO_MODE ? 'Demo changes reset on reload' : 'Saved locally'}</span><span class="status-dot" aria-hidden="true"></span></div>
   </header>
   <div class="offline-banner" id="offline-banner" role="status" hidden><span aria-hidden="true">↯</span> Offline and ready. Your saved set is on this device.</div>
@@ -222,7 +222,7 @@ class CuebookApp {
     this.audio.addEventListener('pause', () => this.updatePlayButton());
     this.audio.addEventListener('ended', () => this.updatePlayButton());
     this.audio.addEventListener('timeupdate', () => this.updateTimeUi());
-    this.audio.addEventListener('error', () => this.toast('This browser could not decode that audio file. Try MP3, WAV, or M4A.', 'error'));
+    this.audio.addEventListener('error', () => this.toast('Choose an audio file your browser can play.', 'error'));
     this.el<HTMLInputElement>('timeline').addEventListener('input', (event) => {
       if (!this.project) return;
       this.audio.currentTime = Number((event.target as HTMLInputElement).value) / 1000 * this.project.duration;
@@ -276,7 +276,7 @@ class CuebookApp {
     input.value = '';
     if (!file) return;
     if (!file.type.startsWith('audio/') && !/\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(file.name)) {
-      this.toast('Choose an audio file such as MP3, WAV, M4A, or OGG.', 'error');
+      this.toast('Choose an audio file your browser can play.', 'error');
       return;
     }
     this.setSaveState('Reading audio…');
@@ -294,7 +294,7 @@ class CuebookApp {
       }
       await this.applyAudioFile(file, duration);
     } catch {
-      this.toast('Cuebook could not read that audio file. Try a different format.', 'error');
+      this.toast('Choose an audio file your browser can play.', 'error');
       this.setSaveState('Not saved');
     }
   }
@@ -723,7 +723,7 @@ class CuebookApp {
   private async toggleRecording(): Promise<void> {
     if (this.recorder?.state === 'recording') { this.recorder.stop(); return; }
     if (!('MediaRecorder' in window) || !this.canvas.captureStream) {
-      this.toast('This browser cannot capture track audio. Use a browser that supports track-audio capture.', 'error'); return;
+      this.toast('This browser cannot include the track in a recording. Try another browser, or export the cue file instead.', 'error'); return;
     }
     try {
       const canvasStream = this.canvas.captureStream(30);
@@ -746,7 +746,7 @@ class CuebookApp {
       this.el<HTMLButtonElement>('record').textContent = 'Stop & save';
       if (this.audio.paused) await this.audio.play();
     } catch {
-      this.toast('This browser cannot capture track audio. Use a browser that supports track-audio capture.', 'error');
+      this.toast('This browser cannot include the track in a recording. Try another browser, or export the cue file instead.', 'error');
     }
   }
 
