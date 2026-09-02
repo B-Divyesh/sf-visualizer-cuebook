@@ -12,6 +12,7 @@ The shipped PWA version is **1.0.12**. Its shell cache is `cuebook-v1.0.12-shell
 - The moved page heading is now the visible editor H1, “Current set,” and receives focus after import and saved-set boot. The live region announces the state change.
 - `Start a new set` is the only return to the empty state: it restores landing sections, scrolls to the first screen, and moves focus to its H1.
 - Added a Playwright regression across 1440 × 900 and 390 × 844. It covers import and saved-set boot, viewport intersection, exact hidden landing sections, heading order, first Tab target, and restoration after deletion.
+- Made the existing installability claim wait for the observable service-worker controller after activation, removing the `ready`/`clients.claim()` timing race found during the final clean run.
 - Bumped the manifest start version, static offline footer, package version, and service-worker cache to 1.0.12.
 
 ## Reproduction and repair evidence
@@ -30,7 +31,7 @@ After repair, the same fresh import reports:
 | 1440 × 900 | 72 px | 0 | `h1#page-title` | Yes |
 | 390 × 844 | 64 px | 0 | `h1#page-title` | Yes |
 
-Visual captures: [desktop](./evidence/repair-8-local/real-import-desktop.png) and [390 px mobile](./evidence/repair-8-local/real-import-mobile.png). The full local URL checks and Lighthouse reports are in [repair-8-local](./evidence/repair-8-local/).
+Visual captures: [local desktop](./evidence/repair-8-local/real-import-desktop.png), [local 390 px mobile](./evidence/repair-8-local/real-import-mobile.png), [live desktop](./evidence/repair-8-live/real-import-desktop.png), and [live 390 px mobile](./evidence/repair-8-live/real-import-mobile.png). The full local URL checks and Lighthouse reports are in [repair-8-local](./evidence/repair-8-local/).
 
 ## Verification
 
@@ -55,7 +56,14 @@ Mobile Lighthouse 13.4.1, local production preview (provided throttling):
 
 ## Deploy and live verification
 
-Static deployment is performed with `/opt/fleet/lib/deploy-static.sh` after the repair commits are pushed. The post-deploy check must confirm the GitHub deployment identity, live desktop and 390 px real-track import behavior, response policy, offline reload, and local-to-live asset identity.
+Deployed to <https://visualizer-cuebook.sociobot.in> with `/opt/fleet/lib/deploy-static.sh` (Azure Static Web Apps deployment `339086fe-e478-4492-8076-5531e637189c`) from repair commit `2a64faea4b483f17620b79f31659cec1c327951a`.
+
+- Live `/` and `/?demo=1` passed `verify-url.sh`: 200, correct title, `lang=en`, one H1, main landmark, alt text, and zero console errors. Evidence is in [repair-8-live](./evidence/repair-8-live/).
+- Live independent real-track import and saved-set boot passed at 1440 × 900 and 390 × 844. On import the studio starts at 72 px / 64 px; on boot it still intersects the viewport. All landing sections are hidden, focus is `h1#page-title`, and the first Tab target is `#project-title`.
+- Live request capture found no foreign requests; console and page errors were empty.
+- Live response policy includes the self-only CSP, HSTS, `Referrer-Policy`, `X-Content-Type-Options`, `X-Frame-Options: DENY`, Permissions-Policy, immutable hashed assets, and no-cache `sw.js`.
+- All 25 served runtime files match the local `dist/` bytes by SHA-256.
+- The live PWA update/offline probe activated and controlled `cuebook-v1.0.12-shell`; the five-cue demo then reloaded offline with its offline banner and no console errors.
 
 ## Known gaps / next steps
 
