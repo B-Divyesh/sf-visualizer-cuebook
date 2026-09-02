@@ -1,0 +1,14 @@
+{
+  "url": "https://visualizer-cuebook.sociobot.in/privacy/",
+  "loadMs": 649,
+  "errors": [],
+  "a11y": {
+    "title": "Privacy — Cuebook",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 990
+  }
+}
