@@ -57,7 +57,20 @@ Local evidence is under `.factory/evidence/repair-7-local/`.
 
 ## Deployment and live verification
 
-Pending deployment of this repair. Add the deployed commit, live response-policy, identity, offline, and screenshot evidence after release.
+- Repair commit `3b308a6452e8f38bc714e476be1429950715d015` was pushed to `origin/main` and deployed to <https://visualizer-cuebook.sociobot.in> with the product-scoped static deployment configuration.
+- All 25 browser-served files match local `dist/` byte-for-byte by SHA-256. `staticwebapp.config.json` is correctly unavailable over HTTP.
+- Live home, demo, Privacy, and Terms returned 200 and passed `verify-url.sh` without console errors. The unknown-route response returned HTTP 404 and exactly matched `dist/404.html`.
+- Live CSP allows `connect-src 'self'` only and includes `frame-ancestors 'none'`. HSTS, nosniff, referrer, permissions, and frame-denial headers are present.
+- Hashed JS uses one-year immutable caching. `sw.js` uses `no-cache`.
+- Live Demo and Terms app-header targets measure `44 × 44` CSS px. The document exactly matches viewport width at 390, 621, 640, 700, 768, and 1440 px.
+- Live Axe scans found zero violations at all six measured widths. No console errors or third-party requests occurred.
+- Live service-worker update returned active `cuebook-v1.0.8` with no waiting worker. A dedicated offline context reopened `/demo/` with its banner and all five cues.
+- Live keyboard smoke test used Space to play/pause and Right Arrow to move the playhead by one second.
+- Live demo added a sixth cue, exported six cues with audio metadata only, reset to five cues, and exited to the real workspace.
+- Live Lighthouse mobile home: 100 performance / 100 accessibility / 100 best practices / 100 SEO; LCP 1.1 s, CLS 0.052, TBT 10 ms.
+- Live Lighthouse mobile demo: 99 / 100 / 100 / 100; LCP 1.2 s, CLS 0, TBT 100 ms.
+
+Live evidence is under `.factory/evidence/repair-7-live/`.
 
 ## Known gaps
 
