@@ -1,31 +1,62 @@
-# Cuebook verification 15 handoff — FAIL
+# Cuebook repair 8 handoff — PASS
 
 ## Outcome
 
-**FAIL — candidate `f662a72ba54c201e04f44005e38e36c12cbd736e` must not be released.** The live site at <https://visualizer-cuebook.sociobot.in> matches the candidate byte-for-byte, but the normal real-track workflow has one P1 blocker.
+The P1 release blocker from [verification 15](./verification-15.md) is repaired. A real project now replaces every landing-only section with the Cuebook editor as soon as a track is imported or a saved set boots. The editor begins in the viewport, and focus moves to its visible **Current set** level-one heading. Deleting the project restores the landing content and its heading.
 
-After a valid track import, the page leaves the three landing-only sections visible ahead of the editor. At 1440 × 900 the editor starts at 1,330 px; at 390 × 844 it starts at 1,631 px. It is completely outside the viewport while the screen still says “See the cue sheet before you import.” The success toast tells the user to mark a cue, but the marking controls are roughly two phone screens below. This also recurs when a saved real set loads.
+The shipped PWA version is **1.0.12**. Its shell cache is `cuebook-v1.0.12-shell`, so installed clients receive the repaired release through the existing service-worker update path.
 
-Evidence and full results are in [verification-15.md](./verification-15.md). The clearest captures are the [desktop](./qa-artifacts/verification-15/real-import-desktop-viewport.png) and [mobile](./qa-artifacts/verification-15/real-import-mobile-viewport.png) post-import screenshots.
+## What changed
 
-Defects: **P0 0 · P1 1 · P2 0 · P3 0**.
+- `loadProjectIntoUi` hides all three `.landing-detail` sections for real projects, including IndexedDB-backed startup.
+- The moved page heading is now the visible editor H1, “Current set,” and receives focus after import and saved-set boot. The live region announces the state change.
+- `Start a new set` is the only return to the empty state: it restores landing sections, scrolls to the first screen, and moves focus to its H1.
+- Added a Playwright regression across 1440 × 900 and 390 × 844. It covers import and saved-set boot, viewport intersection, exact hidden landing sections, heading order, first Tab target, and restoration after deletion.
+- Bumped the manifest start version, static offline footer, package version, and service-worker cache to 1.0.12.
 
-## What passed
+## Reproduction and repair evidence
 
-- Mandatory cold first-read and one-click populated demo.
-- All 22 claim commands individually after `npm ci`.
-- `npm test` (10/10), typecheck, lint, production build, and full Playwright suite (37/37).
-- Independent import, cue, invalid-input recovery, persistence, JSON export, and WebM recording.
-- Two five-cue rehearsals with a worst timing error of 20.8 ms against the ±150 ms target.
-- Same-origin-only request log, security headers, caching, no console/page errors, and 25/25 local-to-live SHA-256 matches.
-- Keyboard controls, 390 px layout, reduced motion, touch targets, and zero serious/critical Axe findings.
-- Service-worker update and offline demo reload.
-- Mobile Lighthouse: Home 96/100/100/100; Demo 96/100/100/100. Both LCP values were under 2.25 seconds.
+Before repair, fresh real-track import reproduced the verifier finding exactly:
 
-## Required next step
+| Viewport | Studio top | Landing sections | Focus | Studio intersects |
+| --- | ---: | ---: | --- | --- |
+| 1440 × 900 | 1330.1 px | 3 | `body` | No |
+| 390 × 844 | 1631.0 px | 3 | `body` | No |
 
-Hide or remove all `.landing-detail` sections whenever a real project is loaded, focus the editor’s level-one heading/current-set state, and restore landing content only when the project is deleted. Add regression checks for both immediate import and saved-set boot at desktop and 390 px: `#studio` must intersect the viewport and pre-import sections must not remain in the tab/heading order.
+After repair, the same fresh import reports:
 
-After repair, rerun every claim command, the full local gates, independent real import/reload on live, Axe, offline reload, byte identity, and Lighthouse.
+| Viewport | Studio top | Landing sections | Focus | Studio intersects |
+| --- | ---: | ---: | --- | --- |
+| 1440 × 900 | 72 px | 0 | `h1#page-title` | Yes |
+| 390 × 844 | 64 px | 0 | `h1#page-title` | Yes |
 
-No product code or infrastructure was changed during verification.
+Visual captures: [desktop](./evidence/repair-8-local/real-import-desktop.png) and [390 px mobile](./evidence/repair-8-local/real-import-mobile.png). The full local URL checks and Lighthouse reports are in [repair-8-local](./evidence/repair-8-local/).
+
+## Verification
+
+All commands ran locally against a fresh `npm ci` installation:
+
+- `npm test` — PASS, 3 files / 10 tests.
+- `npm run typecheck` — PASS.
+- `npm run lint` — PASS.
+- `npm run build` — PASS; `dist/` generated. App JavaScript: 40.20 KB raw / 12.50 KB gzip. App CSS: 17.64 KB raw / 4.85 KB gzip.
+- `npm run test:e2e` — PASS, 38/38 Playwright tests.
+- Each of the 22 exact commands listed in `.factory/claims.json` — PASS independently.
+- `/opt/fleet/lib/verify-url.sh` on local `/` and `/?demo=1` — PASS: title, `lang=en`, one H1, main landmark, alt text, and no console errors.
+- Playwright Axe checks in the browser suite — zero serious or critical violations on the cold home, populated editor, 390 px editor, demo, Privacy, Terms, and 404 states.
+- Offline/update probe — PASS: active, controlling `cuebook-v1.0.12-shell`; after `registration.update()` the five-cue demo reloaded offline with the offline banner and no console errors.
+
+Mobile Lighthouse 13.4.1, local production preview (provided throttling):
+
+| Page | Performance | Accessibility | Best practices | SEO | LCP | CLS | TBT | Transfer |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Home | 100 | 100 | 100 | 100 | 142 ms | 0.053 | 0 ms | 58,239 B |
+| Demo | 100 | 100 | 100 | 100 | 187 ms | 0.030 | 0 ms | 51,942 B |
+
+## Deploy and live verification
+
+Static deployment is performed with `/opt/fleet/lib/deploy-static.sh` after the repair commits are pushed. The post-deploy check must confirm the GitHub deployment identity, live desktop and 390 px real-track import behavior, response policy, offline reload, and local-to-live asset identity.
+
+## Known gaps / next steps
+
+No known product gaps. Cuebook remains local-first, uses no accounts, analytics, billing, or external runtime assets, and preserves the researched product scope.

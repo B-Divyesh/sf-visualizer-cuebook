@@ -228,6 +228,71 @@ test('keeps the cue workflow within a 390px phone viewport', async ({ page }) =>
   expect(studioAccessibility.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
 });
 
+test('real projects replace landing content with the focused editor at desktop and phone sizes after import and saved-set boot', async ({ browser }) => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    const context = await browser.newContext({ viewport });
+    const page = await context.newPage();
+    try {
+      await page.goto('/');
+      await page.locator('#audio-input').setInputFiles({
+        name: `layout-${viewport.width}.wav`, mimeType: 'audio/wav', buffer: silentWav(3)
+      });
+      await expect(page.locator('#studio')).toBeVisible();
+
+      for (const boot of ['after import', 'after saved-set boot']) {
+        await expect(page.getByRole('heading', { level: 1, name: 'Current set' })).toBeFocused();
+        const editorState = await page.evaluate(() => {
+          const studio = document.querySelector<HTMLElement>('#studio')!.getBoundingClientRect();
+          const headings = [...document.querySelectorAll<HTMLElement>('h1, h2')]
+            .filter((heading) => heading.offsetParent !== null)
+            .map((heading) => `${heading.tagName}:${heading.textContent?.trim()}`);
+          return {
+            activeElement: document.activeElement?.id,
+            studioIntersectsViewport: studio.top < window.innerHeight && studio.bottom > 0,
+            landingSectionsAreHidden: [...document.querySelectorAll<HTMLElement>('.landing-detail')].every((section) => section.hidden),
+            headings
+          };
+        });
+        expect(editorState.activeElement).toBe('page-title');
+        expect(editorState.studioIntersectsViewport, `${boot} at ${viewport.width}px`).toBe(true);
+        expect(editorState.landingSectionsAreHidden).toBe(true);
+        expect(editorState.headings).toEqual(expect.arrayContaining(['H1:Current set']));
+        for (const landingHeading of [
+          'H2:See the cue sheet before you import',
+          'H2:Rehearse a scene change in three steps',
+          'H2:What Cuebook keeps on this device'
+        ]) expect(editorState.headings).not.toContain(landingHeading);
+
+        await page.keyboard.press('Tab');
+        await expect(page.locator('#project-title')).toBeFocused();
+        if (boot === 'after import') await page.reload();
+      }
+
+      page.once('dialog', (dialog) => dialog.accept());
+      await page.getByRole('button', { name: 'Start a new set' }).click();
+      await expect(page.locator('#empty-state')).toBeVisible();
+      await expect(page.locator('#studio')).toBeHidden();
+      await expect(page.getByRole('heading', { level: 1, name: /Build repeatable visual cues/ })).toBeFocused();
+      const restoredLanding = await page.evaluate(() => ({
+        landingSectionsAreVisible: [...document.querySelectorAll<HTMLElement>('.landing-detail')]
+          .every((section) => !section.hidden && getComputedStyle(section).display !== 'none'),
+        headings: [...document.querySelectorAll<HTMLElement>('h1, h2')]
+          .filter((heading) => heading.offsetParent !== null)
+          .map((heading) => `${heading.tagName}:${heading.textContent?.trim()}`)
+      }));
+      expect(restoredLanding.landingSectionsAreVisible).toBe(true);
+      expect(restoredLanding.headings).toEqual(expect.arrayContaining([
+        'H1:Build repeatable visual cues for your track.',
+        'H2:See the cue sheet before you import',
+        'H2:Rehearse a scene change in three steps',
+        'H2:What Cuebook keeps on this device'
+      ]));
+    } finally {
+      await context.close();
+    }
+  }
+});
+
 test('@claim:accessibility-in-free supports keyboard controls and labelled controls without trapping focus', async ({ page }) => {
   await page.goto('/');
   await page.locator('.skip-link').focus();
@@ -654,6 +719,8 @@ test('@claim:deterministic-scenes activates saved scenes on cue and renders the 
 
 test('@claim:pwa-install serves an install manifest and controls the page with a service worker', async ({ page }) => {
   await page.goto('/');
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
   const result = await page.evaluate(async () => {
     const registration = await navigator.serviceWorker.ready;
     const response = await fetch('/manifest.webmanifest');

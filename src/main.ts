@@ -168,6 +168,7 @@ class CuebookApp {
   private canvas = this.el<HTMLCanvasElement>('visual-canvas');
   private empty = this.el<HTMLElement>('empty-state');
   private studio = this.el<HTMLElement>('studio');
+  private landingDetails = [...document.querySelectorAll<HTMLElement>('.landing-detail')];
   private cueList = this.el<HTMLOListElement>('cue-list');
   private cueFileInput = this.el<HTMLInputElement>('cue-file-input');
 
@@ -209,7 +210,7 @@ class CuebookApp {
         this.project = this.makeDemoProject();
         await this.persistProject(this.project);
       }
-      if (this.project?.audioBlob) this.loadProjectIntoUi();
+      if (this.project?.audioBlob) this.loadProjectIntoUi({ focusEditor: !DEMO_MODE });
     } catch {
       this.toast('Local storage could not be opened. You can still rehearse, but refresh will lose this set.', 'error');
     }
@@ -319,7 +320,7 @@ class CuebookApp {
     };
     await this.persistProject(nextProject);
     this.project = nextProject;
-    this.loadProjectIntoUi();
+    this.loadProjectIntoUi({ focusEditor: !DEMO_MODE });
     if (this.pendingCueFile) {
       const cueFile = this.pendingCueFile;
       this.pendingCueFile = undefined;
@@ -374,7 +375,7 @@ class CuebookApp {
     });
   }
 
-  private loadProjectIntoUi(): void {
+  private loadProjectIntoUi({ focusEditor = false }: { focusEditor?: boolean } = {}): void {
     if (!this.project?.audioBlob) return;
     if (this.audioUrl) URL.revokeObjectURL(this.audioUrl);
     this.audioUrl = URL.createObjectURL(this.project.audioBlob);
@@ -382,10 +383,12 @@ class CuebookApp {
     this.empty.hidden = true;
     this.studio.hidden = false;
     if (!DEMO_MODE) {
+      this.setLandingDetailsHidden(true);
       const pageTitle = this.el<HTMLHeadingElement>('page-title');
-      pageTitle.textContent = 'Build repeatable visual cues for your track.';
-      pageTitle.className = 'sr-only';
+      pageTitle.textContent = 'Current set';
+      pageTitle.className = 'studio-title';
       this.studio.prepend(pageTitle);
+      if (focusEditor) this.focusEditorHeading();
     }
     this.el<HTMLInputElement>('project-title').value = this.project.title;
     this.el<HTMLElement>('track-name').textContent = this.project.audioName;
@@ -396,6 +399,18 @@ class CuebookApp {
     this.renderCueList();
     this.updateTimeUi();
     this.setSaveState('Saved locally');
+  }
+
+  private setLandingDetailsHidden(hidden: boolean): void {
+    this.landingDetails.forEach((section) => { section.hidden = hidden; });
+  }
+
+  private focusEditorHeading(): void {
+    window.requestAnimationFrame(() => {
+      const pageTitle = this.el<HTMLHeadingElement>('page-title');
+      pageTitle.focus({ preventScroll: true });
+      this.el<HTMLElement>('route-announcer').textContent = 'Cue editor open. Current set.';
+    });
   }
 
   private async togglePlay(): Promise<void> {
@@ -650,10 +665,14 @@ class CuebookApp {
     if (this.audioUrl) URL.revokeObjectURL(this.audioUrl);
     this.audio.removeAttribute('src');
     this.studio.hidden = true; this.empty.hidden = false;
+    this.setLandingDetailsHidden(false);
     const pageTitle = this.el<HTMLHeadingElement>('page-title');
     pageTitle.textContent = 'Build repeatable visual cues for your track.';
     pageTitle.className = 'hero-title';
     this.el<HTMLElement>('hero-copy').querySelector('.eyebrow')?.after(pageTitle);
+    window.scrollTo(0, 0);
+    pageTitle.focus({ preventScroll: true });
+    this.el<HTMLElement>('route-announcer').textContent = pageTitle.textContent;
     this.toast('Local set removed.');
   }
 
