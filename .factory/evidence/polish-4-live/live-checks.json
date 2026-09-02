@@ -1,0 +1,61 @@
+{
+  "routes": {
+    "/demo": 200,
+    "/demo/": 200,
+    "/demo/nope": 404,
+    "/demo-extra": 404,
+    "/demonstration": 404,
+    "/unknown/nested": 404
+  },
+  "findings": {
+    "mobileNavigation": [
+      {
+        "text": "Demo",
+        "width": 46.640625,
+        "height": 44,
+        "visible": true
+      },
+      {
+        "text": "Privacy",
+        "width": 55.078125,
+        "height": 44,
+        "visible": true
+      },
+      {
+        "text": "Terms",
+        "width": 46.296875,
+        "height": 44,
+        "visible": true
+      }
+    ],
+    "formatMessage": "Choose an audio file your browser can play.",
+    "demo": {
+      "url": "https://visualizer-cuebook.sociobot.in/?demo=1",
+      "title": "Demo — Cuebook",
+      "banner": "Demo — sample data, nothing is saved\nReset demo\nStart for real",
+      "duration": "0:12.000",
+      "cues": 5
+    },
+    "demoResetNote": "Opening contour",
+    "recordingMessage": "This browser cannot include the track in a recording. Try another browser, or export the cue file instead.",
+    "localRecordAfterDelete": null,
+    "noAccounts": true,
+    "ownership": true,
+    "offlineDemo": {
+      "bannerVisible": true,
+      "cues": 5,
+      "title": "Demo — Cuebook"
+    }
+  },
+  "axe": {
+    "/": [],
+    "/?demo=1": [],
+    "/privacy/": [],
+    "/terms/": [],
+    "/offline.html": [],
+    "/404.html": []
+  },
+  "consoleErrors": [],
+  "externalRequests": [],
+  "result": "PASS"
+}

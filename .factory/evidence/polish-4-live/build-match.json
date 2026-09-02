@@ -1,0 +1,206 @@
+{
+  "count": 25,
+  "allMatch": true,
+  "results": [
+    {
+      "file": "404.html",
+      "route": "/404.html",
+      "status": 200,
+      "localSha256": "10fae86409f865c9e4ce57584ae7660c5ae52a03673c110884ae10395d550d56",
+      "liveSha256": "10fae86409f865c9e4ce57584ae7660c5ae52a03673c110884ae10395d550d56",
+      "match": true
+    },
+    {
+      "file": "assets/app-BJ_Vjtag.css",
+      "route": "/assets/app-BJ_Vjtag.css",
+      "status": 200,
+      "localSha256": "3e0abb57b4de7ff6b9cbbd45ef7166737d1d2cacc76cf86b78cfb37007b7793d",
+      "liveSha256": "3e0abb57b4de7ff6b9cbbd45ef7166737d1d2cacc76cf86b78cfb37007b7793d",
+      "match": true
+    },
+    {
+      "file": "assets/app-DhyC9vwu.js",
+      "route": "/assets/app-DhyC9vwu.js",
+      "status": 200,
+      "localSha256": "b7f453110b5f000bcb0b29f909f70f088ba8c16b22b2870a848c1c2175ea000f",
+      "liveSha256": "b7f453110b5f000bcb0b29f909f70f088ba8c16b22b2870a848c1c2175ea000f",
+      "match": true
+    },
+    {
+      "file": "assets/cue-landscape-720.webp",
+      "route": "/assets/cue-landscape-720.webp",
+      "status": 200,
+      "localSha256": "87a2189f894742e8f7582de1d4524643ba577c8391cd71367ee5d3e582c878ce",
+      "liveSha256": "87a2189f894742e8f7582de1d4524643ba577c8391cd71367ee5d3e582c878ce",
+      "match": true
+    },
+    {
+      "file": "assets/cue-landscape.webp",
+      "route": "/assets/cue-landscape.webp",
+      "status": 200,
+      "localSha256": "50b9ff0b3012dda08b9bf374e0d71e96a384ec1d92abc928d2cee2c1a492a326",
+      "liveSha256": "50b9ff0b3012dda08b9bf374e0d71e96a384ec1d92abc928d2cee2c1a492a326",
+      "match": true
+    },
+    {
+      "file": "assets/cuebook-social.webp",
+      "route": "/assets/cuebook-social.webp",
+      "status": 200,
+      "localSha256": "0ee5746b598c899329c644c78b01a4f66b73d6b550ca76062b2268ad752d574f",
+      "liveSha256": "0ee5746b598c899329c644c78b01a4f66b73d6b550ca76062b2268ad752d574f",
+      "match": true
+    },
+    {
+      "file": "assets/legal-route-Bdei2PEN.css",
+      "route": "/assets/legal-route-Bdei2PEN.css",
+      "status": 200,
+      "localSha256": "d2621ecea399e3e299bd44d03ddded98a854f2d7721057b9377a24bb8df49685",
+      "liveSha256": "d2621ecea399e3e299bd44d03ddded98a854f2d7721057b9377a24bb8df49685",
+      "match": true
+    },
+    {
+      "file": "assets/legal-route-ueay7ACp.js",
+      "route": "/assets/legal-route-ueay7ACp.js",
+      "status": 200,
+      "localSha256": "f5e2f11e0414021338cd509ec5a9cae3379659bc52b51196bc948bc5e865dee3",
+      "liveSha256": "f5e2f11e0414021338cd509ec5a9cae3379659bc52b51196bc948bc5e865dee3",
+      "match": true
+    },
+    {
+      "file": "assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "route": "/assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "status": 200,
+      "localSha256": "d2a32840421496e872ade591618d2fa5c33797605d1aec04301717e5a90757d0",
+      "liveSha256": "d2a32840421496e872ade591618d2fa5c33797605d1aec04301717e5a90757d0",
+      "match": true
+    },
+    {
+      "file": "fonts/space-grotesk-latin-600.woff2",
+      "route": "/fonts/space-grotesk-latin-600.woff2",
+      "status": 200,
+      "localSha256": "e5b2596788170dc4041f756cb56f2d9096b638a3d49dac9fc17e998908797b1e",
+      "liveSha256": "e5b2596788170dc4041f756cb56f2d9096b638a3d49dac9fc17e998908797b1e",
+      "match": true
+    },
+    {
+      "file": "icons/apple-touch-icon.svg",
+      "route": "/icons/apple-touch-icon.svg",
+      "status": 200,
+      "localSha256": "1e75dda0e2f0b6a677d173f6082993f9b12fcd897a0b7af3897d238475e1f55c",
+      "liveSha256": "1e75dda0e2f0b6a677d173f6082993f9b12fcd897a0b7af3897d238475e1f55c",
+      "match": true
+    },
+    {
+      "file": "icons/favicon.svg",
+      "route": "/icons/favicon.svg",
+      "status": 200,
+      "localSha256": "085adcb0c441442595e10120accb9a58a3ddbc8f027eb37015e0f0cb28006310",
+      "liveSha256": "085adcb0c441442595e10120accb9a58a3ddbc8f027eb37015e0f0cb28006310",
+      "match": true
+    },
+    {
+      "file": "icons/icon-192.png",
+      "route": "/icons/icon-192.png",
+      "status": 200,
+      "localSha256": "ba2d59e37a6d96d25ee82a97c7d89cf2cf7dd5dab0cdec366ffa4b067dfae610",
+      "liveSha256": "ba2d59e37a6d96d25ee82a97c7d89cf2cf7dd5dab0cdec366ffa4b067dfae610",
+      "match": true
+    },
+    {
+      "file": "icons/icon-512.png",
+      "route": "/icons/icon-512.png",
+      "status": 200,
+      "localSha256": "b4994d640eff642d241916ba510a2f788f1ad20ebd3841e0a807257ce6438dfe",
+      "liveSha256": "b4994d640eff642d241916ba510a2f788f1ad20ebd3841e0a807257ce6438dfe",
+      "match": true
+    },
+    {
+      "file": "icons/icon-maskable-512.png",
+      "route": "/icons/icon-maskable-512.png",
+      "status": 200,
+      "localSha256": "b4994d640eff642d241916ba510a2f788f1ad20ebd3841e0a807257ce6438dfe",
+      "liveSha256": "b4994d640eff642d241916ba510a2f788f1ad20ebd3841e0a807257ce6438dfe",
+      "match": true
+    },
+    {
+      "file": "index.html",
+      "route": "/",
+      "status": 200,
+      "localSha256": "b76a1264d2ccfc2b73d2b5c16c65a51e57d999985d6472cbad3588e491608204",
+      "liveSha256": "b76a1264d2ccfc2b73d2b5c16c65a51e57d999985d6472cbad3588e491608204",
+      "match": true
+    },
+    {
+      "file": "manifest.webmanifest",
+      "route": "/manifest.webmanifest",
+      "status": 200,
+      "localSha256": "5f7dd7dc2dbdde12750fde410944a432fda6708a772da4aa8d89521c59b9ffc8",
+      "liveSha256": "5f7dd7dc2dbdde12750fde410944a432fda6708a772da4aa8d89521c59b9ffc8",
+      "match": true
+    },
+    {
+      "file": "offline.css",
+      "route": "/offline.css",
+      "status": 200,
+      "localSha256": "e08a154cab28a8106ec9f6bd92af69cc51d5c07655b9d0898268207231b6d01b",
+      "liveSha256": "e08a154cab28a8106ec9f6bd92af69cc51d5c07655b9d0898268207231b6d01b",
+      "match": true
+    },
+    {
+      "file": "offline.html",
+      "route": "/offline.html",
+      "status": 200,
+      "localSha256": "0f0582fe3050cf6cc8767009ec35c1454ad8b5b4eba5b5371203f17228621f1f",
+      "liveSha256": "0f0582fe3050cf6cc8767009ec35c1454ad8b5b4eba5b5371203f17228621f1f",
+      "match": true
+    },
+    {
+      "file": "offline.js",
+      "route": "/offline.js",
+      "status": 200,
+      "localSha256": "58b9176aee7042397e29e6b00c938595ad30d5e2edfabba2eed9166669239c90",
+      "liveSha256": "58b9176aee7042397e29e6b00c938595ad30d5e2edfabba2eed9166669239c90",
+      "match": true
+    },
+    {
+      "file": "privacy/index.html",
+      "route": "/privacy/",
+      "status": 200,
+      "localSha256": "4f8700fa693cbbc42d844b93ce0795254c56283fc1a8aa2459d0347fef509ad3",
+      "liveSha256": "4f8700fa693cbbc42d844b93ce0795254c56283fc1a8aa2459d0347fef509ad3",
+      "match": true
+    },
+    {
+      "file": "robots.txt",
+      "route": "/robots.txt",
+      "status": 200,
+      "localSha256": "629110d16e51ce1236b9881667a9a30dce8b58df1049a0fb850f58d55eb773f0",
+      "liveSha256": "629110d16e51ce1236b9881667a9a30dce8b58df1049a0fb850f58d55eb773f0",
+      "match": true
+    },
+    {
+      "file": "sitemap.xml",
+      "route": "/sitemap.xml",
+      "status": 200,
+      "localSha256": "d5c025b5f91680644ba3da012215f412a65ebdace8a24abdc46764eb117da17f",
+      "liveSha256": "d5c025b5f91680644ba3da012215f412a65ebdace8a24abdc46764eb117da17f",
+      "match": true
+    },
+    {
+      "file": "sw.js",
+      "route": "/sw.js",
+      "status": 200,
+      "localSha256": "8b571717429f97eb040f7c9b8b7174f3b480e4f6095151298442e54134c508d9",
+      "liveSha256": "8b571717429f97eb040f7c9b8b7174f3b480e4f6095151298442e54134c508d9",
+      "match": true
+    },
+    {
+      "file": "terms/index.html",
+      "route": "/terms/",
+      "status": 200,
+      "localSha256": "349c4adda14a2fb8fcd5f028aeea171d0aa4eed6cef4af8ffd0e7c3a1d7d8577",
+      "liveSha256": "349c4adda14a2fb8fcd5f028aeea171d0aa4eed6cef4af8ffd0e7c3a1d7d8577",
+      "match": true
+    }
+  ]
+}

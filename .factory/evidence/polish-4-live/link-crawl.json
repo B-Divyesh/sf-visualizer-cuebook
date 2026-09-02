@@ -1,0 +1,53 @@
+{
+  "checks": [
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/#main",
+      "status": "explicit"
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/?demo=1",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/privacy/",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/terms/",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/?demo=1#main",
+      "status": "explicit"
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/privacy/#main",
+      "status": "explicit"
+    },
+    {
+      "href": "mailto:privacy@sociobot.in",
+      "status": "explicit"
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/terms/#main",
+      "status": "explicit"
+    },
+    {
+      "href": "mailto:support@sociobot.in",
+      "status": "explicit"
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/offline.html#main",
+      "status": "explicit"
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/404.html#main",
+      "status": "explicit"
+    }
+  ],
+  "failed": []
+}

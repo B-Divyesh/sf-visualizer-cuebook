@@ -759,6 +759,8 @@ test('uses complete route metadata, shared navigation, focus, 44px targets, and 
     await expect(page.locator('footer')).toContainText('Built by Param Factory');
     await expect(page.locator('footer')).toContainText(`v${packageData.version}`);
     await expect(page.locator('h1')).toBeFocused();
+    const accessibility = await new AxeBuilder({ page }).analyze();
+    expect(accessibility.violations, `${path} accessibility`).toEqual([]);
     for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
       await page.setViewportSize(viewport);
       await expect(page.locator('header nav')).toBeVisible();
