@@ -1,27 +1,14 @@
-# Cuebook verification 14 handoff — PASS
+# Cuebook adversarial review 5 handoff — FAIL
 
 ## Outcome
 
-**PASS.** Candidate `1648db7978b3a9f230dbf7e56f0ca9a6bd35a295` was independently verified on 2 September 2026 against <https://visualizer-cuebook.sociobot.in>. No defects were found: **P0 0 · P1 0 · P2 0 · P3 0**.
+Review 5 is recorded in [review-5.md](./review-5.md). The verdict is **FAIL** with one major and three minor findings. Product code was not modified.
 
-The deployed static PWA matches all 25 public runtime files from the candidate build byte-for-byte. The first screen clearly states the job and audience and offers **Try it with sample data** in one click.
+The live first screen and demo are clear and usable. All 19 declared claim commands pass independently, the complete 34-test browser suite passes, the live demo preserves real storage, and live real/demo/offline traffic remains on the Cuebook origin. Acceptance is withheld because three public claims are not listed in `.factory/claims.json` and the demo route hides its h1 while reusing the home description.
 
-## Verification summary
+## Verification performed
 
-- Every one of the 19 commands in `.factory/claims.json` passed independently.
-- `npm ci`, `npm test`, `npm run typecheck`, `npm run lint`, `npm run build`, and the complete 34-test Playwright suite passed.
-- A live three-second WAV workflow covered cue creation, persistence, export, WebM recording, invalid input recovery, timing bounds, and local deletion.
-- The live sample provided five resettable cues and a 12-second playable track without touching real storage.
-- Five cue transitions replayed twice with a maximum observed timing error of 53 ms, within the ±150 ms target.
-- Live request logging found 44 requests, all same-origin, with no product console or page errors.
-- Axe found no serious/critical issue across desktop, 390 px mobile, populated studio, demo, legal, offline, and 404 surfaces. Mobile had no horizontal overflow or undersized visible targets; reduced motion left no running animations.
-- The service worker controlled the page, completed an update check, and reloaded both demo and saved real work offline.
-- Mobile Lighthouse: home 95 performance / 100 accessibility / 100 best practices / 100 SEO; demo 95 / 100 / 100 / 100. LCP was 1.11 s and 1.27 s; CLS was 0.053 and 0.
-- Bundles remain well within budget: 40,088 bytes raw initial JavaScript, 17,319 bytes CSS, 13,292-byte font, and 29,712-byte largest hero image.
-
-Full evidence and per-claim results are in [verification-14.md](./verification-14.md) and [verification-14-live](./evidence/verification-14-live/).
-
-## Run locally
+From clean clone `/tmp/cuebook-review5-bUi5Me/repo`:
 
 ```bash
 npm ci
@@ -32,8 +19,15 @@ npm run build
 npm run test:e2e
 ```
 
-Deploy `dist/` as a static site. No backend, account, secret, database, billing endpoint, or external runtime service is required.
+All commands passed: 10 unit tests and 34 Playwright tests. Every exact `test` command in `.factory/claims.json` was also run separately; all 19 passed.
 
-## Known gaps and next steps
+Live checks covered fresh 390×844 and 1440×900 home contexts, one-click demo entry, sample playback state, reset, reload, real IndexedDB isolation, full real/demo export flow, offline reload, request logging, route metadata, Back/focus behavior, same-origin link crawling, 404 responses, reduced motion, touch targets, and Axe on all public routes. All 25 deployed runtime files match the clean build.
 
-None within the acceptance contract.
+## Findings left for the owner
+
+- F-5-1: list and test the browser site-data deletion promise, or remove it.
+- F-5-2: map or remove the README’s Playwright version and coverage assertions.
+- F-5-3: map or remove the README’s deployment-config behavior assertion.
+- F-5-4: give the demo a visible route-specific h1 and standard meta description.
+
+No infrastructure, DNS, billing, external service, or unrelated resource was read or changed.
