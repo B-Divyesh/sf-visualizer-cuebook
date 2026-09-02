@@ -2,7 +2,7 @@
 
 Cuebook helps DJs, VJs, and educators rehearse visual changes against their own tracks.
 
-Try the isolated sample: <https://visualizer-cuebook.sociobot.in/demo/>.
+Try the demo with sample data: <https://visualizer-cuebook.sociobot.in/?demo=1>.
 
 It opens a 12-second rhythm with five editable cues. Your saved set stays unchanged.
 
@@ -15,9 +15,9 @@ It opens a 12-second rhythm with five editable cues. Your saved set stays unchan
 - Imports and exports a Cuebook cue file. Audio is not included.
 - Installs on your device and reopens a saved set offline.
 - Keeps cue sheets with more than five cues.
-- Records rehearsals in browsers that support track-audio capture.
+- Records a rehearsal when your browser can include the track audio.
 
-Tracks are not uploaded. Cuebook has no analytics, trackers, third-party runtime scripts, or CDN font requests.
+Tracks are not uploaded. Cuebook has no analytics or trackers. It loads no scripts or fonts from other sites.
 
 Choose an audio file your browser can play. Every current rehearsal tool is available without charge.
 
@@ -51,7 +51,7 @@ npm run test:claims
 npm run build
 ```
 
-Browser tests use Playwright 1.58.2. They cover demo isolation, cues, downloads, responsive layout, accessibility, and offline reload.
+Browser tests use Playwright 1.58.2. They cover demo isolation, cues, downloads, phone and desktop layouts, accessibility, and offline reload.
 
 Claim checks are mapped in [`.factory/claims.json`](./.factory/claims.json).
 
@@ -65,13 +65,13 @@ No backend or environment variable is required.
 
 ## Deploy
 
-Build `dist/` and deploy it as a static site with `public/staticwebapp.config.json` at the site root. The factory deployment uses this configuration for routes, CSP, caching, and the designed 404 page.
+Build `dist/` and deploy it as a static site with `public/staticwebapp.config.json` at the site root. The factory deployment uses this file for routes, security headers, caching, and the designed 404 page.
 
 ## Project notes
 
 The researched scope is in [`.factory/brief.json`](./.factory/brief.json).
 
-The visual system and generated-art provenance are in [`.factory/design.md`](./.factory/design.md).
+The visual system and how the artwork was made are in [`.factory/design.md`](./.factory/design.md).
 
 Verification details are in [`.factory/handoff.md`](./.factory/handoff.md).
 

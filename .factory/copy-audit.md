@@ -1,11 +1,12 @@
 # Cuebook copy audit
 
-Reviewed 2 September 2026. Counts treat hyphenated terms and numerals as one word. No sentence exceeds 22 words or uses a banned marketing term.
+Reviewed 2 September 2026 after polish round 3. Counts treat hyphenated terms and numerals as one word. No sentence exceeds 22 words or uses a banned marketing term.
 
 ## Landing page
 
 | Copy | Words | Result |
 | --- | ---: | --- |
+| Skip to main content | 4 | Pass |
 | Private visual rehearsal | 3 | Pass |
 | Build repeatable visual cues for your track. | 7 | Pass |
 | For DJs, VJs, and educators who need repeatable scene changes from their own track. | 14 | Pass |
@@ -18,6 +19,7 @@ Reviewed 2 September 2026. Counts treat hyphenated terms and numerals as one wor
 | Saved sets work offline. | 4 | Pass |
 | All rehearsal tools are free. | 6 | Pass |
 | Five saved cues trigger repeatable scene changes. | 7 | Pass |
+| Sample cue sheet | 3 | Pass |
 | See the cue sheet before you import | 8 | Pass |
 | Each cue lists its time, scene, and note before you import a track. | 13 | Pass |
 | Rehearse a scene change in three steps | 7 | Pass |
@@ -38,10 +40,10 @@ Reviewed 2 September 2026. Counts treat hyphenated terms and numerals as one wor
 
 | Surface | Longest sentence | Words | Result |
 | --- | --- | ---: | --- |
-| Demo | Beat numbers use the BPM and offset you enter. | 9 | Pass |
-| Privacy | Cuebook includes no behavioral analytics, advertising, tracking pixels, cloud audio processing, third-party runtime scripts, or CDN font requests. | 17 | Pass |
+| Demo | Demo changes reset on reload | 5 | Pass |
+| Privacy | Cuebook has no analytics or trackers. | 6 | Pass |
 | Terms | The software is provided as is, without warranties of merchantability, fitness for a particular purpose, or uninterrupted availability. | 18 | Pass |
-| README | Browser tests use Playwright 1.58.2. | 5 | Pass |
+| README | It loads no scripts or fonts from other sites. | 9 | Pass |
 | Offline setup | After that, your saved set can reopen offline on this device. | 10 | Pass |
 
 ## Terminology

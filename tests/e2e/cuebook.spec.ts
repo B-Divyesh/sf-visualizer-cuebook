@@ -1,6 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Browser, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
 
 function silentWav(seconds = 2): Buffer {
   const sampleRate = 8000;
@@ -29,6 +30,138 @@ function cueFile(cues: unknown[], timing: unknown = { bpm: 120, beatOffset: 0, c
 
 function cue(time: number, id = `cue-${time}`): object {
   return { id, time, beat: 1, scene: 'contour', intensity: 72, hue: 0, note: 'transition' };
+}
+
+type ProjectSnapshot = {
+  title: string;
+  audioName: string;
+  audioType: string;
+  duration: number;
+  audioBytes: number;
+  cues: Array<{ time: number; scene: string; note: string; intensity: number; hue: number; beat: number }>;
+};
+
+async function savedProjectSnapshot(page: Page): Promise<ProjectSnapshot | undefined> {
+  return page.evaluate(() => new Promise((resolve, reject) => {
+    const request = indexedDB.open('cuebook-local', 1);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const database = request.result;
+      const read = database.transaction('projects', 'readonly').objectStore('projects').get('current');
+      read.onerror = () => { database.close(); reject(read.error); };
+      read.onsuccess = () => {
+        const project = read.result as { title: string; audioName: string; audioType: string; duration: number; audioBlob: Blob; cues: ProjectSnapshot['cues'] } | undefined;
+        database.close();
+        resolve(project && {
+          title: project.title,
+          audioName: project.audioName,
+          audioType: project.audioType,
+          duration: project.duration,
+          audioBytes: project.audioBlob.size,
+          cues: project.cues.map(({ time, scene, note, intensity, hue, beat }) => ({ time, scene, note, intensity, hue, beat }))
+        });
+      };
+    };
+  }));
+}
+
+async function exportCueFile(page: Page): Promise<void> {
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export cue file' }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/\.cuebook\.json$/);
+}
+
+function assertProductOnlyRequests(requests: string[]): void {
+  expect(requests.filter((url) => !url.startsWith('http://127.0.0.1:4173') && !url.startsWith('blob:'))).toEqual([]);
+}
+
+async function runCompletePrivacyWorkflow(browser: Browser): Promise<string[]> {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const requests: string[] = [];
+  page.on('request', (request) => requests.push(request.url()));
+  try {
+    await page.goto('/');
+    await page.locator('#audio-input').setInputFiles({ name: 'private-real-track.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
+    await expect(page.locator('#studio')).toBeVisible();
+    await page.getByRole('button', { name: 'Play' }).click();
+    await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible();
+    await page.waitForTimeout(180);
+    await page.getByRole('button', { name: 'Pause' }).click();
+    await page.locator('#audio').evaluate((audio) => {
+      (audio as HTMLAudioElement).currentTime = 0.5;
+      audio.dispatchEvent(new Event('timeupdate'));
+    });
+    await page.getByRole('button', { name: /Mark cue/ }).click();
+    await page.getByLabel('Cue 1 note').fill('Edited real transition');
+    await page.getByLabel('Cue 1 note').press('Tab');
+    await page.waitForTimeout(350);
+    await exportCueFile(page);
+
+    await page.getByRole('link', { name: 'Demo' }).click();
+    await expect(page).toHaveURL(/\?demo=1$/);
+    await expect(page.locator('#demo-banner')).toBeVisible();
+    await page.getByRole('button', { name: 'Play' }).click();
+    await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible();
+    await page.waitForTimeout(180);
+    await page.getByRole('button', { name: 'Pause' }).click();
+    await page.getByLabel('Cue 1 note').fill('Edited demo transition');
+    await page.getByLabel('Cue 1 note').press('Tab');
+    await page.waitForTimeout(350);
+    await exportCueFile(page);
+    await page.getByRole('button', { name: 'Reset demo' }).click();
+    await expect(page.locator('.cue-row')).toHaveCount(5);
+    await page.getByRole('link', { name: 'Start for real' }).click();
+    await expect(page.locator('#track-name')).toHaveText('private-real-track.wav');
+
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    await page.reload();
+    await context.setOffline(true);
+    await page.reload();
+    await expect(page.locator('#studio')).toBeVisible();
+    await expect(page.locator('#offline-banner')).toBeVisible();
+    return requests;
+  } finally {
+    await context.close();
+  }
+}
+
+async function readRuntimeFiles(directory: string): Promise<string[]> {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const contents = await Promise.all(entries.map(async (entry) => {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) return readRuntimeFiles(path);
+    return /\.(?:css|html|js)$/.test(entry.name) ? [await readFile(path, 'utf8')] : [];
+  }));
+  return contents.flat();
+}
+
+function ebmlSize(bytes: Buffer, offset: number): { length: number; value: number } | undefined {
+  const first = bytes[offset];
+  if (first === undefined) return undefined;
+  let marker = 0x80;
+  let length = 1;
+  while (length <= 8 && (first & marker) === 0) { marker >>= 1; length += 1; }
+  if (length > 8 || offset + length > bytes.length) return undefined;
+  let value = first & (marker - 1);
+  for (let index = 1; index < length; index += 1) value = value * 256 + bytes[offset + index];
+  return { length, value };
+}
+
+function webmTrackTypes(bytes: Buffer): number[] {
+  const types = new Set<number>();
+  for (let index = 0; index < bytes.length - 2; index += 1) {
+    if (bytes[index] !== 0x83) continue;
+    const size = ebmlSize(bytes, index + 1);
+    if (!size || size.value < 1 || size.value > 4 || index + 1 + size.length + size.value > bytes.length) continue;
+    let value = 0;
+    for (let valueIndex = 0; valueIndex < size.value; valueIndex += 1) {
+      value = value * 256 + bytes[index + 1 + size.length + valueIndex];
+    }
+    if (value === 1 || value === 2) types.add(value);
+  }
+  return [...types].sort((left, right) => left - right);
 }
 
 test('@claim:cue-workflow creates, exports, and persists a timed cue without accessibility violations', async ({ page }) => {
@@ -273,12 +406,32 @@ test('@claim:cue-capacity imports and keeps a cue sheet with more than five cues
   await expect(page.locator('.cue-row')).toHaveCount(6);
 });
 
-test('@claim:demo-sandbox opens audible sample data in one click without changing real project data', async ({ page }) => {
+test('@claim:demo-sandbox opens a 12-second audible sample without changing complete real project storage', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await page.locator('#audio-input').setInputFiles({ name: 'review-real-sentinel.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
+  await page.locator('#project-title').fill('Review 3 real sentinel');
+  await page.locator('#project-title').press('Tab');
+  await page.locator('#audio').evaluate((audio) => {
+    (audio as HTMLAudioElement).currentTime = 0.5;
+    audio.dispatchEvent(new Event('timeupdate'));
+  });
+  await page.getByLabel('Cue note').fill('Real storage sentinel');
+  await page.getByRole('button', { name: /Mark cue/ }).click();
+  await expect(page.locator('#save-state')).toHaveText('Saved locally');
+  const beforeDemo = await savedProjectSnapshot(page);
+  expect(beforeDemo).toMatchObject({
+    title: 'Review 3 real sentinel', audioName: 'review-real-sentinel.wav', audioType: 'audio/wav', duration: 3,
+    cues: [{ time: 0.5, note: 'Real storage sentinel' }]
+  });
+  expect(beforeDemo?.audioBytes).toBe(silentWav(3).byteLength);
+
+  await page.getByRole('link', { name: 'Demo' }).click();
+  await expect(page).toHaveURL(/\?demo=1$/);
   await expect(page).toHaveTitle('Demo — Cuebook');
   await expect(page.locator('#demo-banner')).toContainText('Demo — sample data, nothing is saved');
+  await expect(page.locator('#save-state')).toHaveText('Demo changes reset on reload');
   await expect(page.locator('#project-title')).toHaveValue('Neon classroom rehearsal');
+  await expect(page.locator('#track-duration')).toHaveText('0:12.000');
   await expect(page.locator('.cue-row')).toHaveCount(5);
   const energy = await page.locator('#audio').evaluate(async (audio) => {
     const blob = await fetch((audio as HTMLAudioElement).src).then((response) => response.blob());
@@ -286,18 +439,25 @@ test('@claim:demo-sandbox opens audible sample data in one click without changin
     return bytes.reduce((total, value) => total + Math.abs(value), 0);
   });
   expect(energy).toBeGreaterThan(1000);
-  await page.getByRole('button', { name: 'Delete cue 1' }).click();
-  await page.getByRole('button', { name: 'Delete this cue' }).click();
-  await expect(page.locator('.cue-row')).toHaveCount(4);
-  await page.reload();
-  await expect(page.locator('.cue-row')).toHaveCount(5);
-  await page.getByRole('link', { name: 'Start for real' }).click();
-  await expect(page.locator('#empty-state')).toBeVisible();
-  await page.locator('#audio-input').setInputFiles({ name: 'my-real-set.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
-  await page.getByRole('link', { name: 'Demo' }).click();
+  await page.locator('#project-title').fill('Changed demo title');
+  await page.locator('#project-title').press('Tab');
+  await page.getByLabel('Cue 1 note').fill('Changed demo cue');
+  await page.getByLabel('Cue 1 note').press('Tab');
+  await page.waitForTimeout(350);
+  await expect(page.locator('#project-title')).toHaveValue('Changed demo title');
+  await page.getByRole('button', { name: 'Reset demo' }).click();
   await expect(page.locator('#project-title')).toHaveValue('Neon classroom rehearsal');
+  await expect(page.locator('.cue-row')).toHaveCount(5);
+  await page.getByLabel('Cue 1 note').fill('Second demo edit');
+  await page.getByLabel('Cue 1 note').press('Tab');
+  await page.waitForTimeout(350);
+  await page.reload();
+  await expect(page).toHaveURL(/\?demo=1$/);
+  await expect(page.locator('.cue-row')).toHaveCount(5);
+  await expect(page.getByLabel('Cue 1 note')).toHaveValue('Opening contour');
   await page.getByRole('link', { name: 'Start for real' }).click();
-  await expect(page.locator('#track-name')).toHaveText('my-real-set.wav');
+  await expect(page.locator('#track-name')).toHaveText('review-real-sentinel.wav');
+  expect(await savedProjectSnapshot(page)).toEqual(beforeDemo);
 });
 
 test('places the demo studio directly after its banner without retained landing sections', async ({ page }) => {
@@ -319,13 +479,8 @@ test('places the demo studio directly after its banner without retained landing 
   }
 });
 
-test('@claim:local-privacy keeps a complete demo rehearsal on the product origin', async ({ page }) => {
-  const requests: string[] = [];
-  page.on('request', (request) => requests.push(request.url()));
-  await page.goto('/demo/');
-  await expect(page.locator('.cue-row')).toHaveCount(5);
-  await page.getByRole('button', { name: 'Orbit' }).click();
-  expect(requests.filter((url) => !url.startsWith('http://127.0.0.1:4173') && !url.startsWith('blob:'))).toEqual([]);
+test('@claim:local-privacy keeps real and demo rehearsal flows on the product origin', async ({ browser }) => {
+  assertProductOnlyRequests(await runCompletePrivacyWorkflow(browser));
 });
 
 test('@claim:json-no-audio exports cue JSON without audio bytes', async ({ page }) => {
@@ -350,9 +505,8 @@ test('@claim:three-scenes exposes all three deterministic scene choices', async 
   }
 });
 
-test('@claim:deterministic-scenes renders the same scene frame at the same media time', async ({ page }) => {
+test('@claim:deterministic-scenes activates saved scenes on cue and renders the same frames on return', async ({ page }) => {
   await page.goto('/demo/');
-  await page.waitForTimeout(200);
   const frameHash = async (): Promise<string> => page.locator('#visual-canvas').evaluate((canvas: HTMLCanvasElement) => {
     const pixels = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height).data;
     let hash = 2166136261;
@@ -362,14 +516,34 @@ test('@claim:deterministic-scenes renders the same scene frame at the same media
     }
     return (hash >>> 0).toString(16);
   });
-  await page.locator('#timeline').fill('400');
-  await page.waitForTimeout(100);
-  const first = await frameHash();
-  await page.locator('#timeline').fill('700');
-  await page.locator('#timeline').fill('400');
-  await page.waitForTimeout(100);
-  const second = await frameHash();
-  expect(second).toBe(first);
+  await page.locator('#audio').evaluate((audio) => { (audio as HTMLAudioElement).playbackRate = 4; });
+  await page.getByRole('button', { name: 'Play' }).click();
+  await expect.poll(() => page.locator('#audio').evaluate((audio) => (audio as HTMLAudioElement).currentTime)).toBeGreaterThan(2.5);
+  await page.locator('#audio').evaluate((audio) => (audio as HTMLAudioElement).pause());
+  await expect(page.locator('#canvas-scene')).toHaveText('Orbit');
+  await expect(page.locator('#canvas-cue')).toContainText('First pulse');
+  await page.locator('#audio').evaluate((audio) => {
+    (audio as HTMLAudioElement).currentTime = 4.7;
+    audio.dispatchEvent(new Event('timeupdate'));
+  });
+  await page.getByRole('button', { name: 'Play' }).click();
+  await expect.poll(() => page.locator('#audio').evaluate((audio) => (audio as HTMLAudioElement).currentTime)).toBeGreaterThan(4.9);
+  await page.locator('#audio').evaluate((audio) => (audio as HTMLAudioElement).pause());
+  await expect(page.locator('#canvas-scene')).toHaveText('Shards');
+  await expect(page.locator('#canvas-cue')).toContainText('Break into shards');
+  const frames = new Map<string, string>();
+  for (const [sliderValue, scene, cueNote] of [['210', 'Orbit', 'First pulse'], ['410', 'Shards', 'Break into shards']] as const) {
+    await page.locator('#timeline').fill(sliderValue);
+    await expect(page.locator('#canvas-scene')).toHaveText(scene);
+    await expect(page.locator('#canvas-cue')).toContainText(cueNote);
+    frames.set(sliderValue, await frameHash());
+  }
+  for (const [sliderValue, scene, cueNote] of [['210', 'Orbit', 'First pulse'], ['410', 'Shards', 'Break into shards']] as const) {
+    await page.locator('#timeline').fill(sliderValue);
+    await expect(page.locator('#canvas-scene')).toHaveText(scene);
+    await expect(page.locator('#canvas-cue')).toContainText(cueNote);
+    expect(await frameHash()).toBe(frames.get(sliderValue));
+  }
 });
 
 test('@claim:pwa-install serves an install manifest and controls the page with a service worker', async ({ page }) => {
@@ -384,7 +558,7 @@ test('@claim:pwa-install serves an install manifest and controls the page with a
   expect(result).toMatchObject({ controlled: true, display: 'standalone', icons: 3 });
 });
 
-test('@claim:rehearsal-recording saves a WebM rehearsal without a purchase', async ({ page }) => {
+test('@claim:rehearsal-recording saves a WebM rehearsal with video and track audio without a purchase', async ({ page }) => {
   await page.goto('/');
   await page.locator('#audio-input').setInputFiles({ name: 'recording.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
   const sixCues = [0, 0.2, 0.4, 0.6, 0.8, 1].map((time) => cue(time));
@@ -397,22 +571,25 @@ test('@claim:rehearsal-recording saves a WebM rehearsal without a purchase', asy
   await page.getByRole('button', { name: 'Stop & save' }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/-rehearsal\.webm$/);
+  const path = await download.path();
+  expect(path).not.toBeNull();
+  const recording = await readFile(path!);
+  expect(recording.byteLength).toBeGreaterThan(4096);
+  expect(recording.subarray(0, 4).toString('hex')).toBe('1a45dfa3');
+  expect(recording.toString('latin1')).toMatch(/V_[A-Z0-9]+/);
+  expect(recording.toString('latin1')).toMatch(/A_[A-Z0-9]+/);
+  expect(webmTrackTypes(recording)).toEqual(expect.arrayContaining([1, 2]));
 
   await page.evaluate(() => { (HTMLCanvasElement.prototype as { captureStream?: unknown }).captureStream = undefined; });
   await page.getByRole('button', { name: 'Record rehearsal' }).click();
   await expect(page.locator('#toast')).toContainText('Use a browser that supports track-audio capture.');
 });
 
-test('@claim:no-tracking-runtime keeps app requests and runtime assets on the product origin', async ({ page }) => {
-  const requests: string[] = [];
-  page.on('request', (request) => requests.push(request.url()));
-  await page.goto('/');
-  await page.getByRole('link', { name: 'Try it with sample data' }).click();
-  await page.getByRole('button', { name: 'Export cue file' }).click();
-  await page.getByRole('button', { name: 'Reset demo' }).click();
-  expect(requests.filter((url) => !url.startsWith('http://127.0.0.1:4173') && !url.startsWith('blob:'))).toEqual([]);
-  const runtime = await page.evaluate(async () => (await fetch('/')).text());
-  expect(runtime).not.toMatch(/https?:\/\/(?!visualizer-cuebook\.sociobot\.in)/);
+test('@claim:no-tracking-runtime keeps full workflow requests and runtime assets on the product origin', async ({ browser }) => {
+  assertProductOnlyRequests(await runCompletePrivacyWorkflow(browser));
+  const runtime = (await readRuntimeFiles('dist')).join('\n');
+  const origins = [...runtime.matchAll(/https?:\/\/([^/'"\s)]+)/g)].map((match) => match[1]);
+  expect([...new Set(origins)]).toEqual(['visualizer-cuebook.sociobot.in']);
 });
 
 test('@claim:free-access removes the unavailable purchase path and keeps every current tool free', async ({ page }) => {
@@ -481,8 +658,12 @@ test('uses complete route metadata, shared navigation, focus, 44px targets, and 
   await page.goto('/?demo=1');
   await expect(page).toHaveTitle('Demo — Cuebook');
   await expect(page.locator('#demo-banner')).toBeVisible();
+  await expect(page.locator('.skip-link')).toHaveText('Skip to cue editor');
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Demo — Cuebook');
   await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', 'Demo — Cuebook');
+  await page.goto('/');
+  await expect(page.locator('.skip-link')).toHaveText('Skip to main content');
+  await expect(page.getByRole('link', { name: 'Try it with sample data' })).toHaveAttribute('href', '/?demo=1');
   const config = await page.evaluate(async () => (await fetch('/staticwebapp.config.json')).json());
   expect(config.routes.map((route: { route: string }) => route.route)).toContain('/demo');
   expect(config.routes.map((route: { route: string }) => route.route)).not.toContain('/demo*');

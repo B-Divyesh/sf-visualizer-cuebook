@@ -15,8 +15,8 @@ type PendingAudioReplacement = {
 const template = `
   <header class="topbar">
     <a class="brand" href="/" aria-label="Cuebook home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-title">Cuebook</span></a>
-    <nav class="top-nav" aria-label="Main navigation"><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
-    <div class="top-status"><span id="save-state">Saved locally</span><span class="status-dot" aria-hidden="true"></span></div>
+    <nav class="top-nav" aria-label="Main navigation"><a href="/?demo=1">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
+    <div class="top-status"><span id="save-state">${DEMO_MODE ? 'Demo changes reset on reload' : 'Saved locally'}</span><span class="status-dot" aria-hidden="true"></span></div>
   </header>
   <div class="offline-banner" id="offline-banner" role="status" hidden><span aria-hidden="true">↯</span> Offline and ready. Your saved set is on this device.</div>
   <section class="demo-banner" id="demo-banner" aria-label="Demo controls" ${DEMO_MODE ? '' : 'hidden'}><strong>Demo — sample data, nothing is saved</strong><button id="reset-demo" type="button">Reset demo</button><a href="/">Start for real</a></section>
@@ -27,7 +27,7 @@ const template = `
         <h1 class="hero-title" id="page-title" tabindex="-1">Build repeatable visual cues for your track.</h1>
         <p class="lede">For DJs, VJs, and educators who need repeatable scene changes from their own track.</p>
         <div class="hero-actions">
-          <a class="button primary" href="/demo/">Try it with sample data</a>
+          <a class="button primary" href="/?demo=1">Try it with sample data</a>
           <label class="button secondary file-label">Choose your track<input id="audio-input" type="file" accept="audio/*" /></label>
           <button class="button secondary" id="import-cues-empty" type="button">Import a cue file</button>
         </div>
@@ -41,7 +41,7 @@ const template = `
     </section>
 
     <section class="landing-detail" aria-labelledby="preview-title" ${DEMO_MODE ? 'hidden' : ''}>
-      <div class="section-intro"><p class="eyebrow">Preview</p><h2 id="preview-title">See the cue sheet before you import</h2><p>Each cue lists its time, scene, and note before you import a track.</p></div>
+      <div class="section-intro"><p class="eyebrow">Sample cue sheet</p><h2 id="preview-title">See the cue sheet before you import</h2><p>Each cue lists its time, scene, and note before you import a track.</p></div>
       <ol class="preview-cues"><li><span>00:00</span><strong>Contour</strong><small>Opening contour</small></li><li><span>00:04.800</span><strong>Shards</strong><small>Break into shards</small></li><li><span>00:09.600</span><strong>Contour</strong><small>Closing horizon</small></li></ol>
     </section>
     <section class="landing-detail how-it-works" aria-labelledby="how-title" ${DEMO_MODE ? 'hidden' : ''}>
@@ -172,6 +172,7 @@ class CuebookApp {
 
   constructor() {
     if (DEMO_MODE) {
+      document.querySelector<HTMLAnchorElement>('.skip-link')!.textContent = 'Skip to cue editor';
       document.title = 'Demo — Cuebook';
       document.querySelector<HTMLLinkElement>('#canonical-url')?.setAttribute('href', 'https://visualizer-cuebook.sociobot.in/demo/');
       document.querySelector<HTMLMetaElement>('#og-url')?.setAttribute('content', 'https://visualizer-cuebook.sociobot.in/demo/');
@@ -784,7 +785,9 @@ class CuebookApp {
     return save;
   }
 
-  private setSaveState(value: string): void { this.el<HTMLElement>('save-state').textContent = value; }
+  private setSaveState(value: string): void {
+    this.el<HTMLElement>('save-state').textContent = DEMO_MODE ? 'Demo changes reset on reload' : value;
+  }
   private updateNetworkStatus(): void { this.el<HTMLElement>('offline-banner').hidden = navigator.onLine; }
   private slug(value: string): string { return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'cuebook'; }
   private download(blob: Blob, name: string): void { const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = name; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 500); }
