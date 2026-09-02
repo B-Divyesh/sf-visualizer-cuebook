@@ -36,7 +36,7 @@ The independent focused phone regression also passed after the final assertion:
 npm run test:e2e -- --grep "keeps demo controls visible"  # 1 passed
 ```
 
-A clean clone of the pushed final branch at `/tmp/cuebook-polish3-final-5VYBKx/repo` ran `npm ci` with zero vulnerabilities, then every command in `.factory/claims.json` separately. All 15 claims passed: `cue-workflow`, `offline-reload`, `local-privacy`, `json-no-audio`, `cue-capacity`, `rehearsal-recording`, `three-scenes`, `deterministic-scenes`, `pwa-install`, `demo-sandbox`, `no-tracking-runtime`, `free-access`, `beat-grid`, `accessibility-in-free`, and `static-deployment`.
+A clean clone of pushed repair revision `7cfaf8a` at `/tmp/cuebook-polish3-final-5VYBKx/repo` ran `npm ci` with zero vulnerabilities, then every command in `.factory/claims.json` separately. All 15 claims passed: `cue-workflow`, `offline-reload`, `local-privacy`, `json-no-audio`, `cue-capacity`, `rehearsal-recording`, `three-scenes`, `deterministic-scenes`, `pwa-install`, `demo-sandbox`, `no-tracking-runtime`, `free-access`, `beat-grid`, `accessibility-in-free`, and `static-deployment`.
 
 Browser/Axe coverage is part of the Playwright suite and passed across home, demo, legal, offline, 404, dialogs, and phone/desktop layouts. Cold live `verify-url.sh` checks passed with zero console errors on home, demo query route, `/demo/`, Privacy, Terms, offline, and 404. Invalid `/demo/nope`, `/demo-extra`, `/demonstration`, and `/unknown/nested` URLs returned HTTP 404.
 
