@@ -483,15 +483,23 @@ test('keeps demo controls visible while editing the last cue on a phone', async 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?demo=1');
   const lastNote = page.getByLabel('Cue 5 note');
+  await lastNote.scrollIntoViewIfNeeded();
   await lastNote.focus();
   const layout = await page.evaluate(() => {
     const banner = document.querySelector('#demo-banner')!.getBoundingClientRect();
     const note = document.querySelectorAll<HTMLInputElement>('.cue-note input')[4]!.getBoundingClientRect();
-    return { bannerTop: banner.top, bannerBottom: banner.bottom, noteTop: note.top, viewportHeight: window.innerHeight };
+    return {
+      bannerTop: banner.top,
+      bannerBottom: banner.bottom,
+      noteTop: note.top,
+      noteBottom: note.bottom,
+      viewportHeight: window.innerHeight
+    };
   });
   expect(layout.bannerTop).toBeGreaterThanOrEqual(64);
   expect(layout.bannerBottom).toBeLessThanOrEqual(layout.viewportHeight);
   expect(layout.noteTop).toBeGreaterThanOrEqual(layout.bannerBottom);
+  expect(layout.noteBottom).toBeLessThanOrEqual(layout.viewportHeight);
   await expect(page.getByRole('button', { name: 'Reset demo' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Start for real' })).toBeVisible();
 });

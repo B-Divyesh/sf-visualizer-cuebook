@@ -1,31 +1,50 @@
-# Cuebook adversarial review 3 handoff
+# Cuebook polish 3 handoff
 
 ## Result
 
-**FAIL.** Review 3 found one blocking issue, five major issues, and eight minor issues. The full report is [`.factory/review-3.md`](./review-3.md).
+**PASS.** Cuebook is a local-first visual cue rehearsal tool for DJs, VJs, and educators. This repair closes every finding in reviews 1–3; the complete finding-to-evidence map is [`.factory/polish-3.md`](./polish-3.md).
 
-No product code was changed. Only the review and this handoff were written.
+The deployed application revision is `60eee7a` plus the final mobile-visibility test assertion, built and deployed as Static Web Apps deployment `1fbe86cc-d3b7-4207-89c2-55f059c918d0`.
 
-## What was checked
+- Live: <https://visualizer-cuebook.sociobot.in>
+- One-click isolated demo: <https://visualizer-cuebook.sociobot.in/?demo=1>
+- Demo route alias: <https://visualizer-cuebook.sociobot.in/demo/>
 
-- Cold live first reads at 390×844 and 1440×900.
-- One-click demo, realistic sample state, playback across five cues, reset, sticky banner, and real-data isolation.
-- Live request log, service-worker offline reload, routing, Back/focus behavior, metadata, dead-link crawl, 404 behavior, security headers, reduced motion, touch targets, and visual identity.
-- Axe on home, demo, Privacy, Terms, offline setup, and 404 at mobile and desktop widths: zero violations.
-- Every earlier review and polish finding against current live behavior and source.
-- Every exact `.factory/claims.json` command from clean clone `/tmp/cuebook-review3-3eKygh/repo`: 15/15 passed.
-- `npm test` (10/10), typecheck, lint, build, and `npm run test:e2e` (27/27): passed.
-- All 25 public live build files match local `dist/` byte-for-byte.
+## What changed
 
-## Blocking issue
+- Made `?demo=1` the primary one-click entry, with a five-cue, audible 12-second sample, persistent reset/exit controls, memory-only storage, and a consistent demo-only save message.
+- Strengthened claim coverage for the complete local privacy workflow, deterministic cue-triggered scene changes, demo isolation over a real saved project, and non-empty audio/video rehearsal recordings.
+- Removed unprovable billing and license surfaces. The free product retains core rehearsal, export, recording, keyboard, and accessibility behavior.
+- Corrected copy, skip-link labels, route metadata, legal/offline navigation, 404 behavior, cue-file/track terms, and the 390 px editor layout.
+- Updated the catalog description to: “Build repeatable visual cues for your track before rehearsal.”
 
-F-1-19 is reopened. The privacy/no-tracking claim tests do not execute the full import, playback, edit, export, reset, exit, and offline sequence promised by the claim sandbox and earlier repair requirement.
+## Verification
 
-## Other work left
+All commands were run from the final working tree:
 
-Add complete claim coverage for the 12-second demo value, cue-triggered scene changes, WebM audio/video content, and demo isolation over an existing real project. Remove the contradictory “Saved locally” demo status, correct the landing skip-link label, and apply the exact copy rewrites in review 3.
+```bash
+npm test                 # 10 passed
+npm run typecheck        # passed
+npm run lint             # passed
+npm run build            # passed; dist/ created
+npm run test:e2e         # 28 passed
+```
 
-## Reproduce
+The independent focused phone regression also passed after the final assertion:
+
+```bash
+npm run test:e2e -- --grep "keeps demo controls visible"  # 1 passed
+```
+
+A clean clone at `/tmp/cuebook-polish3-hYC43t` ran `npm ci` with zero vulnerabilities, then every command in `.factory/claims.json` separately. All 15 claims passed: `cue-workflow`, `offline-reload`, `local-privacy`, `json-no-audio`, `cue-capacity`, `rehearsal-recording`, `three-scenes`, `deterministic-scenes`, `pwa-install`, `demo-sandbox`, `no-tracking-runtime`, `free-access`, `beat-grid`, `accessibility-in-free`, and `static-deployment`.
+
+Browser/Axe coverage is part of the Playwright suite and passed across home, demo, legal, offline, 404, dialogs, and phone/desktop layouts. Cold live `verify-url.sh` checks passed with zero console errors on home, demo query route, `/demo/`, Privacy, Terms, offline, and 404. Invalid `/demo/nope`, `/demo-extra`, `/demonstration`, and `/unknown/nested` URLs returned HTTP 404.
+
+Live mobile Lighthouse (2026-09-02): **Performance 100**, **Accessibility 100**, FCP 1.1 s, LCP 1.1 s, TBT 10 ms, CLS 0.052. The report is `.factory/evidence/polish-3-live/lighthouse.json`. The final cold mobile checks and screenshots are in `.factory/evidence/polish-3-live/`; matching local verifier evidence is in `.factory/evidence/polish-3-local/`.
+
+The production bundle is 39.37 kB JavaScript (12.30 kB gzip) and 17.01 kB CSS (4.74 kB gzip), within the static-product budget.
+
+## Run and deploy
 
 ```bash
 npm ci
@@ -36,4 +55,8 @@ npm run build
 npm run test:e2e
 ```
 
-Run each command in `.factory/claims.json` separately from a clean clone. Use `/opt/fleet/lib/verify-url.sh <url> <evidence-dir>` and Playwright Axe against the live home, demo, Privacy, Terms, offline, and 404 routes.
+Deploy the generated `dist/` as the static product through the factory static deployment configuration.
+
+## Known gaps
+
+None.

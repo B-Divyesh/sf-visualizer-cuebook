@@ -1,0 +1,14 @@
+{
+  "url": "https://visualizer-cuebook.sociobot.in/offline.html",
+  "loadMs": 805,
+  "errors": [],
+  "a11y": {
+    "title": "Offline setup — Cuebook",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 321
+  }
+}

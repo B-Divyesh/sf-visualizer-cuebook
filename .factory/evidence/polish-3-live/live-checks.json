@@ -1,0 +1,20 @@
+{
+  "url": "https://visualizer-cuebook.sociobot.in/?demo=1",
+  "checked_at": "2026-09-02",
+  "phone_viewport": { "width": 390, "height": 844 },
+  "demo": {
+    "duration": "0:12.000",
+    "cue_count": 5,
+    "save_status": "Demo changes reset on reload",
+    "scene_at_2_52_seconds": "Orbit",
+    "scene_at_4_92_seconds": "Shards"
+  },
+  "focused_cue_5": {
+    "active_label": "Cue 5 note",
+    "sticky_banner_top": 64,
+    "sticky_banner_bottom": 149,
+    "note_top": 513.171875,
+    "note_bottom": 557.171875
+  },
+  "external_requests_on_cold_home_or_demo": []
+}
