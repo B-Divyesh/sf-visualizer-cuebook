@@ -4,7 +4,7 @@
 
 **PASS.** Cuebook is a local-first visual cue rehearsal tool for DJs, VJs, and educators. This repair closes every finding in reviews 1–3; the complete finding-to-evidence map is [`.factory/polish-3.md`](./polish-3.md).
 
-The deployed application revision is `60eee7a` plus the final mobile-visibility test assertion, built and deployed as Static Web Apps deployment `1fbe86cc-d3b7-4207-89c2-55f059c918d0`.
+Repair commits are `6c06d9f`, `60eee7a`, and `7cfaf8a`. The deployed application assets are from `60eee7a`; `7cfaf8a` records evidence and the final mobile-visibility assertion. Static Web Apps deployment `1fbe86cc-d3b7-4207-89c2-55f059c918d0` is live.
 
 - Live: <https://visualizer-cuebook.sociobot.in>
 - One-click isolated demo: <https://visualizer-cuebook.sociobot.in/?demo=1>
@@ -36,7 +36,7 @@ The independent focused phone regression also passed after the final assertion:
 npm run test:e2e -- --grep "keeps demo controls visible"  # 1 passed
 ```
 
-A clean clone at `/tmp/cuebook-polish3-hYC43t` ran `npm ci` with zero vulnerabilities, then every command in `.factory/claims.json` separately. All 15 claims passed: `cue-workflow`, `offline-reload`, `local-privacy`, `json-no-audio`, `cue-capacity`, `rehearsal-recording`, `three-scenes`, `deterministic-scenes`, `pwa-install`, `demo-sandbox`, `no-tracking-runtime`, `free-access`, `beat-grid`, `accessibility-in-free`, and `static-deployment`.
+A clean clone of the pushed final branch at `/tmp/cuebook-polish3-final-5VYBKx/repo` ran `npm ci` with zero vulnerabilities, then every command in `.factory/claims.json` separately. All 15 claims passed: `cue-workflow`, `offline-reload`, `local-privacy`, `json-no-audio`, `cue-capacity`, `rehearsal-recording`, `three-scenes`, `deterministic-scenes`, `pwa-install`, `demo-sandbox`, `no-tracking-runtime`, `free-access`, `beat-grid`, `accessibility-in-free`, and `static-deployment`.
 
 Browser/Axe coverage is part of the Playwright suite and passed across home, demo, legal, offline, 404, dialogs, and phone/desktop layouts. Cold live `verify-url.sh` checks passed with zero console errors on home, demo query route, `/demo/`, Privacy, Terms, offline, and 404. Invalid `/demo/nope`, `/demo-extra`, `/demonstration`, and `/unknown/nested` URLs returned HTTP 404.
 
