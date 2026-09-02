@@ -9,6 +9,8 @@ describe('static deployment policy', () => {
       routes: Array<{ route: string; headers?: Record<string, string>; rewrite?: string }>;
     };
     expect(config.globalHeaders['Content-Security-Policy']).toContain("frame-ancestors 'none'");
+    expect(config.globalHeaders['Content-Security-Policy']).toContain("connect-src 'self'");
+    expect(config.globalHeaders['Content-Security-Policy']).not.toContain('api.sociobot.in');
     expect(config.globalHeaders['Permissions-Policy']).toContain('camera=()');
     expect(config.globalHeaders['Strict-Transport-Security']).toContain('max-age=31536000');
     expect(config.globalHeaders['X-Frame-Options']).toBe('DENY');

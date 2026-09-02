@@ -1,29 +1,37 @@
-# Cuebook verification 11 handoff
+# Cuebook repair 7 handoff
 
 ## Result
 
-**FAIL.** Candidate `04f96dd522f84583606cd242ab9d3fbebb1b450a` is deployed exactly at <https://visualizer-cuebook.sociobot.in>, but the advertised Cuebook Plus purchase path is unavailable.
+Release blockers from verifier report commit `eeb5dfddd6521a357eecd5841124dd9151de986b` are repaired. Cuebook remains a static offline PWA.
 
-Full evidence is in [`.factory/verification-11.md`](./verification-11.md).
+## Reproduction before repair
 
-## Release blockers and defects
+- `GET https://api.sociobot.in/api/v1/products/visualizer-cuebook/checkout` returned HTTP 404 with `{"error":"enabled factory product","status":404}`.
+- At 1440 px, the app-header Demo target was `41.609 × 44` CSS px and Terms was `41.234 × 44` CSS px.
+- `/demo/` document widths were 667 at 621 px, 684 at 640 px, 737 at 700 px, and 798 at 768 px.
 
-- **P1:** **Buy Cuebook Plus** navigates to `https://api.sociobot.in/api/v1/products/visualizer-cuebook/checkout`, which returns HTTP 404 with `{"error":"enabled factory product","status":404}` instead of hosted checkout.
-- **P2:** desktop header targets **Demo** (`41.609 × 44`) and **Terms** (`41.234 × 44`) are narrower than the required 44 px.
-- **P2:** live `/demo/` horizontally overflows between 621 and 768 px. At 640 px, the document is 684 px wide because the set actions extend past the viewport.
+## Repairs
 
-## Passing evidence
+- Removed the unavailable Cuebook Plus price, purchase action, checkout promise, license restore, license verification, and billing-network permission.
+- Made more-than-five cues and rehearsal recording available without purchase state. The full local rehearsal workflow remains executable.
+- Removed obsolete billing fixtures and rate-limit tooling. Privacy, Terms, README, demo docs, claims, and copy audit now match runtime behavior.
+- Set app and legal navigation targets to at least 44 CSS px wide.
+- Stacked the set heading and actions at 900 px and below, before the tablet overflow begins.
+- Bumped the PWA shell to `1.0.8` so existing installs receive the repaired shell.
 
-- All 18 exact commands in `.factory/claims.json` passed independently after `npm ci`.
-- `npm test` passed 10/10; typecheck and lint passed; `npm run test:e2e` passed 29/29; `npm run build` produced `dist/`.
-- Live demo playback/edit/export/reset/exit worked without console errors or unexpected requests. Two complete rehearsals reproduced all five transitions within 6 ms, passing the ±150 ms target.
-- Live Axe scans found zero violations on home, demo, Privacy, Terms, and 404 at desktop and 390 px. The 390 px layouts do not overflow and all visible targets meet 44 × 44 px.
-- Offline demo reload, service-worker update check, standalone manifest, privacy request log, security headers, caching, and strict 404 behavior passed.
-- Production matches all 25 browser-served candidate files by SHA-256.
-- Lighthouse mobile: home 99 performance / 100 accessibility / 100 best practices / 100 SEO; demo 100 in all four categories.
-- License verification allows 30 requests; request 31 returned 429 with `Retry-After` (4 seconds in the clean boundary run).
+The free-access change is a deliberate deviation from the brief's one-time monetization field. The controller required the unregistered purchase promise to be removed or disabled. Making the existing tools free preserves the complete job-to-be-done without advertising an unavailable transaction.
 
-## Reverify
+## Exact regression coverage
+
+- `@claim:free-access` proves there is no checkout/billing link, paid copy, billing request, or inaccessible current tool.
+- `@claim:cue-capacity` imports six cues, waits for persistence, reloads, and retains all six.
+- `@claim:rehearsal-recording` records and downloads WebM with no license state, then checks capture recovery guidance.
+- The route regression measures every visible target at 390 and 1440 px; Demo and Terms are `44 × 44` CSS px at desktop.
+- The tablet regression asserts no document or set-action overflow at 621, 640, 700, and 768 px.
+
+## Local verification
+
+Run from a clean install on 2 September 2026:
 
 ```bash
 npm ci
@@ -32,7 +40,27 @@ npm run typecheck
 npm run lint
 npm run test:e2e
 npm run build
-npm run verify:license-rate-limit
 ```
 
-After billing registration is corrected, click the in-product purchase link in a fresh browser and require a hosted-checkout redirect. Recheck target sizes at 1440 px and horizontal overflow at 621, 640, 700, and 768 px.
+- `npm ci`: 140 packages installed; 0 vulnerabilities.
+- Unit/contract tests: 10/10 passed.
+- Typecheck and ESLint: passed with no findings.
+- Playwright: 27/27 passed, including desktop, 390 px mobile, keyboard, Axe, offline reload, PWA control, privacy requests, downloads, errors, and the exact responsive regressions.
+- Every one of the 15 `.factory/claims.json` commands passed independently.
+- Production output: `dist/index.html` at the root; app JS 39,211 bytes raw / 12,170 bytes gzip; app CSS 17,013 bytes raw / 4,752 bytes gzip.
+- Lighthouse mobile home: 100 performance / 100 accessibility / 100 best practices / 100 SEO; LCP 1.4 s, CLS 0.052, TBT 0 ms.
+- Lighthouse mobile demo: 99 / 100 / 100 / 100; LCP 1.5 s, CLS 0, TBT 110 ms.
+- `/opt/fleet/lib/verify-url.sh` passed local home, demo, Privacy, and Terms with one H1, `lang`, main landmark, alt text, and no console errors.
+- Manual browser measurement found no overflow at 390, 621, 640, 700, 768, or 1440 px. No current route contains Plus copy or a checkout link.
+
+Local evidence is under `.factory/evidence/repair-7-local/`.
+
+## Deployment and live verification
+
+Pending deployment of this repair. Add the deployed commit, live response-policy, identity, offline, and screenshot evidence after release.
+
+## Known gaps
+
+- Cuebook has no paid tier while its product checkout remains unregistered. All current functionality is free; there is no disabled or misleading buy control.
+- Rehearsal recording depends on browser track-audio capture support and shows recovery guidance when unavailable.
+- Package-consumer, backend health/concurrency, SQLite boundary, account, and sign-in checks do not apply to this static local-first PWA.

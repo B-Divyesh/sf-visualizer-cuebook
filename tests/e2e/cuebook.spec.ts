@@ -90,7 +90,7 @@ test('keeps the cue workflow within a 390px phone viewport', async ({ page }) =>
   expect(studioAccessibility.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
 });
 
-test('@claim:accessibility-in-free supports keyboard controls and labelled Free controls without trapping focus', async ({ page }) => {
+test('@claim:accessibility-in-free supports keyboard controls and labelled controls without trapping focus', async ({ page }) => {
   await page.goto('/');
   await page.locator('.skip-link').focus();
   await expect(page.locator('.skip-link')).toBeFocused();
@@ -120,40 +120,19 @@ test('@claim:offline-reload reopens the saved studio while offline', async ({ br
   await expect(page.locator('#studio')).toBeVisible();
   await expect(page.locator('#offline-banner')).toBeVisible();
   await context.close();
-});
 
-test('@claim:plus-license captures and verifies a returned Plus license without exposing it in the URL', async ({ page }) => {
-  await page.route('https://api.sociobot.in/api/v1/products/visualizer-cuebook/verify?*', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: true, reason: 'ok', expires_at: null }) });
-  });
-  await page.goto('/?license=test-license-token');
-  await expect(page).toHaveURL('http://127.0.0.1:4173/');
-  await expect(page.getByRole('button', { name: 'Manage Plus license' })).toBeVisible();
-  const stored = await page.evaluate(() => localStorage.getItem('sb_license:visualizer-cuebook'));
-  expect(stored).toBe('test-license-token');
-});
-
-test('@claim:license-rate-limit keeps a pasted license and reports Retry-After from a recorded 429 response', async ({ page }) => {
-  const fixture = JSON.parse(await readFile('.factory/license-429-fixture.json', 'utf8')) as { status: number; headers: Record<string, string>; body: string };
-  let requestCount = 0;
-  await page.route('https://api.sociobot.in/api/v1/products/visualizer-cuebook/verify?*', async (route) => {
-    requestCount += 1;
-    await route.fulfill({
-      status: fixture.status,
-      headers: { 'Access-Control-Expose-Headers': 'Retry-After', ...fixture.headers },
-      body: fixture.body
-    });
-  });
-  await page.goto('/');
-  await page.locator('#support-button').click();
-  const input = page.locator('#license-input');
-  const status = page.locator('#license-status');
-
-  await input.fill('recorded-limited-request');
-  await page.getByRole('button', { name: 'Verify license' }).click();
-  await expect.poll(() => requestCount).toBe(1);
-  await expect(status).toHaveText('Too many license checks from this connection. Try again in 3 seconds.');
-  expect(await page.evaluate(() => localStorage.getItem('sb_license:visualizer-cuebook'))).toBe('recorded-limited-request');
+  const demoContext = await browser.newContext();
+  const demoPage = await demoContext.newPage();
+  await demoPage.goto('/demo/');
+  await demoPage.evaluate(() => navigator.serviceWorker.ready);
+  await demoPage.reload();
+  await expect(demoPage.locator('.cue-row')).toHaveCount(5);
+  await demoContext.setOffline(true);
+  await demoPage.reload();
+  await expect(demoPage.locator('#demo-banner')).toBeVisible();
+  await expect(demoPage.locator('.cue-row')).toHaveCount(5);
+  await expect(demoPage.locator('#offline-banner')).toBeVisible();
+  await demoContext.close();
 });
 
 test('rejects semantic-invalid cue JSON without changing the active rehearsal', async ({ page }) => {
@@ -282,27 +261,19 @@ test('normalizes invalid timing controls to the saved values', async ({ page }) 
   await expect(page.locator('#beat-offset')).toHaveValue('0');
 });
 
-test('@claim:free-five asks before truncating a free cue import and preserves the warning after confirmation', async ({ page }) => {
+test('@claim:cue-capacity imports and keeps a cue sheet with more than five cues', async ({ page }) => {
   await page.goto('/');
-  await page.locator('#audio-input').setInputFiles({ name: 'limited.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
+  await page.locator('#audio-input').setInputFiles({ name: 'full-sheet.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
   const sixCues = [0, 0.2, 0.4, 0.6, 0.8, 1].map((time) => cue(time));
   await page.locator('#cue-file-input').setInputFiles({ name: 'six.cuebook.json', mimeType: 'application/json', buffer: cueFile(sixCues) });
-  await expect(page.locator('#import-limit-dialog')).toBeVisible();
-  await expect(page.locator('.cue-row')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Cancel import' }).click();
-  await expect(page.locator('#toast')).toContainText('current cue sheet was unchanged');
-  await expect(page.locator('.cue-row')).toHaveCount(0);
-  await page.locator('#cue-file-input').setInputFiles({ name: 'six-again.cuebook.json', mimeType: 'application/json', buffer: cueFile(sixCues) });
-  await page.getByRole('button', { name: 'Import first five cues' }).click();
-  await expect(page.locator('.cue-row')).toHaveCount(5);
-  await expect(page.locator('#toast')).toContainText('Imported the first 5 of 6 cues');
+  await expect(page.locator('.cue-row')).toHaveCount(6);
+  await expect(page.locator('#toast')).toContainText('Cue sheet imported');
+  await expect(page.locator('#save-state')).toHaveText('Saved locally');
+  await page.reload();
+  await expect(page.locator('.cue-row')).toHaveCount(6);
 });
 
-test('@claim:demo-sandbox opens audible sample data in one click without changing real project or license data', async ({ page }) => {
-  await page.addInitScript(() => {
-    localStorage.setItem('sb_license:visualizer-cuebook', 'real-license-sentinel');
-    localStorage.setItem('sb_license_cache:visualizer-cuebook', JSON.stringify({ valid: true, checkedAt: 1 }));
-  });
+test('@claim:demo-sandbox opens audible sample data in one click without changing real project data', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Try it with sample data' }).click();
   await expect(page).toHaveTitle('Demo — Cuebook');
@@ -315,15 +286,13 @@ test('@claim:demo-sandbox opens audible sample data in one click without changin
     return bytes.reduce((total, value) => total + Math.abs(value), 0);
   });
   expect(energy).toBeGreaterThan(1000);
-  await expect(page.locator('#restore-license')).toHaveCount(0);
   await page.getByRole('button', { name: 'Delete cue 1' }).click();
   await page.getByRole('button', { name: 'Delete this cue' }).click();
   await expect(page.locator('.cue-row')).toHaveCount(4);
   await page.reload();
   await expect(page.locator('.cue-row')).toHaveCount(5);
   await page.getByRole('link', { name: 'Start for real' }).click();
-  await expect(page.locator('#support-button')).toBeVisible();
-  expect(await page.evaluate(() => localStorage.getItem('sb_license:visualizer-cuebook'))).toBe('real-license-sentinel');
+  await expect(page.locator('#empty-state')).toBeVisible();
   await page.locator('#audio-input').setInputFiles({ name: 'my-real-set.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
   await page.getByRole('link', { name: 'Demo' }).click();
   await expect(page.locator('#project-title')).toHaveValue('Neon classroom rehearsal');
@@ -415,15 +384,11 @@ test('@claim:pwa-install serves an install manifest and controls the page with a
   expect(result).toMatchObject({ controlled: true, display: 'standalone', icons: 3 });
 });
 
-test('@claim:plus-recording saves a WebM rehearsal with a cached valid license', async ({ page }) => {
-  await page.addInitScript(() => {
-    localStorage.setItem('sb_license:visualizer-cuebook', 'recording-fixture');
-    localStorage.setItem('sb_license_cache:visualizer-cuebook', JSON.stringify({ valid: true, checkedAt: Date.now() }));
-  });
+test('@claim:rehearsal-recording saves a WebM rehearsal without a purchase', async ({ page }) => {
   await page.goto('/');
   await page.locator('#audio-input').setInputFiles({ name: 'recording.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
   const sixCues = [0, 0.2, 0.4, 0.6, 0.8, 1].map((time) => cue(time));
-  await page.locator('#cue-file-input').setInputFiles({ name: 'plus-six.cuebook.json', mimeType: 'application/json', buffer: cueFile(sixCues) });
+  await page.locator('#cue-file-input').setInputFiles({ name: 'six-cues.cuebook.json', mimeType: 'application/json', buffer: cueFile(sixCues) });
   await expect(page.locator('.cue-row')).toHaveCount(6);
   await page.getByRole('button', { name: 'Record rehearsal' }).click();
   await expect(page.locator('#record-badge')).toBeVisible();
@@ -450,28 +415,16 @@ test('@claim:no-tracking-runtime keeps app requests and runtime assets on the pr
   expect(runtime).not.toMatch(/https?:\/\/(?!visualizer-cuebook\.sociobot\.in)/);
 });
 
-test('@claim:billing-contract displays the recorded Plus contract without requesting checkout', async ({ page }) => {
-  const fixture = JSON.parse(await readFile('.factory/billing-contract.json', 'utf8')) as {
-    price: { display: string; cadence: string; subscription: boolean };
-    checkout: { host: string; path: string };
-    merchant_of_record: string;
-    refunds: { handled_by: string; revokes_license: boolean };
-  };
+test('@claim:free-access removes the unavailable purchase path and keeps every current tool free', async ({ page }) => {
   const requests: string[] = [];
   page.on('request', (request) => requests.push(request.url()));
   await page.goto('/');
-  await page.locator('#support-button').click();
-  await expect(page.locator('#plus-dialog')).toContainText(fixture.price.display);
-  await expect(page.locator('#plus-dialog')).toContainText(fixture.price.cadence);
-  expect(fixture.price.subscription).toBe(false);
-  await expect(page.locator('#plus-dialog')).toContainText('No subscription');
-  await expect(page.locator('#plus-dialog')).toContainText(`${fixture.merchant_of_record} is the merchant of record`);
-  await expect(page.locator('#plus-dialog')).toContainText(`Refunds are handled by ${fixture.refunds.handled_by}`);
-  expect(fixture.refunds.revokes_license).toBe(true);
-  await expect(page.locator('#plus-dialog')).toContainText('revoke the license');
-  await expect(page.locator('#plus-dialog').getByRole('link', { name: 'Buy Cuebook Plus' })).toHaveAttribute('href', `https://${fixture.checkout.host}${fixture.checkout.path}`);
+  await expect(page.locator('body')).toContainText('All rehearsal tools are free.');
+  await expect(page.locator('a[href*="checkout"], a[href*="api.sociobot.in"], #plus-dialog, #support-button')).toHaveCount(0);
+  await expect(page.getByText(/Cuebook Plus|US\$12|one-time license/i)).toHaveCount(0);
   await page.goto('/terms/');
-  await expect(page.locator('main')).toContainText(`Refunds are handled by ${fixture.refunds.handled_by} and revoke the license.`);
+  await expect(page.locator('main')).toContainText('All current Cuebook tools are available without charge.');
+  await expect(page.locator('a[href*="checkout"], a[href*="api.sociobot.in"]')).toHaveCount(0);
   expect(requests.some((url) => url.startsWith('https://api.sociobot.in/'))).toBe(false);
 });
 
@@ -493,32 +446,6 @@ test('@claim:beat-grid updates beat numbers without moving the selected cue time
   await expect(selectedCue.locator('.cue-beat strong')).toHaveText('5.80');
 });
 
-test('@claim:license-cache-day reuses a verdict before one day and verifies again at the boundary', async ({ page }) => {
-  const start = 1_000_000;
-  let requests = 0;
-  await page.addInitScript((startTime) => {
-    const now = Number(sessionStorage.getItem('cuebook-test-now') ?? startTime);
-    Object.defineProperty(window, '__cuebookNow', { value: now, writable: true });
-    Date.now = () => (window as unknown as { __cuebookNow: number }).__cuebookNow;
-    if (!localStorage.getItem('sb_license:visualizer-cuebook')) {
-      localStorage.setItem('sb_license:visualizer-cuebook', 'cache-fixture');
-      localStorage.setItem('sb_license_cache:visualizer-cuebook', JSON.stringify({ valid: true, checkedAt: startTime }));
-    }
-  }, start);
-  await page.route('https://api.sociobot.in/api/v1/products/visualizer-cuebook/verify?*', async (route) => {
-    requests += 1;
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: true }) });
-  });
-  await page.goto('/');
-  expect(requests).toBe(0);
-  await page.evaluate((value) => { sessionStorage.setItem('cuebook-test-now', String(value)); (window as unknown as { __cuebookNow: number }).__cuebookNow = value; }, start + 86_399_999);
-  await page.reload();
-  expect(requests).toBe(0);
-  await page.evaluate((value) => { sessionStorage.setItem('cuebook-test-now', String(value)); (window as unknown as { __cuebookNow: number }).__cuebookNow = value; }, start + 86_400_000);
-  await page.reload();
-  await expect.poll(() => requests).toBe(1);
-});
-
 test('@claim:static-deployment serves a complete static demo without runtime environment configuration', async ({ page }) => {
   await page.goto('/demo/');
   await expect(page.locator('#studio')).toBeVisible();
@@ -528,7 +455,7 @@ test('@claim:static-deployment serves a complete static demo without runtime env
   expect(html).not.toContain('process.env');
 });
 
-test('uses complete route metadata, shared navigation, focus, touch targets, and a strict demo route', async ({ page }) => {
+test('uses complete route metadata, shared navigation, focus, 44px targets, and a strict demo route', async ({ page }) => {
   const packageData = JSON.parse(await readFile('package.json', 'utf8')) as { version: string };
   for (const [path, title] of [['/', 'Cuebook — visual cues for your track'], ['/demo/', 'Demo — Cuebook'], ['/privacy/', 'Privacy — Cuebook'], ['/terms/', 'Terms — Cuebook'], ['/404.html', 'Page not found — Cuebook'], ['/offline.html', 'Offline setup — Cuebook']] as const) {
     await page.goto(path);
@@ -540,15 +467,16 @@ test('uses complete route metadata, shared navigation, focus, touch targets, and
     await expect(page.locator('footer')).toContainText('Built by Param Factory');
     await expect(page.locator('footer')).toContainText(`v${packageData.version}`);
     await expect(page.locator('h1')).toBeFocused();
-    await page.setViewportSize({ width: 390, height: 844 });
-    const undersizedTargets = await page.locator('button, a, input:not([type="file"]), select').evaluateAll((elements) => elements.flatMap((element) => {
-      const bounds = element.getBoundingClientRect();
-      const style = getComputedStyle(element);
-      return style.display !== 'none' && style.visibility !== 'hidden' && bounds.width > 0 && bounds.height > 0 && (bounds.width < 44 || bounds.height < 44)
-        ? [`${element.tagName} ${element.textContent} ${bounds.width}×${bounds.height}`] : [];
-    }));
-    expect(undersizedTargets).toEqual([]);
-    await page.setViewportSize({ width: 1280, height: 720 });
+    for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+      await page.setViewportSize(viewport);
+      const undersizedTargets = await page.locator('button, a, input:not([type="file"]), select').evaluateAll((elements) => elements.flatMap((element) => {
+        const bounds = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return style.display !== 'none' && style.visibility !== 'hidden' && bounds.width > 0 && bounds.height > 0 && (bounds.width < 44 || bounds.height < 44)
+          ? [`${element.tagName} ${element.textContent} ${bounds.width}×${bounds.height}`] : [];
+      }));
+      expect(undersizedTargets, `${path} at ${viewport.width}px`).toEqual([]);
+    }
   }
   await page.goto('/?demo=1');
   await expect(page).toHaveTitle('Demo — Cuebook');
@@ -560,12 +488,27 @@ test('uses complete route metadata, shared navigation, focus, touch targets, and
   expect(config.routes.map((route: { route: string }) => route.route)).not.toContain('/demo*');
 });
 
+test('keeps the demo within the viewport from 621px through 768px', async ({ page }) => {
+  for (const width of [621, 640, 700, 768]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/demo/');
+    await expect(page.locator('#studio')).toBeVisible();
+    const layout = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      actionsRight: document.querySelector('.studio-actions')!.getBoundingClientRect().right
+    }));
+    expect(layout.scrollWidth, `${width}px document width`).toBe(layout.clientWidth);
+    expect(layout.actionsRight, `${width}px set actions`).toBeLessThanOrEqual(layout.clientWidth);
+  }
+});
+
 test('renders the offline setup under the production CSP without console errors', async ({ page }) => {
   const errors: string[] = [];
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
   await page.route('**/offline.html', async (route) => {
     const response = await route.fetch();
-    await route.fulfill({ response, headers: { ...response.headers(), 'content-security-policy': "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; media-src 'self' blob:; connect-src 'self' https://api.sociobot.in; worker-src 'self' blob:; frame-ancestors 'none'; form-action 'self'" } });
+    await route.fulfill({ response, headers: { ...response.headers(), 'content-security-policy': "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'none'; form-action 'self'" } });
   });
   await page.goto('/offline.html');
   await expect(page.getByRole('heading', { level: 1, name: 'Reconnect once to finish offline setup' })).toBeVisible();

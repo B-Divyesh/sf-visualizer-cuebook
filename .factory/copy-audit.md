@@ -1,15 +1,48 @@
-# Copy audit — polish 2
+# Cuebook copy audit
 
-Reviewed 1 September 2026. Landing, demo, legal pages, and README use sentence case, literal headings, and no banned marketing words. No visitor-facing sentence exceeds 22 words.
+Reviewed 2 September 2026. Counts treat hyphenated terms and numerals as one word. No sentence exceeds 22 words or uses a banned marketing term.
+
+## Landing page
+
+| Copy | Words | Result |
+| --- | ---: | --- |
+| Private visual rehearsal | 3 | Pass |
+| Build repeatable visual cues for your track. | 7 | Pass |
+| For DJs, VJs, and educators who need repeatable scene changes from their own track. | 14 | Pass |
+| Try it with sample data | 5 | Pass |
+| Choose your track | 3 | Pass |
+| Import a cue file | 5 | Pass |
+| Opens a 12-second rehearsal with five editable cues. | 8 | Pass |
+| Your saved set stays unchanged. | 5 | Pass |
+| Your track stays in this browser. | 6 | Pass |
+| Saved sets work offline. | 4 | Pass |
+| All rehearsal tools are free. | 6 | Pass |
+| Five saved cues trigger repeatable scene changes. | 7 | Pass |
+| See the cue sheet before you import | 8 | Pass |
+| Each cue lists its time, scene, and note before you import a track. | 13 | Pass |
+| Rehearse a scene change in three steps | 7 | Pass |
+| Choose a track | 3 | Pass |
+| Keep it in this browser. | 5 | Pass |
+| Mark each change | 3 | Pass |
+| Pick a scene at the playhead. | 7 | Pass |
+| Play it again | 4 | Pass |
+| Check the same run before you perform. | 8 | Pass |
+| What Cuebook keeps on this device | 7 | Pass |
+| Your track and set stay in this browser. | 8 | Pass |
+| Beat numbers use the BPM and offset you enter. | 9 | Pass |
+| Export a cue file to keep a copy. | 9 | Pass |
+| Read the privacy details | 4 | Pass |
+| Cuebook keeps one track and its cues in this browser. | 10 | Pass |
+
+## Other surfaces
 
 | Surface | Longest sentence | Words | Result |
 | --- | --- | ---: | --- |
-| Landing | “Free includes five cues, every scene, cue-file export, keyboard controls, and screen-reader labels.” | 12 | Pass |
-| Demo | “Beat numbers use the BPM and offset you enter.” | 10 | Pass |
-| Privacy | “Cuebook includes no behavioral analytics, advertising, tracking pixels, cloud audio processing, third-party runtime scripts, or CDN font requests.” | 15 | Pass |
-| Terms | “The free edition supports up to five saved cues, all three scenes, keyboard controls, screen-reader labels, and cue-file import and export.” | 19 | Pass |
-| README | “Record rehearsals in browsers that support track-audio capture.” | 9 | Pass |
-| Offline setup | “Open Cuebook while connected once.” | 5 | Pass |
+| Demo | Beat numbers use the BPM and offset you enter. | 9 | Pass |
+| Privacy | Cuebook includes no behavioral analytics, advertising, tracking pixels, cloud audio processing, third-party runtime scripts, or CDN font requests. | 17 | Pass |
+| Terms | The software is provided as is, without warranties of merchantability, fitness for a particular purpose, or uninterrupted availability. | 18 | Pass |
+| README | Browser tests use Playwright 1.58.2. | 5 | Pass |
+| Offline setup | After that, your saved set can reopen offline on this device. | 10 | Pass |
 
 ## Terminology
 
@@ -19,12 +52,7 @@ Reviewed 1 September 2026. Landing, demo, legal pages, and README use sentence c
 | Imported media | track; use “audio file” only for a file format or technical capture |
 | Portable timing file | cue file; “Cuebook cue file (JSON)” only when format matters |
 | Scenes | Contour, Orbit, Shards |
-| Paid tier | Cuebook Plus, then Plus |
+| Browser video output | rehearsal recording |
 | Isolated sample | demo |
 
-## Repaired labels
-
-- `See Plus options` is the locked header action; `Manage Plus license` is the unlocked action.
-- `Add the next cue` names the editor controls.
-- `Start a new set` names the destructive set-reset action.
-- `Reconnect once to finish offline setup` names the offline fallback recovery step.
+The unavailable Cuebook Plus name, price, purchase action, checkout promise, and license controls were removed from current product copy.

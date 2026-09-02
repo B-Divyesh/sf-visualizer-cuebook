@@ -1,11 +1,9 @@
 import './styles.css';
-import { BUY_URL, cachedUnlock, captureLicenseFromUrl, forgetLicense, storeLicense, verifyLicense } from './license';
 import { SceneRenderer } from './scenes';
 import { clearProject, isDemoMode, loadProject, saveProject } from './storage';
 import type { Cue, CueFile, CueProject, SceneId } from './types';
 import { SCENE_NAMES, cueAt, formatTime, makeCue, parseCueFile, timeToBeat, validateCueFileDuration } from './utils';
 
-const FREE_CUE_LIMIT = 5;
 const DEMO_MODE = isDemoMode();
 
 type PendingAudioReplacement = {
@@ -19,7 +17,6 @@ const template = `
     <a class="brand" href="/" aria-label="Cuebook home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-title">Cuebook</span></a>
     <nav class="top-nav" aria-label="Main navigation"><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
     <div class="top-status"><span id="save-state">Saved locally</span><span class="status-dot" aria-hidden="true"></span></div>
-    <button class="ghost small" id="support-button" type="button">See Plus options</button>
   </header>
   <div class="offline-banner" id="offline-banner" role="status" hidden><span aria-hidden="true">↯</span> Offline and ready. Your saved set is on this device.</div>
   <section class="demo-banner" id="demo-banner" aria-label="Demo controls" ${DEMO_MODE ? '' : 'hidden'}><strong>Demo — sample data, nothing is saved</strong><button id="reset-demo" type="button">Reset demo</button><a href="/">Start for real</a></section>
@@ -35,7 +32,7 @@ const template = `
           <button class="button secondary" id="import-cues-empty" type="button">Import a cue file</button>
         </div>
         <p class="action-note">Opens a 12-second rehearsal with five editable cues. Your saved set stays unchanged.</p>
-        <ul class="plain-facts"><li>Your track stays in this browser.</li><li>Saved sets work offline.</li><li>Five cues are free.</li></ul>
+        <ul class="plain-facts"><li>Your track stays in this browser.</li><li>Saved sets work offline.</li><li>All rehearsal tools are free.</li></ul>
       </div>
       <figure class="hero-art">
         <img src="/assets/cue-landscape.webp" srcset="/assets/cue-landscape-720.webp 720w, /assets/cue-landscape.webp 1200w" sizes="(max-width: 620px) calc(100vw - 40px), (max-width: 900px) 80vw, 52vw" width="1200" height="800" fetchpriority="high" decoding="async" alt="Five lime cue beacons positioned across an abstract glass rehearsal timeline" />
@@ -55,11 +52,6 @@ const template = `
       <div class="section-intro"><p class="eyebrow">Privacy and limits</p><h2 id="privacy-title">What Cuebook keeps on this device</h2></div>
       <p>Your track and set stay in this browser. Beat numbers use the BPM and offset you enter. Export a cue file to keep a copy.</p><a href="/privacy/">Read the privacy details</a>
     </section>
-    <section class="landing-detail pricing-detail" aria-labelledby="pricing-title" ${DEMO_MODE ? 'hidden' : ''}>
-      <div class="section-intro"><p class="eyebrow">Pricing</p><h2 id="pricing-title">Cuebook Free and Cuebook Plus</h2></div>
-      <p>Free includes five cues, every scene, cue-file export, keyboard controls, and screen-reader labels. Plus is a US$12 one-time license for more than five cues and rehearsal recording.</p><button class="button secondary" id="landing-plus" type="button">See Plus options</button>
-    </section>
-
     <section class="studio" id="studio" hidden aria-label="Cue editor">
       <div class="studio-heading">
         <div>
@@ -130,23 +122,6 @@ const template = `
     </section>
   </main>
 
-  <dialog id="plus-dialog" aria-labelledby="plus-title">
-    <form method="dialog" class="dialog-shell"><button class="dialog-close" value="close" aria-label="Close Cuebook Plus">×</button>
-      <p class="eyebrow">One-time license</p><h2 id="plus-title">Cuebook Plus features</h2>
-      <p>Cuebook Plus adds more than five cues and downloadable rehearsal recordings. Core cue-file export, all scenes, keyboard controls, and screen-reader labels stay free.</p>
-      <p class="price"><strong>US$12</strong> one time <span>No subscription</span></p>
-      ${DEMO_MODE ? '<p class="legal-note">Purchase and license restore are unavailable in the demo.</p>' : `<a class="button primary wide" href="${BUY_URL}">Buy Cuebook Plus</a><div class="restore-block"><label for="license-input">Already purchased? Paste your license</label><div><input id="license-input" autocomplete="off" spellcheck="false" /><button id="restore-license" class="button secondary" type="button">Verify license</button></div></div>`}
-      <p class="license-status" id="license-status" role="status"></p>
-      <p class="legal-note">Checkout is hosted by Sociobot. Dodo is the merchant of record. Refunds are handled by Dodo and revoke the license. <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
-    </form>
-  </dialog>
-  <dialog id="import-limit-dialog" aria-labelledby="import-limit-title">
-    <div class="dialog-shell"><button class="dialog-close" id="cancel-limited-import" type="button" aria-label="Close limited import">×</button>
-      <p class="eyebrow">Free cue sheet limit</p><h2 id="import-limit-title">This sheet has more than five cues.</h2>
-      <p id="import-limit-copy">Cuebook Free can keep the first five cues. The source cue file stays unchanged, so you can cancel and export or unlock Plus before importing.</p>
-      <div class="dialog-actions"><button class="button secondary" id="cancel-limited-import-button" type="button">Cancel import</button><button class="button primary" id="confirm-limited-import" type="button">Import first five cues</button></div>
-    </div>
-  </dialog>
   <dialog id="replace-audio-dialog" aria-labelledby="replace-audio-title" aria-describedby="replace-audio-copy">
     <div class="dialog-shell">
       <p class="eyebrow">Shorter replacement</p><h2 id="replace-audio-title">Some cues cannot play on this track.</h2>
@@ -177,7 +152,6 @@ class CuebookApp {
   private renderer: SceneRenderer;
   private audioUrl?: string;
   private selectedScene: SceneId = 'contour';
-  private unlocked = cachedUnlock();
   private animationFrame = 0;
   private recorder?: MediaRecorder;
   private chunks: Blob[] = [];
@@ -186,7 +160,6 @@ class CuebookApp {
   private saveRevision = 0;
   private cueSaveInFlight = false;
   private pendingCueFile?: CueFile;
-  private pendingLimitedCueFile?: CueFile;
   private pendingAudioReplacement?: PendingAudioReplacement;
   private pendingDeleteCueId?: string;
 
@@ -212,8 +185,6 @@ class CuebookApp {
     this.renderer = new SceneRenderer(this.canvas);
     this.bindEvents();
     this.updateNetworkStatus();
-    captureLicenseFromUrl();
-    this.unlocked = cachedUnlock();
     window.setTimeout(() => {
       const title = this.el<HTMLHeadingElement>('page-title');
       title.focus();
@@ -238,13 +209,6 @@ class CuebookApp {
       if (this.project?.audioBlob) this.loadProjectIntoUi();
     } catch {
       this.toast('Local storage could not be opened. You can still rehearse, but refresh will lose this set.', 'error');
-    }
-    const verification = await verifyLicense();
-    if (verification.status === 'valid' || verification.status === 'invalid') {
-      const valid = verification.status === 'valid';
-      this.unlocked = valid;
-      this.updateLicenseUi();
-      if (!DEMO_MODE && !valid && localStorage.getItem('sb_license:visualizer-cuebook')) this.toast('Your license is no longer active.', 'error');
     }
     this.registerServiceWorker();
   }
@@ -285,16 +249,7 @@ class CuebookApp {
     this.cueFileInput.addEventListener('change', (event) => void this.importCues(event));
     this.el<HTMLButtonElement>('new-set').addEventListener('click', () => void this.newSet());
     this.el<HTMLButtonElement>('record').addEventListener('click', () => void this.toggleRecording());
-    this.el<HTMLButtonElement>('support-button').addEventListener('click', () => this.el<HTMLDialogElement>('plus-dialog').showModal());
-    this.el<HTMLButtonElement>('landing-plus').addEventListener('click', () => this.el<HTMLDialogElement>('plus-dialog').showModal());
-    if (!DEMO_MODE) this.el<HTMLButtonElement>('restore-license').addEventListener('click', () => void this.restoreLicense());
     this.el<HTMLButtonElement>('reset-demo').addEventListener('click', () => void this.resetDemo());
-    this.el<HTMLButtonElement>('confirm-limited-import').addEventListener('click', () => this.confirmLimitedImport());
-    ['cancel-limited-import', 'cancel-limited-import-button'].forEach((id) => this.el<HTMLButtonElement>(id).addEventListener('click', () => this.cancelLimitedImport()));
-    this.el<HTMLDialogElement>('import-limit-dialog').addEventListener('cancel', () => {
-      this.pendingLimitedCueFile = undefined;
-      this.toast('Cue import cancelled. Your current cue sheet was unchanged.');
-    });
     this.el<HTMLButtonElement>('confirm-audio-replacement').addEventListener('click', () => void this.confirmAudioReplacement());
     this.el<HTMLButtonElement>('cancel-audio-replacement').addEventListener('click', () => this.cancelAudioReplacement());
     this.el<HTMLDialogElement>('replace-audio-dialog').addEventListener('cancel', (event) => {
@@ -435,7 +390,6 @@ class CuebookApp {
     this.el<HTMLInputElement>('beat-offset').value = String(this.project.beatOffset);
     this.renderCueList();
     this.updateTimeUi();
-    this.updateLicenseUi();
     this.setSaveState('Saved locally');
   }
 
@@ -489,11 +443,6 @@ class CuebookApp {
 
   private async addCue(): Promise<void> {
     if (!this.project || this.cueSaveInFlight) return;
-    if (!this.unlocked && this.project.cues.length >= FREE_CUE_LIMIT) {
-      this.el<HTMLElement>('license-status').textContent = 'The free cue sheet holds five cues. Your existing work is safe.';
-      this.el<HTMLDialogElement>('plus-dialog').showModal();
-      return;
-    }
     const cue = makeCue(this.audio.currentTime, this.project, this.selectedScene);
     cue.intensity = Number(this.el<HTMLInputElement>('intensity').value);
     cue.hue = Number(this.el<HTMLInputElement>('hue').value);
@@ -672,42 +621,20 @@ class CuebookApp {
   private beginCueImport(file: CueFile): void {
     if (!this.project) return;
     validateCueFileDuration(file, this.project.duration);
-    if (!this.unlocked && file.cues.length > FREE_CUE_LIMIT) {
-      this.pendingLimitedCueFile = file;
-      this.el<HTMLElement>('import-limit-copy').textContent = `This sheet has ${file.cues.length} cues. Cuebook Free can keep the first ${FREE_CUE_LIMIT}. The source cue file stays unchanged, so you can cancel and export or unlock Plus before importing.`;
-      this.el<HTMLDialogElement>('import-limit-dialog').showModal();
-      return;
-    }
     this.applyCueFile(file);
   }
 
-  private confirmLimitedImport(): void {
-    const file = this.pendingLimitedCueFile;
-    this.pendingLimitedCueFile = undefined;
-    this.el<HTMLDialogElement>('import-limit-dialog').close();
-    if (!file) return;
-    this.applyCueFile(file, true);
-  }
-
-  private cancelLimitedImport(): void {
-    this.pendingLimitedCueFile = undefined;
-    this.el<HTMLDialogElement>('import-limit-dialog').close();
-    this.toast('Cue import cancelled. Your current cue sheet was unchanged.');
-  }
-
-  private applyCueFile(file: CueFile, truncated = false): void {
+  private applyCueFile(file: CueFile): void {
     if (!this.project) return;
     validateCueFileDuration(file, this.project.duration);
     this.project.title = file.title || this.project.title;
     this.project.bpm = file.timing.bpm;
     this.project.beatOffset = file.timing.beatOffset;
-    this.project.cues = (this.unlocked ? file.cues : file.cues.slice(0, FREE_CUE_LIMIT)).map((cue) => ({
+    this.project.cues = file.cues.map((cue) => ({
       ...cue, beat: timeToBeat(cue.time, file.timing.bpm, file.timing.beatOffset)
     }));
     this.loadProjectIntoUi(); this.queueSave();
-    this.toast(truncated
-      ? `Imported the first ${FREE_CUE_LIMIT} of ${file.cues.length} cues. The source cue file is unchanged; unlock Plus for the full sheet.`
-      : 'Cue sheet imported. Check that the track matches.');
+    this.toast('Cue sheet imported. Check that the track matches.');
   }
 
   private async newSet(): Promise<void> {
@@ -793,7 +720,6 @@ class CuebookApp {
   }
 
   private async toggleRecording(): Promise<void> {
-    if (!this.unlocked) { this.el<HTMLDialogElement>('plus-dialog').showModal(); return; }
     if (this.recorder?.state === 'recording') { this.recorder.stop(); return; }
     if (!('MediaRecorder' in window) || !this.canvas.captureStream) {
       this.toast('This browser cannot capture track audio. Use a browser that supports track-audio capture.', 'error'); return;
@@ -821,28 +747,6 @@ class CuebookApp {
     } catch {
       this.toast('This browser cannot capture track audio. Use a browser that supports track-audio capture.', 'error');
     }
-  }
-
-  private async restoreLicense(): Promise<void> {
-    const input = this.el<HTMLInputElement>('license-input');
-    const status = this.el<HTMLElement>('license-status');
-    if (!input.value.trim()) { status.textContent = 'Paste the license from your receipt.'; return; }
-    storeLicense(input.value);
-    status.textContent = 'Checking license…';
-    const verification = await verifyLicense(true);
-    if (verification.status === 'valid') { this.unlocked = true; status.textContent = 'Plus is unlocked on this device.'; input.value = ''; this.updateLicenseUi(); }
-    else if (verification.status === 'invalid') { forgetLicense(); this.unlocked = false; status.textContent = 'That license is not active. Check the token and try again.'; }
-    else if (verification.status === 'rate-limited') {
-      const delay = verification.retryAfterSeconds;
-      status.textContent = delay
-        ? `Too many license checks from this connection. Try again in ${delay} ${delay === 1 ? 'second' : 'seconds'}.`
-        : 'Too many license checks from this connection. Wait, then try again.';
-    } else status.textContent = 'Could not reach verification. Check your connection and try again.';
-  }
-
-  private updateLicenseUi(): void {
-    this.el<HTMLButtonElement>('support-button').textContent = this.unlocked ? 'Manage Plus license' : 'See Plus options';
-    this.el<HTMLButtonElement>('record').title = this.unlocked ? 'Capture the canvas and track audio as WebM' : 'Available with Cuebook Plus';
   }
 
   private onShortcut(event: KeyboardEvent): void {

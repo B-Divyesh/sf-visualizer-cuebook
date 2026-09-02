@@ -4,7 +4,7 @@ Cuebook helps DJs, VJs, and educators rehearse visual changes against their own 
 
 Try the isolated sample: <https://visualizer-cuebook.sociobot.in/demo/>.
 
-It opens a 12-second rhythm with five editable cues. Your saved set and license stay unchanged.
+It opens a 12-second rhythm with five editable cues. Your saved set stays unchanged.
 
 ## What it does
 
@@ -14,11 +14,12 @@ It opens a 12-second rhythm with five editable cues. Your saved set and license 
 - Replays Contour, Orbit, and Shards at the same track time.
 - Imports and exports a Cuebook cue file. Audio is not included.
 - Installs on your device and reopens a saved set offline.
-- Free includes five cues. Plus adds more than five cues and rehearsal recording.
+- Keeps cue sheets with more than five cues.
+- Records rehearsals in browsers that support track-audio capture.
 
 Tracks are not uploaded. Cuebook has no analytics, trackers, third-party runtime scripts, or CDN font requests.
 
-Choose an audio file your browser can play. Record rehearsals in browsers that support track-audio capture.
+Choose an audio file your browser can play. Every current rehearsal tool is available without charge.
 
 See [privacy](./privacy/index.html) and [terms](./terms/index.html).
 
@@ -50,15 +51,9 @@ npm run test:claims
 npm run build
 ```
 
-Browser tests use Playwright 1.58.2. They cover demo isolation, cues, downloads, mobile layout, accessibility, licenses, and offline reload.
+Browser tests use Playwright 1.58.2. They cover demo isolation, cues, downloads, responsive layout, accessibility, and offline reload.
 
 Claim checks are mapped in [`.factory/claims.json`](./.factory/claims.json).
-
-### License verification
-
-Cuebook checks a restored license, then caches its verdict for one day.
-
-Cuebook keeps the pasted token after a `429`. It shows the delay when browsers can read that header, with safe wait guidance otherwise.
 
 `npm run build` writes static files to `dist/`, with `dist/index.html` at its root.
 
