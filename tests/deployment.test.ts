@@ -35,6 +35,7 @@ describe('static deployment policy', () => {
       expect(html).toContain('Built by Param Factory · v__APP_VERSION__');
       expect(html).not.toMatch(/Built by Param Factory · v\d/);
     }
+    expect(readFileSync(resolve('public/offline.html'), 'utf8')).toContain(`Built by Param Factory · v${packageData.version}`);
     expect(readFileSync(resolve('src/main.ts'), 'utf8')).toContain('Built by Param Factory · v${__APP_VERSION__}');
   });
 });

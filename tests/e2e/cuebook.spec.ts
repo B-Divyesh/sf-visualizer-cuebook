@@ -404,6 +404,51 @@ test('@claim:delete-local-set removes the complete local set and returns to the 
   expect(await savedProjectSnapshot(page)).toBeUndefined();
 });
 
+test('@claim:clear-site-data browser controls remove the saved set, audio, caches, and storage keys', async ({ browser }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  try {
+    await page.goto('/');
+    await page.locator('#audio-input').setInputFiles({ name: 'clear-everything.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
+    await page.getByLabel('Cue note').fill('Remove with site data');
+    await page.getByRole('button', { name: /Mark cue/ }).click();
+    await page.evaluate(async () => {
+      localStorage.setItem('cuebook:test-local', 'sentinel');
+      const cache = await caches.open('cuebook-test-sentinel');
+      await cache.put('/site-data-sentinel', new Response('sentinel'));
+      await navigator.serviceWorker.ready;
+    });
+    expect(await savedProjectSnapshot(page)).toMatchObject({ audioName: 'clear-everything.wav', cues: [{ note: 'Remove with site data' }] });
+    const populatedStorage = await page.evaluate(async () => ({
+      caches: await caches.keys(),
+      registrations: (await navigator.serviceWorker.getRegistrations()).length
+    }));
+    expect(populatedStorage.registrations).toBe(1);
+    expect(populatedStorage.caches).toContain('cuebook-test-sentinel');
+
+    const session = await context.newCDPSession(page);
+    await session.send('Storage.clearDataForOrigin', {
+      origin: 'http://127.0.0.1:4173',
+      storageTypes: 'all'
+    });
+
+    const cleared = await page.evaluate(async () => ({
+      caches: await caches.keys(),
+      databases: (await indexedDB.databases()).map((database) => database.name ?? ''),
+      localKeys: Object.keys(localStorage),
+      registrations: (await navigator.serviceWorker.getRegistrations()).length
+    }));
+    expect(cleared).toEqual({ caches: [], databases: [], localKeys: [], registrations: 0 });
+
+    await page.reload();
+    await expect(page.locator('#empty-state')).toBeVisible();
+    await expect(page.locator('#studio')).toBeHidden();
+    expect(await savedProjectSnapshot(page)).toBeUndefined();
+  } finally {
+    await context.close();
+  }
+});
+
 test('keeps the duration error visible when cue JSON is chosen before audio', async ({ page }) => {
   await page.goto('/');
   await page.locator('#cue-file-input').setInputFiles({ name: 'too-long-first.cuebook.json', mimeType: 'application/json', buffer: cueFile([cue(99)]) });
@@ -748,6 +793,64 @@ test('@claim:node-20-build compiles and builds the production site with the pinn
   }
 });
 
+test('@claim:browser-suite-contract pins Playwright and exercises the documented browser checks', async ({ browser }) => {
+  const packageData = JSON.parse(await readFile('package.json', 'utf8')) as { devDependencies?: Record<string, string> };
+  expect(packageData.devDependencies?.['@playwright/test']).toBe('1.58.2');
+  expect(packageData.devDependencies?.['playwright-core']).toBe('1.58.2');
+
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+  try {
+    await page.goto('/');
+    await page.locator('#audio-input').setInputFiles({ name: 'suite-contract.wav', mimeType: 'audio/wav', buffer: silentWav(3) });
+    await page.getByRole('button', { name: /Mark cue/ }).click();
+    const realProject = await savedProjectSnapshot(page);
+
+    await page.goto('/?demo=1');
+    await expect(page.getByRole('heading', { level: 1, name: 'Rehearse five sample visual cues.' })).toBeVisible();
+    await page.getByLabel('Cue 1 note').fill('Browser contract demo edit');
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Export cue file' }).click();
+    expect((await downloadPromise).suggestedFilename()).toMatch(/\.cuebook\.json$/);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(page.locator('#visual-canvas')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1440);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
+    await page.getByRole('link', { name: 'Start for real' }).click();
+    expect(await savedProjectSnapshot(page)).toEqual(realProject);
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    await page.reload();
+    await context.setOffline(true);
+    await page.reload();
+    await expect(page.locator('#studio')).toBeVisible();
+    await expect(page.locator('#offline-banner')).toBeVisible();
+  } finally {
+    await context.close();
+  }
+});
+
+test('@claim:deployment-config defines exact demo routing, security headers, asset caching, and the designed 404', async () => {
+  const source = JSON.parse(await readFile('public/staticwebapp.config.json', 'utf8')) as {
+    globalHeaders: Record<string, string>;
+    responseOverrides: Record<string, { rewrite?: string }>;
+    routes: Array<{ route: string; rewrite?: string; headers?: Record<string, string> }>;
+  };
+  const built = JSON.parse(await readFile('dist/staticwebapp.config.json', 'utf8')) as typeof source;
+  expect(built).toEqual(source);
+  expect(source.routes.filter((route) => route.rewrite)).toEqual([{ route: '/demo', rewrite: '/index.html' }]);
+  expect(source.routes.some((route) => route.route === '/demo*')).toBe(false);
+  expect(source.globalHeaders['Content-Security-Policy']).toContain("frame-ancestors 'none'");
+  expect(source.globalHeaders['X-Content-Type-Options']).toBe('nosniff');
+  expect(source.globalHeaders['Referrer-Policy']).toBe('strict-origin-when-cross-origin');
+  expect(source.routes.find((route) => route.route === '/assets/*')?.headers?.['Cache-Control']).toBe('public, max-age=31536000, immutable');
+  expect(source.responseOverrides['404']?.rewrite).toBe('/404.html');
+  expect(await readFile('dist/404.html', 'utf8')).toContain('<h1 tabindex="-1">Page not found</h1>');
+});
+
 test('uses complete route metadata, shared navigation, focus, 44px targets, and a strict demo route', async ({ page }) => {
   const packageData = JSON.parse(await readFile('package.json', 'utf8')) as { version: string };
   for (const [path, title] of [['/', 'Cuebook — visual cues for your track'], ['/demo/', 'Demo — Cuebook'], ['/privacy/', 'Privacy — Cuebook'], ['/terms/', 'Terms — Cuebook'], ['/404.html', 'Page not found — Cuebook'], ['/offline.html', 'Offline setup — Cuebook']] as const) {
@@ -778,6 +881,10 @@ test('uses complete route metadata, shared navigation, focus, 44px targets, and 
   }
   await page.goto('/?demo=1');
   await expect(page).toHaveTitle('Demo — Cuebook');
+  await expect(page.getByRole('heading', { level: 1, name: 'Rehearse five sample visual cues.' })).toBeVisible();
+  await expect(page.locator('h1')).toHaveCount(1);
+  await expect(page.locator('h1')).toBeFocused();
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Try a 12-second Cuebook rehearsal with five editable sample cues.');
   await expect(page.locator('#demo-banner')).toBeVisible();
   await expect(page.locator('.skip-link')).toHaveText('Skip to cue editor');
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Demo — Cuebook');

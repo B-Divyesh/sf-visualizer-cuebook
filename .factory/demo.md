@@ -2,6 +2,7 @@
 
 - URL: `https://visualizer-cuebook.sociobot.in/?demo=1` (local: `http://127.0.0.1:4173/?demo=1`). The routed alias `/demo/` opens the same isolated sample.
 - Entry: select **Try it with sample data** on the first screen. It opens `?demo=1` in one click.
+- Route identity: the demo has the visible h1 **Rehearse five sample visual cues.** and a description specific to its 12-second sample.
 - Sample: an original, locally generated 12-second 100 BPM click-and-tone rhythm and five editable scene cues for “Neon classroom rehearsal.”
 - Audio: the PCM loop has kick pulses on each beat and bright cue-boundary tones. It is generated in `makeSampleWav` and has no external source or license.
 - Isolation: project state is held only in memory. Demo code never opens the real `cuebook-local` IndexedDB database. The persistent banner and header both say that demo changes reset on reload.

@@ -24,7 +24,7 @@ const template = `
     <section class="hero" id="empty-state" ${DEMO_MODE ? 'hidden' : ''}>
       <div class="hero-copy" id="hero-copy">
         <p class="eyebrow">Private visual rehearsal</p>
-        <h1 class="hero-title" id="page-title" tabindex="-1">Build repeatable visual cues for your track.</h1>
+        ${DEMO_MODE ? '' : '<h1 class="hero-title" id="page-title" tabindex="-1">Build repeatable visual cues for your track.</h1>'}
         <p class="lede">For DJs, VJs, and educators who need repeatable scene changes from their own track.</p>
         <div class="hero-actions">
           <a class="button primary" href="/?demo=1">Try it with sample data</a>
@@ -53,6 +53,7 @@ const template = `
       <p>Your track and set stay in this browser. Beat numbers use the BPM and offset you enter. Export a cue file to keep a copy.</p><a href="/privacy/">Read the privacy details</a>
     </section>
     <section class="studio" id="studio" hidden aria-label="Cue editor">
+      ${DEMO_MODE ? '<div class="demo-route-intro"><p class="eyebrow">Sample rehearsal</p><h1 class="demo-route-title" id="page-title" tabindex="-1">Rehearse five sample visual cues.</h1></div>' : ''}
       <div class="studio-heading">
         <div>
           <p class="eyebrow">Current set</p>
@@ -61,7 +62,7 @@ const template = `
         </div>
         <div class="studio-actions">
           <label class="button secondary compact file-label">Replace track<input id="replace-audio-input" type="file" accept="audio/*" /></label>
-          <button class="button secondary compact" id="new-set" type="button">Start a new set</button>
+          <button class="button secondary compact" id="new-set" type="button" ${DEMO_MODE ? 'hidden' : ''}>Start a new set</button>
         </div>
       </div>
 
@@ -178,6 +179,7 @@ class CuebookApp {
       document.querySelector<HTMLMetaElement>('#og-url')?.setAttribute('content', 'https://visualizer-cuebook.sociobot.in/demo/');
       const demoTitle = 'Demo — Cuebook';
       const demoDescription = 'Try a 12-second Cuebook rehearsal with five editable sample cues.';
+      document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute('content', demoDescription);
       document.querySelector<HTMLMetaElement>('meta[property="og:title"]')?.setAttribute('content', demoTitle);
       document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]')?.setAttribute('content', demoTitle);
       document.querySelector<HTMLMetaElement>('meta[property="og:description"]')?.setAttribute('content', demoDescription);
@@ -189,7 +191,7 @@ class CuebookApp {
     window.setTimeout(() => {
       const title = this.el<HTMLHeadingElement>('page-title');
       title.focus();
-      this.el<HTMLElement>('route-announcer').textContent = DEMO_MODE ? 'Demo — Cuebook' : 'Cuebook home';
+      this.el<HTMLElement>('route-announcer').textContent = title.textContent ?? '';
     }, 0);
     void this.boot();
   }
@@ -379,10 +381,12 @@ class CuebookApp {
     this.audio.src = this.audioUrl;
     this.empty.hidden = true;
     this.studio.hidden = false;
-    const pageTitle = this.el<HTMLHeadingElement>('page-title');
-    pageTitle.textContent = 'Build repeatable visual cues for your track.';
-    pageTitle.className = 'sr-only';
-    this.studio.prepend(pageTitle);
+    if (!DEMO_MODE) {
+      const pageTitle = this.el<HTMLHeadingElement>('page-title');
+      pageTitle.textContent = 'Build repeatable visual cues for your track.';
+      pageTitle.className = 'sr-only';
+      this.studio.prepend(pageTitle);
+    }
     this.el<HTMLInputElement>('project-title').value = this.project.title;
     this.el<HTMLElement>('track-name').textContent = this.project.audioName;
     this.el<HTMLElement>('track-duration').textContent = formatTime(this.project.duration);

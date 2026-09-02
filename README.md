@@ -51,7 +51,7 @@ npm run test:claims
 npm run build
 ```
 
-Browser tests use Playwright 1.58.2. They cover demo isolation, cues, downloads, phone and desktop layouts, accessibility, and offline reload.
+Browser checks use Playwright 1.58.2. They cover demo isolation, cues, downloads, phone and desktop layouts, accessibility, and offline reload.
 
 Claim checks are mapped in [`.factory/claims.json`](./.factory/claims.json).
 
@@ -65,7 +65,7 @@ No backend or environment variable is required.
 
 ## Deploy
 
-Build `dist/` and deploy it as a static site with `public/staticwebapp.config.json` at the site root. The factory deployment uses this file for routes, security headers, caching, and the designed 404 page.
+Build `dist/` and deploy it as a static site with `public/staticwebapp.config.json` at the site root. That file defines the exact demo route, security headers, asset caching, and designed 404 response.
 
 ## Project notes
 

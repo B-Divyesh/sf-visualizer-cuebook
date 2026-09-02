@@ -1,6 +1,6 @@
 # Cuebook copy audit
 
-Reviewed 2 September 2026 after polish round 4. Counts treat hyphenated terms and numerals as one word. No unit exceeds 22 words or uses a banned marketing term.
+Reviewed 2 September 2026 after polish round 5. Counts treat hyphenated terms and numerals as one word. No unit exceeds 22 words or uses a banned marketing term.
 
 The first screen reads clearly in one breath. It names the job and audience, then offers the sample or track import.
 
@@ -44,7 +44,7 @@ The first screen reads clearly in one breath. It names the job and audience, the
 | Export a cue file to keep a copy. | 8 | Pass |
 | Read the privacy details | 4 | Pass |
 | Cuebook keeps one track and its cues in this browser. | 10 | Pass |
-| Built by Param Factory · v1.0.10 | 6 | Pass |
+| Built by Param Factory · v1.0.11 | 6 | Pass |
 | Cuebook needs JavaScript to load a local track and render rehearsals. | 11 | Pass |
 | Your track never leaves this device. | 6 | Pass |
 
@@ -60,12 +60,12 @@ The first screen reads clearly in one breath. It names the job and audience, the
 
 | Surface | Longest sentence | Words | Result |
 | --- | --- | ---: | --- |
-| Demo | Demo changes reset on reload. | 5 | Pass |
+| Demo | Rehearse five sample visual cues. | 5 | Pass; visible route h1 |
 | Privacy | Cuebook has no accounts and does not upload your creative work. | 11 | Pass |
 | Terms | The software is provided as is, without warranties of merchantability, fitness for a particular purpose, or uninterrupted availability. | 18 | Pass |
-| README | Cuebook requires Node.js 20 or newer for local builds. | 9 | Pass |
+| README | That file defines the exact demo route, security headers, asset caching, and designed 404 response. | 15 | Pass |
 | Offline setup | After that, your saved set can reopen offline on this device. | 10 | Pass |
-| Catalog | Build and rehearse repeatable visual cues against your own track. | 10 | Pass; 65 characters and verb-first |
+| Catalog | Mark and rehearse repeatable visual cues for your own track. | 10 | Pass; 61 characters and verb-first |
 
 ## Terminology
 
