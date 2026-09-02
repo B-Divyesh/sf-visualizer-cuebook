@@ -1,0 +1,57 @@
+{
+  "deploymentId": "94561305-c096-401a-9e0f-4122ae825d81",
+  "origin": "https://visualizer-cuebook.sociobot.in",
+  "demoEntries": {
+    "/?demo=1": {
+      "title": "Demo — Cuebook",
+      "description": "Try a 12-second Cuebook rehearsal with five editable sample cues.",
+      "h1": "Rehearse five sample visual cues.",
+      "h1Count": 1,
+      "h1Visible": true,
+      "h1Focused": true,
+      "cueCount": 5,
+      "axeViolations": 0,
+      "horizontalOverflow": 0
+    },
+    "/demo/": {
+      "title": "Demo — Cuebook",
+      "description": "Try a 12-second Cuebook rehearsal with five editable sample cues.",
+      "h1": "Rehearse five sample visual cues.",
+      "h1Count": 1,
+      "h1Visible": true,
+      "h1Focused": true,
+      "cueCount": 5,
+      "axeViolations": 0,
+      "horizontalOverflow": 0
+    }
+  },
+  "otherRoutes": {
+    "/": { "status": 200, "title": "Cuebook — visual cues for your track", "h1Count": 1, "axeViolations": 0 },
+    "/privacy/": { "status": 200, "title": "Privacy — Cuebook", "h1Count": 1, "axeViolations": 0 },
+    "/terms/": { "status": 200, "title": "Terms — Cuebook", "h1Count": 1, "axeViolations": 0 },
+    "/offline.html": { "status": 200, "title": "Offline setup — Cuebook", "h1Count": 1, "axeViolations": 0 },
+    "/demo/nope": { "status": 404, "title": "Page not found — Cuebook" },
+    "/demo-extra": { "status": 404, "title": "Page not found — Cuebook" },
+    "/demonstration": { "status": 404, "title": "Page not found — Cuebook" },
+    "/unknown/nested": { "status": 404, "title": "Page not found — Cuebook" }
+  },
+  "browserSiteDataClear": {
+    "databases": [],
+    "caches": [],
+    "localStorageKeys": [],
+    "serviceWorkerRegistrations": 0,
+    "reopenedToEmptyState": true
+  },
+  "offlineDemo": {
+    "offlineBannerVisible": true,
+    "cueCount": 5,
+    "externalRequests": []
+  },
+  "navigation": {
+    "forwardDemoH1Focused": true,
+    "backHomeH1Focused": true
+  },
+  "consoleErrors": [],
+  "buildFilesMatched": 25,
+  "buildMismatches": []
+}

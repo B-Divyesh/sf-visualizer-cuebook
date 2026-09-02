@@ -1,0 +1,14 @@
+{
+  "url": "https://visualizer-cuebook.sociobot.in/",
+  "loadMs": 959,
+  "errors": [],
+  "a11y": {
+    "title": "Cuebook — visual cues for your track",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 1259
+  }
+}
