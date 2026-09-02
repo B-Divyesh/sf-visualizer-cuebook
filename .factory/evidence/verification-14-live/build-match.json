@@ -1,0 +1,185 @@
+{
+  "candidate": "1648db7978b3a9f230dbf7e56f0ca9a6bd35a295",
+  "testedAt": "2026-09-02T04:17:10.452Z",
+  "note": "staticwebapp.config.json is consumed by Azure Static Web Apps and is not a public runtime file",
+  "runtimeFileCount": 25,
+  "runtimeAllMatch": true,
+  "mismatches": [],
+  "files": [
+    {
+      "path": "404.html",
+      "status": 200,
+      "bytes": 2153,
+      "sha256": "10fae86409f865c9e4ce57584ae7660c5ae52a03673c110884ae10395d550d56",
+      "match": true
+    },
+    {
+      "path": "assets/app-BJ_Vjtag.css",
+      "status": 200,
+      "bytes": 17319,
+      "sha256": "3e0abb57b4de7ff6b9cbbd45ef7166737d1d2cacc76cf86b78cfb37007b7793d",
+      "match": true
+    },
+    {
+      "path": "assets/app-DhyC9vwu.js",
+      "status": 200,
+      "bytes": 39377,
+      "sha256": "b7f453110b5f000bcb0b29f909f70f088ba8c16b22b2870a848c1c2175ea000f",
+      "match": true
+    },
+    {
+      "path": "assets/cue-landscape-720.webp",
+      "status": 200,
+      "bytes": 16254,
+      "sha256": "87a2189f894742e8f7582de1d4524643ba577c8391cd71367ee5d3e582c878ce",
+      "match": true
+    },
+    {
+      "path": "assets/cue-landscape.webp",
+      "status": 200,
+      "bytes": 29712,
+      "sha256": "50b9ff0b3012dda08b9bf374e0d71e96a384ec1d92abc928d2cee2c1a492a326",
+      "match": true
+    },
+    {
+      "path": "assets/cuebook-social.webp",
+      "status": 200,
+      "bytes": 26632,
+      "sha256": "0ee5746b598c899329c644c78b01a4f66b73d6b550ca76062b2268ad752d574f",
+      "match": true
+    },
+    {
+      "path": "assets/legal-route-Bdei2PEN.css",
+      "status": 200,
+      "bytes": 2119,
+      "sha256": "d2621ecea399e3e299bd44d03ddded98a854f2d7721057b9377a24bb8df49685",
+      "match": true
+    },
+    {
+      "path": "assets/legal-route-ueay7ACp.js",
+      "status": 200,
+      "bytes": 64,
+      "sha256": "f5e2f11e0414021338cd509ec5a9cae3379659bc52b51196bc948bc5e865dee3",
+      "match": true
+    },
+    {
+      "path": "assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "status": 200,
+      "bytes": 711,
+      "sha256": "d2a32840421496e872ade591618d2fa5c33797605d1aec04301717e5a90757d0",
+      "match": true
+    },
+    {
+      "path": "fonts/space-grotesk-latin-600.woff2",
+      "status": 200,
+      "bytes": 13292,
+      "sha256": "e5b2596788170dc4041f756cb56f2d9096b638a3d49dac9fc17e998908797b1e",
+      "match": true
+    },
+    {
+      "path": "icons/apple-touch-icon.svg",
+      "status": 200,
+      "bytes": 347,
+      "sha256": "1e75dda0e2f0b6a677d173f6082993f9b12fcd897a0b7af3897d238475e1f55c",
+      "match": true
+    },
+    {
+      "path": "icons/favicon.svg",
+      "status": 200,
+      "bytes": 322,
+      "sha256": "085adcb0c441442595e10120accb9a58a3ddbc8f027eb37015e0f0cb28006310",
+      "match": true
+    },
+    {
+      "path": "icons/icon-192.png",
+      "status": 200,
+      "bytes": 6159,
+      "sha256": "ba2d59e37a6d96d25ee82a97c7d89cf2cf7dd5dab0cdec366ffa4b067dfae610",
+      "match": true
+    },
+    {
+      "path": "icons/icon-512.png",
+      "status": 200,
+      "bytes": 17028,
+      "sha256": "b4994d640eff642d241916ba510a2f788f1ad20ebd3841e0a807257ce6438dfe",
+      "match": true
+    },
+    {
+      "path": "icons/icon-maskable-512.png",
+      "status": 200,
+      "bytes": 17028,
+      "sha256": "b4994d640eff642d241916ba510a2f788f1ad20ebd3841e0a807257ce6438dfe",
+      "match": true
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "bytes": 1998,
+      "sha256": "b76a1264d2ccfc2b73d2b5c16c65a51e57d999985d6472cbad3588e491608204",
+      "match": true
+    },
+    {
+      "path": "manifest.webmanifest",
+      "status": 200,
+      "bytes": 679,
+      "sha256": "5f7dd7dc2dbdde12750fde410944a432fda6708a772da4aa8d89521c59b9ffc8",
+      "match": true
+    },
+    {
+      "path": "offline.css",
+      "status": 200,
+      "bytes": 2260,
+      "sha256": "e08a154cab28a8106ec9f6bd92af69cc51d5c07655b9d0898268207231b6d01b",
+      "match": true
+    },
+    {
+      "path": "offline.html",
+      "status": 200,
+      "bytes": 2261,
+      "sha256": "0f0582fe3050cf6cc8767009ec35c1454ad8b5b4eba5b5371203f17228621f1f",
+      "match": true
+    },
+    {
+      "path": "offline.js",
+      "status": 200,
+      "bytes": 113,
+      "sha256": "58b9176aee7042397e29e6b00c938595ad30d5e2edfabba2eed9166669239c90",
+      "match": true
+    },
+    {
+      "path": "privacy/index.html",
+      "status": 200,
+      "bytes": 3016,
+      "sha256": "4f8700fa693cbbc42d844b93ce0795254c56283fc1a8aa2459d0347fef509ad3",
+      "match": true
+    },
+    {
+      "path": "robots.txt",
+      "status": 200,
+      "bytes": 84,
+      "sha256": "629110d16e51ce1236b9881667a9a30dce8b58df1049a0fb850f58d55eb773f0",
+      "match": true
+    },
+    {
+      "path": "sitemap.xml",
+      "status": 200,
+      "bytes": 385,
+      "sha256": "d5c025b5f91680644ba3da012215f412a65ebdace8a24abdc46764eb117da17f",
+      "match": true
+    },
+    {
+      "path": "sw.js",
+      "status": 200,
+      "bytes": 2074,
+      "sha256": "8b571717429f97eb040f7c9b8b7174f3b480e4f6095151298442e54134c508d9",
+      "match": true
+    },
+    {
+      "path": "terms/index.html",
+      "status": 200,
+      "bytes": 3138,
+      "sha256": "349c4adda14a2fb8fcd5f028aeea171d0aa4eed6cef4af8ffd0e7c3a1d7d8577",
+      "match": true
+    }
+  ]
+}

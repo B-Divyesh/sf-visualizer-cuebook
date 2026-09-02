@@ -1,0 +1,280 @@
+{
+  "testedAt": "2026-09-02T04:15:48.702Z",
+  "base": "https://visualizer-cuebook.sociobot.in",
+  "desktop": {
+    "firstRead": {
+      "h1": "Build repeatable visual cues for your track.",
+      "audience": "For DJs, VJs, and educators who need repeatable scene changes from their own track.",
+      "demoAction": true,
+      "title": "Cuebook — visual cues for your track",
+      "status": 200,
+      "axe": []
+    },
+    "keyboard": {
+      "skipLinkFocus": {
+        "outline": "rgb(88, 230, 210) solid 3px",
+        "outlineColor": "rgb(88, 230, 210)",
+        "rect": {
+          "x": 12,
+          "y": 12,
+          "width": 198.578125,
+          "height": 44,
+          "top": 12,
+          "right": 210.578125,
+          "bottom": 56,
+          "left": 12
+        },
+        "measuredAfterTransitionMs": 220
+      },
+      "skipMovesToMain": true
+    },
+    "realWorkflow": {
+      "track": "independent-qa.wav",
+      "persistedCue": "Independent opening",
+      "invalidTiming": "Cue timing BPM must be a number from 20 to 300.",
+      "invalidDuration": "Cue at 1:39.000 is beyond this track's 0:03.000 duration. Choose a matching track or edit the cue file.",
+      "bpmLowerBound": "20",
+      "offsetLowerBound": "0",
+      "export": {
+        "filename": "independent-qa.cuebook.json",
+        "audio": {
+          "name": "independent-qa.wav",
+          "duration": 3
+        },
+        "cues": 1,
+        "containsAudioBlob": false
+      },
+      "recording": {
+        "filename": "independent-qa-rehearsal.webm",
+        "bytes": 104611
+      },
+      "axe": []
+    },
+    "demo": {
+      "banner": true,
+      "cues": 5,
+      "duration": "0:12.000",
+      "playbackAdvancedTo": 0.451124,
+      "reset": true,
+      "sceneAt2_1": "Orbit",
+      "sceneAt4_1": "Shards",
+      "axe": []
+    },
+    "routes": {
+      "/privacy/": {
+        "status": 200,
+        "title": "Privacy — Cuebook",
+        "h1": 1,
+        "main": 1,
+        "axe": []
+      },
+      "/terms/": {
+        "status": 200,
+        "title": "Terms — Cuebook",
+        "h1": 1,
+        "main": 1,
+        "axe": []
+      },
+      "/offline.html": {
+        "status": 200,
+        "title": "Offline setup — Cuebook",
+        "h1": 1,
+        "main": 1,
+        "axe": []
+      }
+    }
+  },
+  "mobile": {
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "runningAnimations": 0,
+    "undersized": [],
+    "axe": [],
+    "errors": []
+  },
+  "pwa": {
+    "active": "activated",
+    "controlled": true,
+    "scope": "https://visualizer-cuebook.sociobot.in/",
+    "offlineReload": true,
+    "offlineDemoCues": 5,
+    "swHasSkipWaiting": true,
+    "swHasClientsClaim": true,
+    "manifest": {
+      "name": "Cuebook — Visual Rehearsal",
+      "display": "standalone",
+      "start_url": "/?v=10",
+      "icons": 3
+    },
+    "savedRealProject": {
+      "offlineReload": true,
+      "track": "offline-real.wav",
+      "cues": 1
+    }
+  },
+  "headers": {
+    "home": {
+      "content-security-policy": "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'none'; form-action 'self'",
+      "strict-transport-security": "max-age=31536000; includeSubDomains",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "permissions-policy": "accelerometer=(), autoplay=(self), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()",
+      "cache-control": "public, must-revalidate, max-age=30"
+    },
+    "asset": {
+      "status": 200,
+      "cacheControl": "public, max-age=31536000, immutable",
+      "contentType": "text/javascript"
+    },
+    "serviceWorker": {
+      "status": 200,
+      "cacheControl": "no-cache",
+      "contentType": "text/javascript"
+    }
+  },
+  "requests": {
+    "count": 44,
+    "crossOrigin": [],
+    "origins": [
+      "https://visualizer-cuebook.sociobot.in"
+    ]
+  },
+  "errors": [],
+  "performanceInteraction": {
+    "cpuThrottle": 4,
+    "eventCount": 90,
+    "interactionCount": 5,
+    "maxDurationMs": 72,
+    "maxProcessingMs": 3.0999999940395355,
+    "interactions": [
+      {
+        "name": "pointerdown",
+        "duration": 48,
+        "processing": 1,
+        "interactionId": 3415
+      },
+      {
+        "name": "pointerdown",
+        "duration": 40,
+        "processing": 1.300000011920929,
+        "interactionId": 3422
+      },
+      {
+        "name": "pointerdown",
+        "duration": 32,
+        "processing": 0.20000001788139343,
+        "interactionId": 3429
+      },
+      {
+        "name": "pointerdown",
+        "duration": 32,
+        "processing": 3.0999999940395355,
+        "interactionId": 3436
+      },
+      {
+        "name": "pointerdown",
+        "duration": 72,
+        "processing": 2.600000023841858,
+        "interactionId": 3443
+      }
+    ]
+  },
+  "timingRepeatability": {
+    "playbackRate": 1,
+    "targetMs": 150,
+    "maxErrorMs": 53,
+    "passes": true,
+    "runs": [
+      {
+        "run": 1,
+        "mapped": [
+          {
+            "time": 0,
+            "note": "Opening contour",
+            "observedTime": 0.003849,
+            "errorMs": 4
+          },
+          {
+            "time": 2.4,
+            "note": "First pulse",
+            "observedTime": 2.395998,
+            "errorMs": 4
+          },
+          {
+            "time": 4.8,
+            "note": "Break into shards",
+            "observedTime": 4.806548,
+            "errorMs": 7
+          },
+          {
+            "time": 7.2,
+            "note": "Return to orbit",
+            "observedTime": 7.195022,
+            "errorMs": 5
+          },
+          {
+            "time": 9.6,
+            "note": "Closing horizon",
+            "observedTime": 9.616495,
+            "errorMs": 16
+          }
+        ],
+        "maxErrorMs": 16
+      },
+      {
+        "run": 2,
+        "mapped": [
+          {
+            "time": 0,
+            "note": "Opening contour",
+            "observedTime": 0,
+            "errorMs": 0
+          },
+          {
+            "time": 2.4,
+            "note": "First pulse",
+            "observedTime": 2.396034,
+            "errorMs": 4
+          },
+          {
+            "time": 4.8,
+            "note": "Break into shards",
+            "observedTime": 4.852898,
+            "errorMs": 53
+          },
+          {
+            "time": 7.2,
+            "note": "Return to orbit",
+            "observedTime": 7.237714,
+            "errorMs": 38
+          },
+          {
+            "time": 9.6,
+            "note": "Closing horizon",
+            "observedTime": 9.632271,
+            "errorMs": 32
+          }
+        ],
+        "maxErrorMs": 53
+      }
+    ]
+  },
+  "keyboardShortcuts": {
+    "spacePlayPause": true,
+    "start": 0.5,
+    "afterRight": 1.5,
+    "afterLeft": 0.5,
+    "markCueCount": 1
+  },
+  "notFound": {
+    "status": 404,
+    "title": "Page not found — Cuebook",
+    "h1": "Page not found",
+    "main": 1,
+    "axeSeriousCritical": [],
+    "errors": [
+      "Failed to load resource: the server responded with a status of 404 ()"
+    ]
+  }
+}

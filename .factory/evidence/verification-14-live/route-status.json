@@ -1,0 +1,104 @@
+{
+  "testedAt": "2026-09-02T04:18:56.416Z",
+  "rows": [
+    {
+      "path": "/",
+      "status": 200,
+      "location": null,
+      "type": "text/html",
+      "title": "Cuebook — visual cues for your track",
+      "h1": 0,
+      "main": 0
+    },
+    {
+      "path": "/demo",
+      "status": 200,
+      "location": null,
+      "type": "text/html",
+      "title": "Cuebook — visual cues for your track",
+      "h1": 0,
+      "main": 0
+    },
+    {
+      "path": "/demo/",
+      "status": 200,
+      "location": null,
+      "type": "text/html",
+      "title": "Cuebook — visual cues for your track",
+      "h1": 0,
+      "main": 0
+    },
+    {
+      "path": "/?demo=1",
+      "status": 200,
+      "location": null,
+      "type": "text/html",
+      "title": "Cuebook — visual cues for your track",
+      "h1": 0,
+      "main": 0
+    },
+    {
+      "path": "/privacy/",
+      "status": 200,
+      "location": null,
+      "type": "text/html",
+      "title": "Privacy — Cuebook",
+      "h1": 1,
+      "main": 1
+    },
+    {
+      "path": "/terms/",
+      "status": 200,
+      "location": null,
+      "type": "text/html",
+      "title": "Terms — Cuebook",
+      "h1": 1,
+      "main": 1
+    },
+    {
+      "path": "/offline.html",
+      "status": 200,
+      "location": null,
+      "type": "text/html",
+      "title": "Offline setup — Cuebook",
+      "h1": 1,
+      "main": 1
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "location": null,
+      "type": "text/plain",
+      "title": null,
+      "h1": null,
+      "main": null
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "location": null,
+      "type": "text/xml",
+      "title": null,
+      "h1": null,
+      "main": null
+    },
+    {
+      "path": "/404.html",
+      "status": 200,
+      "location": null,
+      "type": "text/html",
+      "title": "Page not found — Cuebook",
+      "h1": 1,
+      "main": 1
+    },
+    {
+      "path": "/unknown-verification-14",
+      "status": 404,
+      "location": null,
+      "type": "text/html",
+      "title": "Page not found — Cuebook",
+      "h1": 1,
+      "main": 1
+    }
+  ]
+}
