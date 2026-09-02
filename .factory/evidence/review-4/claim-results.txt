@@ -1,0 +1,22 @@
+Cuebook review 4 clean-clone claim results
+Clone: /tmp/cuebook-review4-B1lLRx/repo
+Candidate: d83ddcebee08cb831dbe8e23de28778eebc93a1d
+
+cue-workflow PASS
+offline-reload PASS
+local-privacy PASS
+json-no-audio PASS
+cue-capacity PASS
+rehearsal-recording PASS
+three-scenes PASS
+deterministic-scenes PASS
+pwa-install PASS
+demo-sandbox PASS
+no-tracking-runtime PASS
+free-access PASS
+beat-grid PASS
+accessibility-in-free PASS
+static-deployment PASS
+
+Full aggregate: npm run test:claims — 15 passed.
+Full browser suite: npm run test:e2e — 28 passed.

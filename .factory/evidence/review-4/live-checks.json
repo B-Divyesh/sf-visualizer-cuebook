@@ -1,0 +1,525 @@
+{
+  "firstScreens": {
+    "mobile": {
+      "title": "Cuebook — visual cues for your track",
+      "h1": [
+        "Build repeatable visual cues for your track."
+      ],
+      "bodyScrollWidth": 390,
+      "viewportWidth": 390,
+      "visible": [
+        {
+          "tag": "SPAN",
+          "text": "Cuebook",
+          "top": 26,
+          "bottom": 46
+        },
+        {
+          "tag": "P",
+          "text": "Private visual rehearsal",
+          "top": 120,
+          "bottom": 136
+        },
+        {
+          "tag": "H1",
+          "text": "Build repeatable visual cues for your track.",
+          "top": 144,
+          "bottom": 354
+        },
+        {
+          "tag": "P",
+          "text": "For DJs, VJs, and educators who need repeatable scene changes from their own track.",
+          "top": 378,
+          "bottom": 460
+        },
+        {
+          "tag": "A",
+          "text": "Try it with sample data",
+          "top": 492,
+          "bottom": 542
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Import a cue file",
+          "top": 616,
+          "bottom": 666
+        },
+        {
+          "tag": "P",
+          "text": "Opens a 12-second rehearsal with five editable cues. Your saved set stays unchanged.",
+          "top": 676,
+          "bottom": 718
+        },
+        {
+          "tag": "LI",
+          "text": "Your track stays in this browser.",
+          "top": 740,
+          "bottom": 761
+        },
+        {
+          "tag": "LI",
+          "text": "Saved sets work offline.",
+          "top": 769,
+          "bottom": 790
+        },
+        {
+          "tag": "LI",
+          "text": "All rehearsal tools are free.",
+          "top": 798,
+          "bottom": 819
+        }
+      ]
+    },
+    "desktop": {
+      "title": "Cuebook — visual cues for your track",
+      "h1": [
+        "Build repeatable visual cues for your track."
+      ],
+      "bodyScrollWidth": 1440,
+      "viewportWidth": 1440,
+      "visible": [
+        {
+          "tag": "SPAN",
+          "text": "Cuebook",
+          "top": 26,
+          "bottom": 46
+        },
+        {
+          "tag": "A",
+          "text": "Demo",
+          "top": 14,
+          "bottom": 58
+        },
+        {
+          "tag": "A",
+          "text": "Privacy",
+          "top": 14,
+          "bottom": 58
+        },
+        {
+          "tag": "A",
+          "text": "Terms",
+          "top": 14,
+          "bottom": 58
+        },
+        {
+          "tag": "SPAN",
+          "text": "Saved locally",
+          "top": 26,
+          "bottom": 45
+        },
+        {
+          "tag": "P",
+          "text": "Private visual rehearsal",
+          "top": 172,
+          "bottom": 188
+        },
+        {
+          "tag": "H1",
+          "text": "Build repeatable visual cues for your track.",
+          "top": 196,
+          "bottom": 495
+        },
+        {
+          "tag": "P",
+          "text": "For DJs, VJs, and educators who need repeatable scene changes from their own track.",
+          "top": 519,
+          "bottom": 583
+        },
+        {
+          "tag": "A",
+          "text": "Try it with sample data",
+          "top": 615,
+          "bottom": 665
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Import a cue file",
+          "top": 677,
+          "bottom": 727
+        },
+        {
+          "tag": "P",
+          "text": "Opens a 12-second rehearsal with five editable cues. Your saved set stays unchanged.",
+          "top": 737,
+          "bottom": 779
+        },
+        {
+          "tag": "LI",
+          "text": "Your track stays in this browser.",
+          "top": 801,
+          "bottom": 822
+        },
+        {
+          "tag": "LI",
+          "text": "Saved sets work offline.",
+          "top": 801,
+          "bottom": 822
+        },
+        {
+          "tag": "LI",
+          "text": "All rehearsal tools are free.",
+          "top": 830,
+          "bottom": 851
+        },
+        {
+          "tag": "FIGCAPTION",
+          "text": "Five saved cues trigger repeatable scene changes.",
+          "top": 693,
+          "bottom": 734
+        }
+      ]
+    }
+  },
+  "demo": {
+    "mobile": {
+      "url": "https://visualizer-cuebook.sociobot.in/?demo=1",
+      "title": "Demo — Cuebook",
+      "h1": [
+        "Build repeatable visual cues for your track."
+      ],
+      "banner": "Demo — sample data, nothing is saved\nReset demo\nStart for real",
+      "saveState": "Demo changes reset on reload",
+      "projectTitleAfterReset": "Neon classroom rehearsal",
+      "cueCount": 5,
+      "duration": "0:12.000",
+      "beforePlay": "0:00.000",
+      "afterPlay": "0:00.709",
+      "playLabel": "Pause",
+      "firstViewportText": [
+        "Cuebook",
+        "Demo — sample data, nothing is saved",
+        "Reset demo",
+        "Start for real",
+        "Build repeatable visual cues for your track.",
+        "Current set",
+        "sample-beacon-rhythm.wav",
+        "·",
+        "0:12.000",
+        "Start a new set",
+        "Contour",
+        "0:00.000 · Opening contour",
+        "Contour at 0:00.000. Opening contour",
+        "Ⅱ",
+        "0:00.000",
+        "/",
+        "0:12.000",
+        "Track position",
+        "Record rehearsal",
+        "Demo reset to the five sample cues."
+      ]
+    },
+    "desktop": {
+      "url": "https://visualizer-cuebook.sociobot.in/?demo=1",
+      "title": "Demo — Cuebook",
+      "h1": [
+        "Build repeatable visual cues for your track."
+      ],
+      "banner": "Demo — sample data, nothing is saved\nReset demo\nStart for real",
+      "saveState": "Demo changes reset on reload",
+      "projectTitleAfterReset": "Neon classroom rehearsal",
+      "cueCount": 5,
+      "duration": "0:12.000",
+      "beforePlay": "0:00.000",
+      "afterPlay": "0:00.677",
+      "playLabel": "Pause",
+      "firstViewportText": [
+        "Cuebook",
+        "Demo",
+        "Privacy",
+        "Terms",
+        "Demo changes reset on reload",
+        "Demo — sample data, nothing is saved",
+        "Reset demo",
+        "Start for real",
+        "sample-beacon-rhythm.wav",
+        "·",
+        "0:12.000",
+        "Start a new set",
+        "Contour",
+        "0:00.000 · Opening contour",
+        "Contour at 0:00.000. Opening contour",
+        "Ⅱ",
+        "0:00.000",
+        "/",
+        "0:12.000",
+        "Track position",
+        "Record rehearsal",
+        "Demo reset to the five sample cues."
+      ]
+    }
+  },
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "location": null,
+      "type": "text/html"
+    },
+    {
+      "path": "/demo",
+      "status": 200,
+      "location": null,
+      "type": "text/html"
+    },
+    {
+      "path": "/demo/",
+      "status": 200,
+      "location": null,
+      "type": "text/html"
+    },
+    {
+      "path": "/privacy/",
+      "status": 200,
+      "location": null,
+      "type": "text/html"
+    },
+    {
+      "path": "/terms/",
+      "status": 200,
+      "location": null,
+      "type": "text/html"
+    },
+    {
+      "path": "/offline.html",
+      "status": 200,
+      "location": null,
+      "type": "text/html"
+    },
+    {
+      "path": "/does-not-exist",
+      "status": 404,
+      "location": null,
+      "type": "text/html"
+    },
+    {
+      "path": "/demo/nope",
+      "status": 404,
+      "location": null,
+      "type": "text/html"
+    },
+    {
+      "path": "/demo-extra",
+      "status": 404,
+      "location": null,
+      "type": "text/html"
+    },
+    {
+      "path": "/demonstration",
+      "status": 404,
+      "location": null,
+      "type": "text/html"
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "location": null,
+      "type": "text/plain"
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "location": null,
+      "type": "text/xml"
+    },
+    {
+      "path": "/manifest.webmanifest",
+      "status": 200,
+      "location": null,
+      "type": "application/manifest+json"
+    },
+    {
+      "path": "/icons/favicon.svg",
+      "status": 200,
+      "location": null,
+      "type": "image/svg+xml"
+    },
+    {
+      "path": "/icons/apple-touch-icon.svg",
+      "status": 200,
+      "location": null,
+      "type": "image/svg+xml"
+    },
+    {
+      "path": "/assets/cuebook-social.webp",
+      "status": 200,
+      "location": null,
+      "type": "image/webp"
+    }
+  ],
+  "requests": [
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/",
+      "resourceType": "document"
+    },
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/app-CdYkaXhR.js",
+      "resourceType": "script"
+    },
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "resourceType": "script"
+    },
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/app-C-R8dMgH.css",
+      "resourceType": "stylesheet"
+    },
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+      "resourceType": "font"
+    },
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/cue-landscape-720.webp",
+      "resourceType": "image"
+    },
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/?demo=1",
+      "resourceType": "document"
+    },
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/app-CdYkaXhR.js",
+      "resourceType": "script"
+    },
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "resourceType": "script"
+    },
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/app-C-R8dMgH.css",
+      "resourceType": "stylesheet"
+    },
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+      "resourceType": "font"
+    },
+    {
+      "viewport": "mobile",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/cue-landscape-720.webp",
+      "resourceType": "image"
+    },
+    {
+      "viewport": "mobile",
+      "url": "blob:https://visualizer-cuebook.sociobot.in/9c9d28f5-db5a-45f1-ab31-ab6f07601684",
+      "resourceType": "media"
+    },
+    {
+      "viewport": "mobile",
+      "url": "blob:https://visualizer-cuebook.sociobot.in/9c9d28f5-db5a-45f1-ab31-ab6f07601684",
+      "resourceType": "media"
+    },
+    {
+      "viewport": "mobile",
+      "url": "blob:https://visualizer-cuebook.sociobot.in/c006f5f1-7870-45e6-a410-39af278045e6",
+      "resourceType": "media"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/",
+      "resourceType": "document"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/app-CdYkaXhR.js",
+      "resourceType": "script"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "resourceType": "script"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/app-C-R8dMgH.css",
+      "resourceType": "stylesheet"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+      "resourceType": "font"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+      "resourceType": "image"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/?demo=1",
+      "resourceType": "document"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/app-CdYkaXhR.js",
+      "resourceType": "script"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "resourceType": "script"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/app-C-R8dMgH.css",
+      "resourceType": "stylesheet"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+      "resourceType": "font"
+    },
+    {
+      "viewport": "desktop",
+      "url": "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+      "resourceType": "image"
+    },
+    {
+      "viewport": "desktop",
+      "url": "blob:https://visualizer-cuebook.sociobot.in/e75cca8a-d07a-46cf-b65e-c81803318dca",
+      "resourceType": "media"
+    },
+    {
+      "viewport": "desktop",
+      "url": "blob:https://visualizer-cuebook.sociobot.in/e75cca8a-d07a-46cf-b65e-c81803318dca",
+      "resourceType": "media"
+    },
+    {
+      "viewport": "desktop",
+      "url": "blob:https://visualizer-cuebook.sociobot.in/43353f56-92e2-48de-a8d0-1ccb3d1aca86",
+      "resourceType": "media"
+    }
+  ],
+  "console": [],
+  "axe": [
+    {
+      "route": "/",
+      "viewport": "mobile",
+      "violations": []
+    },
+    {
+      "route": "/?demo=1",
+      "viewport": "mobile",
+      "violations": []
+    },
+    {
+      "route": "/",
+      "viewport": "desktop",
+      "violations": []
+    },
+    {
+      "route": "/?demo=1",
+      "viewport": "desktop",
+      "violations": []
+    }
+  ]
+}

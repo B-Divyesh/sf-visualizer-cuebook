@@ -1,0 +1,242 @@
+{
+  "routes": [
+    {
+      "route": "/",
+      "status": 200,
+      "title": "Cuebook — visual cues for your track",
+      "description": "Build repeatable visual cues for your track in this private, offline rehearsal tool.",
+      "canonical": "https://visualizer-cuebook.sociobot.in/",
+      "ogTitle": "Cuebook — visual cues for your track",
+      "ogImage": "https://visualizer-cuebook.sociobot.in/assets/cuebook-social.webp",
+      "h1": [
+        {
+          "text": "Build repeatable visual cues for your track.",
+          "visible": true
+        }
+      ],
+      "active": "H1:Build repeatable visual cues for your track.",
+      "links": [
+        "https://visualizer-cuebook.sociobot.in/#main",
+        "https://visualizer-cuebook.sociobot.in/",
+        "https://visualizer-cuebook.sociobot.in/?demo=1",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/",
+        "https://visualizer-cuebook.sociobot.in/",
+        "https://visualizer-cuebook.sociobot.in/?demo=1",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/"
+      ],
+      "mobileNavDisplay": "none",
+      "reducedMotion": false,
+      "axe": []
+    },
+    {
+      "route": "/demo/",
+      "status": 200,
+      "title": "Demo — Cuebook",
+      "description": "Build repeatable visual cues for your track in this private, offline rehearsal tool.",
+      "canonical": "https://visualizer-cuebook.sociobot.in/demo/",
+      "ogTitle": "Demo — Cuebook",
+      "ogImage": "https://visualizer-cuebook.sociobot.in/assets/cuebook-social.webp",
+      "h1": [
+        {
+          "text": "Build repeatable visual cues for your track.",
+          "visible": true
+        }
+      ],
+      "active": "H1:Build repeatable visual cues for your track.",
+      "links": [
+        "https://visualizer-cuebook.sociobot.in/demo/#main",
+        "https://visualizer-cuebook.sociobot.in/",
+        "https://visualizer-cuebook.sociobot.in/?demo=1",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/",
+        "https://visualizer-cuebook.sociobot.in/",
+        "https://visualizer-cuebook.sociobot.in/?demo=1",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/"
+      ],
+      "mobileNavDisplay": "none",
+      "reducedMotion": false,
+      "axe": []
+    },
+    {
+      "route": "/privacy/",
+      "status": 200,
+      "title": "Privacy — Cuebook",
+      "description": "How Cuebook keeps your track and set in this browser.",
+      "canonical": "https://visualizer-cuebook.sociobot.in/privacy/",
+      "ogTitle": "Privacy — Cuebook",
+      "ogImage": "https://visualizer-cuebook.sociobot.in/assets/cuebook-social.webp",
+      "h1": [
+        {
+          "text": "Privacy",
+          "visible": true
+        }
+      ],
+      "active": "H1:Privacy",
+      "links": [
+        "https://visualizer-cuebook.sociobot.in/privacy/#main",
+        "https://visualizer-cuebook.sociobot.in/",
+        "https://visualizer-cuebook.sociobot.in/?demo=1",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/",
+        "mailto:privacy@sociobot.in",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/"
+      ],
+      "mobileNavDisplay": "flex",
+      "reducedMotion": false,
+      "axe": []
+    },
+    {
+      "route": "/terms/",
+      "status": 200,
+      "title": "Terms — Cuebook",
+      "description": "Terms for using Cuebook to rehearse visual changes against your track.",
+      "canonical": "https://visualizer-cuebook.sociobot.in/terms/",
+      "ogTitle": "Terms — Cuebook",
+      "ogImage": "https://visualizer-cuebook.sociobot.in/assets/cuebook-social.webp",
+      "h1": [
+        {
+          "text": "Terms of use",
+          "visible": true
+        }
+      ],
+      "active": "H1:Terms of use",
+      "links": [
+        "https://visualizer-cuebook.sociobot.in/terms/#main",
+        "https://visualizer-cuebook.sociobot.in/",
+        "https://visualizer-cuebook.sociobot.in/?demo=1",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/",
+        "mailto:support@sociobot.in",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/"
+      ],
+      "mobileNavDisplay": "flex",
+      "reducedMotion": false,
+      "axe": []
+    },
+    {
+      "route": "/offline.html",
+      "status": 200,
+      "title": "Offline setup — Cuebook",
+      "description": "Reconnect once to finish Cuebook offline setup.",
+      "canonical": "https://visualizer-cuebook.sociobot.in/offline.html",
+      "ogTitle": "Offline setup — Cuebook",
+      "ogImage": "https://visualizer-cuebook.sociobot.in/assets/cuebook-social.webp",
+      "h1": [
+        {
+          "text": "Reconnect once to finish offline setup",
+          "visible": true
+        }
+      ],
+      "active": "H1:Reconnect once to finish offline setup",
+      "links": [
+        "https://visualizer-cuebook.sociobot.in/offline.html#main",
+        "https://visualizer-cuebook.sociobot.in/",
+        "https://visualizer-cuebook.sociobot.in/?demo=1",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/",
+        "https://visualizer-cuebook.sociobot.in/",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/"
+      ],
+      "mobileNavDisplay": "flex",
+      "reducedMotion": false,
+      "axe": []
+    },
+    {
+      "route": "/missing-review-4",
+      "status": 404,
+      "title": "Page not found — Cuebook",
+      "description": "The requested Cuebook page was not found.",
+      "canonical": "https://visualizer-cuebook.sociobot.in/404",
+      "ogTitle": "Page not found — Cuebook",
+      "ogImage": "https://visualizer-cuebook.sociobot.in/assets/cuebook-social.webp",
+      "h1": [
+        {
+          "text": "Page not found",
+          "visible": true
+        }
+      ],
+      "active": "H1:Page not found",
+      "links": [
+        "https://visualizer-cuebook.sociobot.in/missing-review-4#main",
+        "https://visualizer-cuebook.sociobot.in/",
+        "https://visualizer-cuebook.sociobot.in/?demo=1",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/",
+        "https://visualizer-cuebook.sociobot.in/",
+        "https://visualizer-cuebook.sociobot.in/privacy/",
+        "https://visualizer-cuebook.sociobot.in/terms/"
+      ],
+      "mobileNavDisplay": "flex",
+      "reducedMotion": false,
+      "axe": []
+    }
+  ],
+  "linkResults": [
+    {
+      "link": "https://visualizer-cuebook.sociobot.in/#main",
+      "explicit": true
+    },
+    {
+      "link": "https://visualizer-cuebook.sociobot.in/",
+      "status": 200
+    },
+    {
+      "link": "https://visualizer-cuebook.sociobot.in/?demo=1",
+      "status": 200
+    },
+    {
+      "link": "https://visualizer-cuebook.sociobot.in/privacy/",
+      "status": 200
+    },
+    {
+      "link": "https://visualizer-cuebook.sociobot.in/terms/",
+      "status": 200
+    },
+    {
+      "link": "https://visualizer-cuebook.sociobot.in/demo/#main",
+      "explicit": true
+    },
+    {
+      "link": "https://visualizer-cuebook.sociobot.in/privacy/#main",
+      "explicit": true
+    },
+    {
+      "link": "mailto:privacy@sociobot.in",
+      "explicit": true
+    },
+    {
+      "link": "https://visualizer-cuebook.sociobot.in/terms/#main",
+      "explicit": true
+    },
+    {
+      "link": "mailto:support@sociobot.in",
+      "explicit": true
+    },
+    {
+      "link": "https://visualizer-cuebook.sociobot.in/offline.html#main",
+      "explicit": true
+    },
+    {
+      "link": "https://visualizer-cuebook.sociobot.in/missing-review-4#main",
+      "explicit": true
+    }
+  ],
+  "reduced": {
+    "media": true,
+    "transition": "1e-05s",
+    "heroTransform": "none"
+  },
+  "back": {
+    "url": "https://visualizer-cuebook.sociobot.in/",
+    "title": "Cuebook — visual cues for your track",
+    "focused": "H1:Build repeatable visual cues for your track."
+  }
+}
