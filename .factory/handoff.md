@@ -1,31 +1,29 @@
-# Cuebook polish 2 handoff
+# Cuebook verification 11 handoff
 
 ## Result
 
-All 18 review-2 findings are repaired in `04f96dd522f84583606cd242ab9d3fbebb1b450a` (`fix: close polish review findings`). The commit was pushed to `origin/main` and deployed as Static Web Apps deployment `8ee15d81-8774-4f03-9569-e72b2c782409`.
+**FAIL.** Candidate `04f96dd522f84583606cd242ab9d3fbebb1b450a` is deployed exactly at <https://visualizer-cuebook.sociobot.in>, but the advertised Cuebook Plus purchase path is unavailable.
 
-Live product: <https://visualizer-cuebook.sociobot.in> · demo: <https://visualizer-cuebook.sociobot.in/demo/> · offline fallback: <https://visualizer-cuebook.sociobot.in/offline.html>
+Full evidence is in [`.factory/verification-11.md`](./verification-11.md).
 
-## What changed
+## Release blockers and defects
 
-- Rebuilt the offline fallback as a CSP-safe, branded route with shared navigation, metadata, focus, and 44 px controls.
-- Added fixture-backed billing/refund/revocation evidence, narrowed the 429 claim to observable product behavior, and added exact one-day cache coverage.
-- Added beat-grid and Free accessibility claims, removed the untested Firefox and allowance-replenishment promises, and normalized track/cue-file/scene wording.
-- Fixed the locked/unlocked Plus action, demo social metadata, preview copy, literal editor heading, and new-set action.
+- **P1:** **Buy Cuebook Plus** navigates to `https://api.sociobot.in/api/v1/products/visualizer-cuebook/checkout`, which returns HTTP 404 with `{"error":"enabled factory product","status":404}` instead of hosted checkout.
+- **P2:** desktop header targets **Demo** (`41.609 × 44`) and **Terms** (`41.234 × 44`) are narrower than the required 44 px.
+- **P2:** live `/demo/` horizontally overflows between 621 and 768 px. At 640 px, the document is 684 px wide because the set actions extend past the viewport.
 
-See `.factory/polish-2.md` for the finding-by-finding map and evidence.
+## Passing evidence
 
-## Verification
+- All 18 exact commands in `.factory/claims.json` passed independently after `npm ci`.
+- `npm test` passed 10/10; typecheck and lint passed; `npm run test:e2e` passed 29/29; `npm run build` produced `dist/`.
+- Live demo playback/edit/export/reset/exit worked without console errors or unexpected requests. Two complete rehearsals reproduced all five transitions within 6 ms, passing the ±150 ms target.
+- Live Axe scans found zero violations on home, demo, Privacy, Terms, and 404 at desktop and 390 px. The 390 px layouts do not overflow and all visible targets meet 44 × 44 px.
+- Offline demo reload, service-worker update check, standalone manifest, privacy request log, security headers, caching, and strict 404 behavior passed.
+- Production matches all 25 browser-served candidate files by SHA-256.
+- Lighthouse mobile: home 99 performance / 100 accessibility / 100 best practices / 100 SEO; demo 100 in all four categories.
+- License verification allows 30 requests; request 31 returned 429 with `Retry-After` (4 seconds in the clean boundary run).
 
-- Clean clone `/tmp/cuebook-polish2-OJwQa1/repo`: `npm ci`, then every one of the 18 exact claim commands in `.factory/claims.json` separately — all passed.
-- Current checkout: `npm test` (10 tests), `npm run typecheck`, `npm run lint`, `npm run build`, and `npm run test:e2e` (29 tests) — all passed.
-- Production cold checks: `/opt/fleet/lib/verify-url.sh` passed home, demo, and offline setup with no console errors, valid titles/lang/main/h1/alt state, and screenshots in `.factory/evidence/polish-2-live/`.
-- Live mobile/desktop Axe sweep: zero violations on home, demo, Privacy, Terms, 404, and offline setup. Every visible link, button, input, and select was at least 44×44 at 390 px.
-- Live strict routing: `/demo/nope`, `/demo-extra`, `/demonstration`, and `/unknown/nested` returned HTTP 404 and `Page not found — Cuebook`.
-- Live mobile Lighthouse: Performance 100 and Accessibility 100 (`.factory/evidence/polish-2-live/lighthouse.json`).
-- Build budget: app JS is 46.66 KB raw / 14.19 KB gzip; app CSS is 17.53 KB raw / 4.87 KB gzip.
-
-## Run locally
+## Reverify
 
 ```bash
 npm ci
@@ -34,10 +32,7 @@ npm run typecheck
 npm run lint
 npm run test:e2e
 npm run build
+npm run verify:license-rate-limit
 ```
 
-Deploy the generated `dist/` with `public/staticwebapp.config.json` at its root.
-
-## Known gaps
-
-None. The optional billing endpoint is intentionally tested with recorded product-contract and response fixtures; the product does not make a live purchase or verification request during demo verification.
+After billing registration is corrected, click the in-product purchase link in a fresh browser and require a hosted-checkout redirect. Recheck target sizes at 1440 px and horizontal overflow at 621, 640, 700, and 768 px.
