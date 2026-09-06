@@ -1,0 +1,4 @@
+
+> visualizer-cuebook@1.0.12 typecheck
+> tsc --noEmit
+

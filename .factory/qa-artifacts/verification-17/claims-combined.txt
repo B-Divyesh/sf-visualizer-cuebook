@@ -1,0 +1,12 @@
+
+> visualizer-cuebook@1.0.12 test:claims
+> playwright test --grep @claim:
+
+[WebServer] (node:6245) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 22 tests using 1 worker
+······················
+  22 passed (49.7s)

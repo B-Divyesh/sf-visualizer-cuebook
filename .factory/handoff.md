@@ -68,3 +68,13 @@ npm run test:e2e
 npm run test:e2e -- --grep @claim:deterministic-scenes --repeat-each=5
 npm run test:claims
 ```
+
+## Independent verification 17
+
+**Verdict: PASS — zero findings and zero untested claims.**
+
+Verification 17 independently reviewed implementation `35910c82d1880b87ff0bc6be97127c5d60dc8a56`; the documentation baseline was `6695a7aa5120a1a645b002564e343ad464717087`. From a clean `npm ci` setup, unit tests (10), typecheck, lint, build, the full browser suite (38/38), all 22 declared claim commands, the combined 22-claim run, and deterministic-scenes five-repeat run passed.
+
+Fresh live desktop and phone contexts confirmed the first-screen job, audience, and sample action; populated demo, reset, persistent demo label, real-data isolation, invalid-input recovery, keyboard/focus behavior, offline reload, service-worker update, routes, legal pages, designed 404, and same-origin-only requests. Axe, the URL verifier, console/page-error checks, reduced motion, no-overflow checks, and live/local asset parity passed. The implementation is test-only; `assets/app-CFB2VUvS.js` remains SHA-256 `87241799e7af4ee962d5977ca6b03f8a27effb9cd924aa97470439b9ab7733eb` locally and live.
+
+The full evidence is [verification-17.md](./verification-17.md), with command outputs and screenshots in `qa-artifacts/verification-17/`. There are no known gaps within the researched brief. The static product has no backend, account, billing, license, or API; tenant, health, restart, allowance, and 429 checks do not apply.

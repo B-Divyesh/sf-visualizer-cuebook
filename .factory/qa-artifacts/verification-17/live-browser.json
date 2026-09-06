@@ -1,0 +1,148 @@
+{
+  "origin": "https://visualizer-cuebook.sociobot.in",
+  "checks": {
+    "desktopFirstRead": {
+      "scrollY": 0,
+      "h": "Build repeatable visual cues for your track.",
+      "desc": "For DJs, VJs, and educators who need repeatable scene changes from their own track.",
+      "actionText": "Try it with sample data",
+      "actionVisible": true,
+      "facts": []
+    },
+    "axeHome": [],
+    "desktopDemo": {
+      "title": "Demo — Cuebook",
+      "h1": "Rehearse five sample visual cues.",
+      "cueCount": 5,
+      "banner": "Demo — sample data, nothing is savedReset demoStart for real",
+      "duration": "0:12.000",
+      "scrollY": 0,
+      "bannerVisible": true
+    },
+    "demoReset": {
+      "note": "Opening contour",
+      "cueCount": 5
+    },
+    "realDataIsolation": {
+      "before": {
+        "title": "verifier-real",
+        "audioName": "verifier-real.wav",
+        "duration": 3,
+        "audioBytes": 48044,
+        "cues": [
+          {
+            "time": 0.5,
+            "scene": "contour",
+            "note": "Real verifier cue",
+            "beat": 2
+          }
+        ]
+      },
+      "after": {
+        "title": "verifier-real",
+        "audioName": "verifier-real.wav",
+        "duration": 3,
+        "audioBytes": 48044,
+        "cues": [
+          {
+            "time": 0.5,
+            "scene": "contour",
+            "note": "Real verifier cue",
+            "beat": 2
+          }
+        ]
+      },
+      "equal": true
+    },
+    "boundaryRecovery": {
+      "bpm": "20",
+      "offset": "0",
+      "toast": "Timing adjusted: BPM is 20–300 and Beat 1 offset cannot be negative."
+    },
+    "keyboardMark": {
+      "cueCount": 1
+    },
+    "skipLink": {
+      "activeId": "main"
+    },
+    "serviceWorker": {
+      "controlled": true,
+      "active": true,
+      "caches": [
+        "cuebook-v1.0.12-shell",
+        "cuebook-v1.0.12-runtime"
+      ]
+    },
+    "liveOffline": {
+      "banner": "↯ Offline and ready. Your saved set is on this device.",
+      "cueCount": 2
+    },
+    "realRequests": [
+      "https://visualizer-cuebook.sociobot.in/",
+      "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+      "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+      "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+      "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+      "blob:https://visualizer-cuebook.sociobot.in/ce0cb61a-b6db-4b0e-bb32-1d8d93928274",
+      "blob:https://visualizer-cuebook.sociobot.in/3279f1ef-719f-4954-a87e-c8ab6814fa74",
+      "https://visualizer-cuebook.sociobot.in/?demo=1",
+      "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+      "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+      "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+      "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+      "blob:https://visualizer-cuebook.sociobot.in/5dd03d12-4aa9-42ee-b922-cb3287409662",
+      "blob:https://visualizer-cuebook.sociobot.in/e458a780-a013-47af-a51e-87fc656c8876",
+      "https://visualizer-cuebook.sociobot.in/",
+      "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+      "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+      "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+      "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+      "blob:https://visualizer-cuebook.sociobot.in/604c0cb3-6082-4678-80bf-5e6615407238",
+      "https://visualizer-cuebook.sociobot.in/",
+      "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+      "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+      "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+      "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+      "blob:https://visualizer-cuebook.sociobot.in/ccc9b1ee-180a-41fa-b2f8-0ede91b20ed7",
+      "https://visualizer-cuebook.sociobot.in/",
+      "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+      "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+      "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+      "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+      "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+      "blob:https://visualizer-cuebook.sociobot.in/3b5a072e-ff72-4332-9197-639612e6dab1"
+    ],
+    "axePhone": [],
+    "phoneDemo": {
+      "width": 390,
+      "scrollWidth": 390,
+      "h1": "Rehearse five sample visual cues.",
+      "cueCount": 5,
+      "animations": 0,
+      "bannerVisible": true
+    }
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "requests": [
+    "https://visualizer-cuebook.sociobot.in/",
+    "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+    "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+    "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+    "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+    "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+    "https://visualizer-cuebook.sociobot.in/?demo=1",
+    "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+    "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+    "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+    "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+    "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+    "blob:https://visualizer-cuebook.sociobot.in/aa165a45-9808-40da-9ff5-8e80411b74cd",
+    "blob:https://visualizer-cuebook.sociobot.in/3773e99b-88b9-421e-9856-4aaa438abab0"
+  ],
+  "requestAllowlistOnly": true
+}

@@ -1,0 +1,76 @@
+.factory/review-1.md:23:### Blocking
+.factory/review-1.md:53:### Major
+.factory/review-1.md:181:### Minor
+.factory/review-1.md:277:### Landing and Plus dialog
+.factory/review-1.md:307:### README
+.factory/review-1.md:351:### Terminology table
+.factory/review-3.md:23:### Blocking
+.factory/review-3.md:32:### Major
+.factory/review-3.md:69:### Minor
+.factory/review-3.md:123:### Landing page
+.factory/review-3.md:171:### README
+.factory/review-3.md:217:### Terminology
+.factory/review-3.md:275:### Review 1
+.factory/review-3.md:317:### Review 2
+.factory/review-5.md:21:### Major
+.factory/review-5.md:30:### Minor
+.factory/review-5.md:59:### Landing page
+.factory/review-5.md:105:### README
+.factory/review-5.md:152:### Terminology
+.factory/review-5.md:218:### Review 1
+.factory/review-5.md:260:### Review 2
+.factory/review-5.md:283:### Review 3
+.factory/review-5.md:302:### Review 4
+.factory/verification-10.md:83:### P3 — rate-limit helper is not safe with a partially depleted bucket
+.factory/verification-14.md:15:### First-read test — PASS
+.factory/verification-14.md:25:### Declared claims — 19/19 PASS
+.factory/verification-16.md:19:### P1 — the deterministic-scenes claim test races past cue boundaries
+.factory/verification-16.md:34:### Declared claims
+.factory/verification-16.md:42:### Cold first-read test — PASS
+.factory/verification-3.md:14:### P1 — semantic-invalid cue JSON is reported as imported and leaves an unrehearsable project
+.factory/verification-3.md:26:### P2 — invalid BPM/offset entries are silently clamped in state but remain visibly incorrect
+.factory/verification-3.md:30:### P2 — free-tier import discards a cue without retaining its warning
+.factory/verification-3.md:34:### P2 — content-hashed live assets are revalidated every 30 seconds
+.factory/verification-3.md:38:### P3 — live browser response-policy hardening is incomplete
+.factory/verification-5.md:23:### Claim evidence
+.factory/verification-7.md:7:### P1 — a newly marked cue can be lost on an immediate refresh
+.factory/verification-9.md:9:### P1 — license verification has no documented request allowance
+.factory/verification-9.md:26:### P3 — legal routes show a stale build label
+.factory/verification-15.md:16:### P1 — the real editor is off-screen after a successful track import
+.factory/verification-15.md:45:### First-read test — PASS
+.factory/verification-15.md:55:### Declared claims — 22/22 PASS after clean installation
+.factory/verification-2.md:14:### P1 — Cue JSON import accepts invalid timing and cues outside the loaded audio
+.factory/verification-2.md:24:### P2 — Manual BPM/offset values are silently clamped in state but not corrected in the controls
+.factory/verification-2.md:28:### P2 — Free-tier import truncates a cue without retaining its warning
+.factory/verification-2.md:32:### P2 — Deployed hashed assets are not cacheable as immutable assets
+.factory/verification-2.md:36:### P3 — Browser response-policy hardening is incomplete
+.factory/verification-4.md:14:### P1 — semantically invalid cue JSON is accepted as a successful import
+.factory/verification-4.md:36:### P2 — free-tier cue import silently truncates user work
+.factory/verification-4.md:40:### P2 — BPM/offset range feedback disagrees with the saved model
+.factory/verification-4.md:44:### P2 — live hashed assets do not have immutable caching
+.factory/verification-4.md:48:### P3 — deployment response-policy hardening is incomplete
+.factory/verification-6.md:9:### P1 — rehearsal-recording promise is absent from `.factory/claims.json`
+.factory/verification-8.md:7:### P1 — replacing audio can leave cues beyond the new track and create a cue file that cannot be restored
+.factory/verification-8.md:29:### P2 — cue deletion has no confirmation or undo
+.factory/verification-8.md:35:### P2 — the demo opens partway through retained landing content
+.factory/verification-11.md:9:### P1 — the advertised Cuebook Plus checkout is unavailable
+.factory/verification-11.md:17:### P2 — two desktop navigation targets are narrower than 44 CSS px
+.factory/verification-11.md:24:### P2 — the demo has horizontal overflow from 621–768 px
+.factory/verification-1.md:14:### P0 — live deployment is unavailable and does not match the candidate
+.factory/verification-1.md:24:### P2 — invalid timing values remain visibly wrong after being silently clamped
+.factory/verification-1.md:32:### P3 — free-tier import truncation warning is overwritten immediately
+.factory/review-4.md:23:### Blocking
+.factory/review-4.md:39:### Major
+.factory/review-4.md:69:### Minor
+.factory/review-4.md:82:### Landing page
+.factory/review-4.md:126:### README
+.factory/review-4.md:173:### Terminology
+.factory/review-4.md:233:### Review 1
+.factory/review-4.md:275:### Review 2
+.factory/review-4.md:298:### Review 3
+.factory/review-2.md:23:### Blocking
+.factory/review-2.md:88:### Major
+.factory/review-2.md:125:### Minor
+.factory/review-2.md:156:### Landing and Plus dialog
+.factory/review-2.md:215:### README
+.factory/review-2.md:268:### Terminology table

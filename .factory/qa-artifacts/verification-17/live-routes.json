@@ -1,0 +1,212 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "url": "https://visualizer-cuebook.sociobot.in/",
+      "title": "Cuebook — visual cues for your track",
+      "lang": "en",
+      "h1": [
+        "Build repeatable visual cues for your track."
+      ],
+      "main": true,
+      "canonical": "https://visualizer-cuebook.sociobot.in/",
+      "description": "Build repeatable visual cues for your track in this private, offline rehearsal tool.",
+      "links": [
+        "#main",
+        "/",
+        "/?demo=1",
+        "/privacy/",
+        "/terms/",
+        "/",
+        "/?demo=1",
+        "/privacy/",
+        "/privacy/",
+        "/terms/"
+      ]
+    },
+    {
+      "path": "/?demo=1",
+      "status": 200,
+      "url": "https://visualizer-cuebook.sociobot.in/?demo=1",
+      "title": "Demo — Cuebook",
+      "lang": "en",
+      "h1": [
+        "Rehearse five sample visual cues."
+      ],
+      "main": true,
+      "canonical": "https://visualizer-cuebook.sociobot.in/demo/",
+      "description": "Try a 12-second Cuebook rehearsal with five editable sample cues.",
+      "links": [
+        "#main",
+        "/",
+        "/?demo=1",
+        "/privacy/",
+        "/terms/",
+        "/",
+        "/?demo=1",
+        "/privacy/",
+        "/privacy/",
+        "/terms/"
+      ]
+    },
+    {
+      "path": "/demo/",
+      "status": 200,
+      "url": "https://visualizer-cuebook.sociobot.in/demo/",
+      "title": "Demo — Cuebook",
+      "lang": "en",
+      "h1": [
+        "Rehearse five sample visual cues."
+      ],
+      "main": true,
+      "canonical": "https://visualizer-cuebook.sociobot.in/demo/",
+      "description": "Try a 12-second Cuebook rehearsal with five editable sample cues.",
+      "links": [
+        "#main",
+        "/",
+        "/?demo=1",
+        "/privacy/",
+        "/terms/",
+        "/",
+        "/?demo=1",
+        "/privacy/",
+        "/privacy/",
+        "/terms/"
+      ]
+    },
+    {
+      "path": "/privacy/",
+      "status": 200,
+      "url": "https://visualizer-cuebook.sociobot.in/privacy/",
+      "title": "Privacy — Cuebook",
+      "lang": "en",
+      "h1": [
+        "Privacy"
+      ],
+      "main": true,
+      "canonical": "https://visualizer-cuebook.sociobot.in/privacy/",
+      "description": "How Cuebook keeps your track and set in this browser.",
+      "links": [
+        "#main",
+        "/",
+        "/?demo=1",
+        "/privacy/",
+        "/terms/",
+        "mailto:privacy@sociobot.in",
+        "/privacy/",
+        "/terms/"
+      ]
+    },
+    {
+      "path": "/terms/",
+      "status": 200,
+      "url": "https://visualizer-cuebook.sociobot.in/terms/",
+      "title": "Terms — Cuebook",
+      "lang": "en",
+      "h1": [
+        "Terms of use"
+      ],
+      "main": true,
+      "canonical": "https://visualizer-cuebook.sociobot.in/terms/",
+      "description": "Terms for using Cuebook to rehearse visual changes against your track.",
+      "links": [
+        "#main",
+        "/",
+        "/?demo=1",
+        "/privacy/",
+        "/terms/",
+        "mailto:support@sociobot.in",
+        "/privacy/",
+        "/terms/"
+      ]
+    },
+    {
+      "path": "/offline.html",
+      "status": 200,
+      "url": "https://visualizer-cuebook.sociobot.in/offline.html",
+      "title": "Offline setup — Cuebook",
+      "lang": "en",
+      "h1": [
+        "Reconnect once to finish offline setup"
+      ],
+      "main": true,
+      "canonical": "https://visualizer-cuebook.sociobot.in/offline.html",
+      "description": "Reconnect once to finish Cuebook offline setup.",
+      "links": [
+        "#main",
+        "/",
+        "/?demo=1",
+        "/privacy/",
+        "/terms/",
+        "/",
+        "/privacy/",
+        "/terms/"
+      ]
+    },
+    {
+      "path": "/404.html",
+      "status": 200,
+      "url": "https://visualizer-cuebook.sociobot.in/404.html",
+      "title": "Page not found — Cuebook",
+      "lang": "en",
+      "h1": [
+        "Page not found"
+      ],
+      "main": true,
+      "canonical": "https://visualizer-cuebook.sociobot.in/404",
+      "description": "The requested Cuebook page was not found.",
+      "links": [
+        "#main",
+        "/",
+        "/?demo=1",
+        "/privacy/",
+        "/terms/",
+        "/",
+        "/privacy/",
+        "/terms/"
+      ]
+    },
+    {
+      "path": "/not-a-cuebook-route",
+      "status": 404,
+      "url": "https://visualizer-cuebook.sociobot.in/not-a-cuebook-route",
+      "title": "Page not found — Cuebook",
+      "lang": "en",
+      "h1": [
+        "Page not found"
+      ],
+      "main": true,
+      "canonical": "https://visualizer-cuebook.sociobot.in/404",
+      "description": "The requested Cuebook page was not found.",
+      "links": [
+        "#main",
+        "/",
+        "/?demo=1",
+        "/privacy/",
+        "/terms/",
+        "/",
+        "/privacy/",
+        "/terms/"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "href": "/",
+      "status": 200
+    },
+    {
+      "href": "/?demo=1",
+      "status": 200
+    },
+    {
+      "href": "/privacy/",
+      "status": 200
+    },
+    {
+      "href": "/terms/",
+      "status": 200
+    }
+  ]
+}
