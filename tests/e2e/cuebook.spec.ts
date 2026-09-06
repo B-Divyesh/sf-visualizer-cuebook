@@ -77,6 +77,53 @@ async function exportCueFile(page: Page): Promise<void> {
   expect(download.suggestedFilename()).toMatch(/\.cuebook\.json$/);
 }
 
+async function playAndPauseAt(page: Page, targetTime: number): Promise<number> {
+  await page.locator('#audio').evaluate((audio, target) => {
+    const media = audio as HTMLAudioElement;
+    let settled = false;
+    let frame = 0;
+    let timeout = 0;
+    let resolvePause!: (time: number) => void;
+    let rejectPause!: (error: Error) => void;
+    const cleanup = () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(timeout);
+      media.removeEventListener('timeupdate', observe);
+    };
+    const stop = () => {
+      if (settled || media.currentTime < target) return;
+      settled = true;
+      cleanup();
+      media.pause();
+      resolvePause(media.currentTime);
+    };
+    const observe = () => {
+      stop();
+      if (!settled) frame = requestAnimationFrame(observe);
+    };
+
+    (window as Window & { cuebookPauseAt?: Promise<number> }).cuebookPauseAt = new Promise<number>((resolve, reject) => {
+      resolvePause = resolve;
+      rejectPause = reject;
+      media.addEventListener('timeupdate', observe);
+      frame = requestAnimationFrame(observe);
+      timeout = window.setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        rejectPause(new Error(`Playback did not reach ${target.toFixed(3)} seconds.`));
+      }, 10_000);
+    });
+  }, targetTime);
+
+  await page.getByRole('button', { name: 'Play' }).click();
+  return page.evaluate(async () => {
+    const testWindow = window as Window & { cuebookPauseAt?: Promise<number> };
+    if (!testWindow.cuebookPauseAt) throw new Error('Playback observer was not installed.');
+    return await testWindow.cuebookPauseAt;
+  });
+}
+
 function assertProductOnlyRequests(requests: string[]): void {
   expect(requests.filter((url) => !url.startsWith('http://127.0.0.1:4173') && !url.startsWith('blob:'))).toEqual([]);
 }
@@ -687,19 +734,18 @@ test('@claim:deterministic-scenes activates saved scenes on cue and renders the 
     }
     return (hash >>> 0).toString(16);
   });
-  await page.locator('#audio').evaluate((audio) => { (audio as HTMLAudioElement).playbackRate = 4; });
-  await page.getByRole('button', { name: 'Play' }).click();
-  await expect.poll(() => page.locator('#audio').evaluate((audio) => (audio as HTMLAudioElement).currentTime)).toBeGreaterThan(2.5);
-  await page.locator('#audio').evaluate((audio) => (audio as HTMLAudioElement).pause());
+  const orbitStopTime = await playAndPauseAt(page, 2.5);
+  expect(orbitStopTime).toBeGreaterThanOrEqual(2.5);
+  expect(orbitStopTime).toBeLessThan(4.8);
   await expect(page.locator('#canvas-scene')).toHaveText('Orbit');
   await expect(page.locator('#canvas-cue')).toContainText('First pulse');
   await page.locator('#audio').evaluate((audio) => {
     (audio as HTMLAudioElement).currentTime = 4.7;
     audio.dispatchEvent(new Event('timeupdate'));
   });
-  await page.getByRole('button', { name: 'Play' }).click();
-  await expect.poll(() => page.locator('#audio').evaluate((audio) => (audio as HTMLAudioElement).currentTime)).toBeGreaterThan(4.9);
-  await page.locator('#audio').evaluate((audio) => (audio as HTMLAudioElement).pause());
+  const shardsStopTime = await playAndPauseAt(page, 4.9);
+  expect(shardsStopTime).toBeGreaterThanOrEqual(4.9);
+  expect(shardsStopTime).toBeLessThan(7.2);
   await expect(page.locator('#canvas-scene')).toHaveText('Shards');
   await expect(page.locator('#canvas-cue')).toContainText('Break into shards');
   const frames = new Map<string, string>();
