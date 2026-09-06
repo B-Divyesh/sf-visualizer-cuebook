@@ -1,33 +1,62 @@
-# Cuebook independent verification 16 handoff — FAIL
+# Cuebook repair 9 handoff — PASS
+
+**Repair commit:** `35910c82d1880b87ff0bc6be97127c5d60dc8a56` (`test: stabilize deterministic scene claim`)
+**Prior QA documentation commit:** `c597d1182f3ed330c8b60eddf060e682f258bbca`
+**Prior runtime candidate:** `b6e898375adac63b6d45f75ed5e258a827ed6c68`
+**Live URL:** <https://visualizer-cuebook.sociobot.in>
 
 ## Outcome
 
-**FAIL — do not release candidate `b6e898375adac63b6d45f75ed5e258a827ed6c68`.** The live deployment matches the candidate and the product works end to end, including the verification 15 editor-visibility repair. Release is blocked because a required claim-tagged browser test fails nondeterministically.
+PASS. Cuebook remains a local-first rehearsal tool for DJs, VJs, and educators. A person can import their own track, add time/beat cues, rehearse Contour, Orbit, and Shards, export a cue file, record where supported, and reopen the set offline.
 
-Defects: **P0 0 · P1 1 · P2 0 · P3 0**.
+The only open finding from verification 16 was repaired at its cause: the `@claim:deterministic-scenes` test set 4× playback, waited only for a lower time bound, then paused in a later operation. Ordinary browser scheduling could cross the next cue before the scene assertion.
 
-## Release blocker
+The claim now installs a page-side media-time observer before pressing **Play**. It pauses inside the intended interval, then asserts the observed stop time is after the target cue and before the next cue. The test still proves real playback crosses the Orbit and Shards cue boundaries, and it still compares canvas frames after returning to each saved time.
 
-`@claim:deterministic-scenes` passed once during the 22-command claims gate, then failed in the complete browser suite. `npm run test:e2e` finished **37/38**. A five-repeat run finished **1/5**: assertions alternated between overshooting Orbit into Shards and failing to reach Shards before observing Orbit.
+## Verification
 
-The test uses 4× playback, waits only for a lower time bound, and pauses in a later browser operation. It can cross the next cue before inspection. Make this required claim check deterministic, then rerun the complete suite and repeated claim check from a clean install.
+From the documented clean setup (`npm ci`):
 
-Full evidence and reproduction details are in [verification-16.md](./verification-16.md).
+| Check | Result |
+| --- | --- |
+| Baseline `@claim:deterministic-scenes --repeat-each=5` | Reproduced failure: 3/5 failed by reaching Shards before the Orbit assertion |
+| Repaired `@claim:deterministic-scenes --repeat-each=5` | PASS, 5/5 |
+| `npm test` | PASS, 10 tests |
+| `npm run typecheck` | PASS |
+| `npm run lint` | PASS |
+| `npm run build` | PASS; `dist/` produced |
+| `npm run test:e2e` | PASS, 38/38 |
+| Every exact command in `.factory/claims.json` | PASS, 22/22 run independently |
+| `npm run test:claims` | PASS, 22/22 |
 
-## What was verified
+Fresh live checks used the product origin only:
 
-- All 22 exact `.factory/claims.json` commands were run separately and initially passed.
-- `npm test`, typecheck, lint, and production build passed.
-- The complete Playwright suite exposed the blocker above.
-- Cold first-read passed on desktop and 390 px mobile with a one-click populated demo.
-- Independent live import, cue creation, persistence, invalid-input recovery, JSON export, WebM recording, deterministic seeks, two rehearsals, keyboard use, and demo reset passed.
-- Axe found no serious/critical issues; 200% text, visible focus, 44 px targets, reduced motion, and 390 px overflow checks passed.
-- All runtime requests stayed same-origin; security headers and caching are correct.
-- The service worker update call and offline reload passed with `cuebook-v1.0.12-shell`.
-- All 25 served runtime files match local `dist/` by SHA-256.
-- Fresh mobile Lighthouse: home 98; demo median 90; accessibility/best-practices/SEO 100.
+- `/`, `/?demo=1`, `/privacy/`, and `/terms/` each passed `/opt/fleet/lib/verify-url.sh`: 200, route title, `lang=en`, one h1, main landmark, alt-complete images, labelled buttons, and no console/page errors.
+- Fresh 1440 px and 390 px browser contexts showed the job, audience, and **Try it with sample data** before scroll. The one-click demo showed its visible route headline, a 12-second track, five cues, Orbit at the first pulse, and the persistent `Demo — sample data, nothing is saved` label with Reset demo and Start for real.
+- A seeded real IndexedDB set with an audio blob and cue was byte-for-byte unchanged after a demo edit, reset, and exit.
+- Live Axe integrations found zero serious or critical findings on desktop home and phone demo. The phone had no overflow at normal or 200% root text size; the demo banner remained above the fifth cue. Reduced motion had zero running document animations.
+- The live real/demo flow made only same-origin and `blob:` requests, with no console errors.
+- `/demo/`, `/offline.html`, `/404.html`, and legal routes return 200; an unknown route returns the designed HTTP 404. The live hashed app asset has one-year immutable caching and the expected self-only CSP, referrer policy, `nosniff`, frame protection, and Permissions Policy.
 
-## Run the verification
+Evidence from this repair is in `.factory/qa-artifacts/repair-9/` and `/work/.evidence/cuebook-repair-9/`.
+
+## Deployment identity
+
+The repair changes browser-test code only; no application runtime source or static artifact changed. The current local app bundle `assets/app-CFB2VUvS.js` SHA-256 is `87241799e7af4ee962d5977ca6b03f8a27effb9cd924aa97470439b9ab7733eb`, which matches the live product. The pushed repair commit is `35910c8`; the live runtime remains the same tested application artifact as the prior candidate, so no new runtime image was needed to fix the verification race.
+
+Previous mobile Lighthouse evidence remains applicable to that unchanged runtime: verification 16 recorded home 98 and demo median 90, with accessibility, best-practices, and SEO at 100. Initial JavaScript remains about 40.2 KB raw / 12.5 KB gzip and CSS 17.6 KB raw / 4.9 KB gzip.
+
+## Earlier findings
+
+The complete verification 1–16 and review 1–5 history was read before this repair. Their fixes remain present and are recorded in `.factory/polish-5.md`; verification 16 rechecked the resulting live workflow, privacy, accessibility, offline behavior, headers, routes, performance, and deployment parity. No earlier P0–P3 or minor finding was reopened. This repair closes the one remaining verification-16 P1 test-race finding.
+
+## Product scope and known gaps
+
+There is no backend, account, payment, license, billing, or external integration in the current product. Backend health, tenant isolation, request allowance, and 429 checks therefore do not apply. All current rehearsal tools are free. No known product gap remains within the researched brief.
+
+The catalog description is the required verb-first line in `.factory/catalog-description.txt` and is copied to `/work/.evidence/catalog-description.txt`.
+
+## Run locally
 
 ```bash
 npm ci
@@ -37,10 +66,5 @@ npm run lint
 npm run build
 npm run test:e2e
 npm run test:e2e -- --grep @claim:deterministic-scenes --repeat-each=5
+npm run test:claims
 ```
-
-Factory URL evidence and screenshots are in [qa-artifacts/verification-16](./qa-artifacts/verification-16/).
-
-## Scope
-
-Only verification documentation and evidence were added. Product code, infrastructure, DNS, billing, secrets, and cloud resources were not changed.
