@@ -1,0 +1,247 @@
+{
+  "desktop": {
+    "firstScreen": {
+      "scrollY": 0,
+      "title": "Cuebook — visual cues for your track",
+      "h1": "Build repeatable visual cues for your track.",
+      "audience": "Private visual rehearsal\n        Build repeatable visual cues for your track.\n        For DJs, VJs, and educators who need repeatable scene changes from their own track.\n        \n          Try it with sample data\n          Choose your track\n          Import a cue file\n        \n        Opens a 12-second rehearsal with five editable cues. Your saved set stays unchanged.\n        Your track stays in this browser.Saved sets work offline.All rehearsal tools are free.",
+      "action": "Try it with sample data",
+      "h1Visible": true,
+      "actionVisible": true,
+      "facts": [
+        "Your track stays in this browser.",
+        "Saved sets work offline.",
+        "All rehearsal tools are free."
+      ]
+    },
+    "focusStyle": {
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "outlineColor": "rgb(88, 230, 210)",
+      "outlineOffset": "3px"
+    },
+    "sample": {
+      "title": "Neon classroom rehearsal",
+      "track": "sample-beacon-rhythm.wav",
+      "duration": "0:12.000",
+      "cueCount": 5,
+      "h1": "Rehearse five sample visual cues.",
+      "banner": "Demo — sample data, nothing is savedReset demoStart for real",
+      "scene": "Contour",
+      "cue": "0:00.000 · Opening contour",
+      "audioDuration": 12,
+      "audioReadyState": 4,
+      "playbackTime": 0.429037
+    },
+    "transitionTiming": [
+      [
+        {
+          "note": "Opening contour",
+          "target": 0,
+          "observed": 0,
+          "errorMs": 0
+        },
+        {
+          "note": "First pulse",
+          "target": 2.4,
+          "observed": 2.403769,
+          "errorMs": 4
+        },
+        {
+          "note": "Break into shards",
+          "target": 4.8,
+          "observed": 4.792042,
+          "errorMs": -8
+        },
+        {
+          "note": "Return to orbit",
+          "target": 7.2,
+          "observed": 7.221373,
+          "errorMs": 21
+        },
+        {
+          "note": "Closing horizon",
+          "target": 9.6,
+          "observed": 9.604361,
+          "errorMs": 4
+        }
+      ],
+      [
+        {
+          "note": "Opening contour",
+          "target": 0,
+          "observed": 0,
+          "errorMs": 0
+        },
+        {
+          "note": "First pulse",
+          "target": 2.4,
+          "observed": 2.399773,
+          "errorMs": 0
+        },
+        {
+          "note": "Break into shards",
+          "target": 4.8,
+          "observed": 4.822754,
+          "errorMs": 23
+        },
+        {
+          "note": "Return to orbit",
+          "target": 7.2,
+          "observed": 7.237101,
+          "errorMs": 37
+        },
+        {
+          "note": "Closing horizon",
+          "target": 9.6,
+          "observed": 9.589177,
+          "errorMs": -11
+        }
+      ]
+    ],
+    "realDataUnchanged": true,
+    "recovery": {
+      "bpm": 20,
+      "offset": 0,
+      "malformedCue": true,
+      "invalidAudio": true,
+      "deleteRecovery": true,
+      "keyboard": true,
+      "spaceAndArrow": true
+    },
+    "serviceWorker": {
+      "active": "activated",
+      "controlled": true,
+      "caches": [
+        "cuebook-v1.0.12-shell",
+        "cuebook-v1.0.12-runtime"
+      ]
+    }
+  },
+  "phone": {
+    "firstScreen": {
+      "scrollY": 0,
+      "h1": "Build repeatable visual cues for your track.",
+      "audience": "For DJs, VJs, and educators who need repeatable scene changes from their own track.",
+      "action": "Try it with sample data",
+      "actionVisible": true,
+      "facts": [
+        "Your track stays in this browser.",
+        "Saved sets work offline.",
+        "All rehearsal tools are free."
+      ],
+      "width": 390
+    },
+    "demo": {
+      "scrollY": 2817,
+      "cueCount": 5,
+      "bannerVisible": true,
+      "width": 390,
+      "clientWidth": 390,
+      "animations": 0,
+      "navLinks": [
+        "Demo",
+        "Privacy",
+        "Terms"
+      ]
+    },
+    "axeViolations": []
+  },
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "Cuebook — visual cues for your track",
+      "h1": "Build repeatable visual cues for your track.",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/demo/",
+      "status": 200,
+      "title": "Demo — Cuebook",
+      "h1": "Rehearse five sample visual cues.",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/privacy/",
+      "status": 200,
+      "title": "Privacy — Cuebook",
+      "h1": "Privacy",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/terms/",
+      "status": 200,
+      "title": "Terms — Cuebook",
+      "h1": "Terms of use",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/offline.html",
+      "status": 200,
+      "title": "Offline setup — Cuebook",
+      "h1": "Reconnect once to finish offline setup",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/404.html",
+      "status": 200,
+      "title": "Page not found — Cuebook",
+      "h1": "Page not found",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/definitely-not-a-cuebook-route",
+      "status": 404,
+      "title": "Page not found — Cuebook",
+      "h1": "Page not found",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/demo/nope",
+      "status": 404,
+      "title": "Page not found — Cuebook",
+      "h1": "Page not found",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/demo-extra",
+      "status": 404,
+      "title": "Page not found — Cuebook",
+      "h1": "Page not found",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    }
+  ],
+  "requestSummary": {
+    "count": 38,
+    "external": []
+  },
+  "errors": []
+}

@@ -1,0 +1,332 @@
+{
+  "origin": "https://visualizer-cuebook.sociobot.in",
+  "checkedAt": "2026-09-06T06:37:49.405Z",
+  "desktop": {
+    "firstScreen": {
+      "scrollY": 0,
+      "title": "Cuebook — visual cues for your track",
+      "h1": "Build repeatable visual cues for your track.",
+      "audience": "Private visual rehearsal\n        Build repeatable visual cues for your track.\n        For DJs, VJs, and educators who need repeatable scene changes from their own track.\n        \n          Try it with sample data\n          Choose your track\n          Import a cue file\n        \n        Opens a 12-second rehearsal with five editable cues. Your saved set stays unchanged.\n        Your track stays in this browser.Saved sets work offline.All rehearsal tools are free.",
+      "action": "Try it with sample data",
+      "h1Visible": true,
+      "actionVisible": true,
+      "facts": [
+        "Your track stays in this browser.",
+        "Saved sets work offline.",
+        "All rehearsal tools are free."
+      ]
+    },
+    "focusStyle": {
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "outlineColor": "rgb(88, 230, 210)",
+      "outlineOffset": "3px"
+    },
+    "sample": {
+      "title": "Neon classroom rehearsal",
+      "track": "sample-beacon-rhythm.wav",
+      "duration": "0:12.000",
+      "cueCount": 5,
+      "h1": "Rehearse five sample visual cues.",
+      "banner": "Demo — sample data, nothing is savedReset demoStart for real",
+      "scene": "Contour",
+      "cue": "0:00.000 · Opening contour",
+      "audioDuration": 12,
+      "audioReadyState": 4,
+      "playbackTime": 0.429037
+    },
+    "transitionTiming": [
+      [
+        {
+          "note": "Opening contour",
+          "target": 0,
+          "observed": 0,
+          "errorMs": 0
+        },
+        {
+          "note": "First pulse",
+          "target": 2.4,
+          "observed": 2.403769,
+          "errorMs": 4
+        },
+        {
+          "note": "Break into shards",
+          "target": 4.8,
+          "observed": 4.792042,
+          "errorMs": -8
+        },
+        {
+          "note": "Return to orbit",
+          "target": 7.2,
+          "observed": 7.221373,
+          "errorMs": 21
+        },
+        {
+          "note": "Closing horizon",
+          "target": 9.6,
+          "observed": 9.604361,
+          "errorMs": 4
+        }
+      ],
+      [
+        {
+          "note": "Opening contour",
+          "target": 0,
+          "observed": 0,
+          "errorMs": 0
+        },
+        {
+          "note": "First pulse",
+          "target": 2.4,
+          "observed": 2.399773,
+          "errorMs": 0
+        },
+        {
+          "note": "Break into shards",
+          "target": 4.8,
+          "observed": 4.822754,
+          "errorMs": 23
+        },
+        {
+          "note": "Return to orbit",
+          "target": 7.2,
+          "observed": 7.237101,
+          "errorMs": 37
+        },
+        {
+          "note": "Closing horizon",
+          "target": 9.6,
+          "observed": 9.589177,
+          "errorMs": -11
+        }
+      ]
+    ],
+    "realDataUnchanged": true,
+    "recovery": {
+      "bpm": 20,
+      "offset": 0,
+      "malformedCue": true,
+      "invalidAudio": true,
+      "deleteRecovery": true,
+      "keyboard": true,
+      "spaceAndArrow": true
+    },
+    "serviceWorker": {
+      "active": "activated",
+      "controlled": true,
+      "caches": [
+        "cuebook-v1.0.12-shell",
+        "cuebook-v1.0.12-runtime"
+      ]
+    }
+  },
+  "phone": {
+    "firstScreen": {
+      "scrollY": 0,
+      "h1": "Build repeatable visual cues for your track.",
+      "audience": "For DJs, VJs, and educators who need repeatable scene changes from their own track.",
+      "action": "Try it with sample data",
+      "actionVisible": true,
+      "facts": [
+        "Your track stays in this browser.",
+        "Saved sets work offline.",
+        "All rehearsal tools are free."
+      ],
+      "width": 390
+    },
+    "demo": {
+      "scrollY": 2817,
+      "cueCount": 5,
+      "bannerVisible": true,
+      "width": 390,
+      "clientWidth": 390,
+      "animations": 0,
+      "navLinks": [
+        "Demo",
+        "Privacy",
+        "Terms"
+      ]
+    },
+    "axeViolations": []
+  },
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "Cuebook — visual cues for your track",
+      "h1": "Build repeatable visual cues for your track.",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/demo/",
+      "status": 200,
+      "title": "Demo — Cuebook",
+      "h1": "Rehearse five sample visual cues.",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/privacy/",
+      "status": 200,
+      "title": "Privacy — Cuebook",
+      "h1": "Privacy",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/terms/",
+      "status": 200,
+      "title": "Terms — Cuebook",
+      "h1": "Terms of use",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/offline.html",
+      "status": 200,
+      "title": "Offline setup — Cuebook",
+      "h1": "Reconnect once to finish offline setup",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/404.html",
+      "status": 200,
+      "title": "Page not found — Cuebook",
+      "h1": "Page not found",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/definitely-not-a-cuebook-route",
+      "status": 404,
+      "title": "Page not found — Cuebook",
+      "h1": "Page not found",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/demo/nope",
+      "status": 404,
+      "title": "Page not found — Cuebook",
+      "h1": "Page not found",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    },
+    {
+      "path": "/demo-extra",
+      "status": 404,
+      "title": "Page not found — Cuebook",
+      "h1": "Page not found",
+      "h1Count": 1,
+      "main": 1,
+      "lang": "en",
+      "footer": 1
+    }
+  ],
+  "requests": [
+    "https://visualizer-cuebook.sociobot.in/",
+    "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+    "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+    "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+    "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+    "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+    "blob:https://visualizer-cuebook.sociobot.in/2dfd5e69-3ba4-4839-8a4c-8a01001cc7dc",
+    "blob:https://visualizer-cuebook.sociobot.in/587e7038-4676-49a4-8aae-d71c4f21d511",
+    "https://visualizer-cuebook.sociobot.in/?demo=1",
+    "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+    "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+    "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+    "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+    "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+    "blob:https://visualizer-cuebook.sociobot.in/d2679b6a-270a-4ab5-97a4-71ab3c3ee0c4",
+    "blob:https://visualizer-cuebook.sociobot.in/d2679b6a-270a-4ab5-97a4-71ab3c3ee0c4",
+    "blob:https://visualizer-cuebook.sociobot.in/6638b479-d207-47b3-a415-0e13d68ab4c3",
+    "https://visualizer-cuebook.sociobot.in/",
+    "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+    "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+    "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+    "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+    "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+    "blob:https://visualizer-cuebook.sociobot.in/552193bb-06db-4224-98eb-ebfafac98393",
+    "https://visualizer-cuebook.sociobot.in/",
+    "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+    "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+    "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+    "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+    "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+    "blob:https://visualizer-cuebook.sociobot.in/2a66af20-c0fb-4673-8522-6dc37f49847a",
+    "https://visualizer-cuebook.sociobot.in/",
+    "https://visualizer-cuebook.sociobot.in/assets/app-CFB2VUvS.js",
+    "https://visualizer-cuebook.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js",
+    "https://visualizer-cuebook.sociobot.in/assets/app-DvQ9Jlal.css",
+    "https://visualizer-cuebook.sociobot.in/assets/cue-landscape.webp",
+    "https://visualizer-cuebook.sociobot.in/fonts/space-grotesk-latin-600.woff2",
+    "blob:https://visualizer-cuebook.sociobot.in/96782538-4d3c-4e3c-961e-f4a78b138ea8"
+  ],
+  "errors": [],
+  "linkResults": [
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/#main",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/?demo=1",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/privacy/",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/terms/",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/demo/#main",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/privacy/#main",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/terms/#main",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/offline.html#main",
+      "status": 200
+    },
+    {
+      "href": "https://visualizer-cuebook.sociobot.in/404.html#main",
+      "status": 200
+    }
+  ],
+  "navigationFocus": true,
+  "requestSummary": {
+    "count": 38,
+    "external": []
+  }
+}
